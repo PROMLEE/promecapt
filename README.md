@@ -2,7 +2,7 @@
   <img src="assets/app-icon.svg" width="112" alt="Promecapt icon">
   <h1>Promecapt</h1>
   <p><strong>Capture. Annotate. Keep it in sight.</strong></p>
-  <p>A native macOS screenshot, annotation, pinning and GIF recording app.</p>
+  <p>An open-source alternative to proprietary screenshot tools for macOS. Capture, annotate, pin and record GIFs.</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a></p>
   <p><a href="https://github.com/PROMLEE/promecapt/releases">Download</a> · <a href="#quick-start">Quick start</a> · <a href="https://github.com/PROMLEE/promecapt/issues">Report an issue</a></p>
   <p>macOS 13+ · Apple Silicon & Intel · MIT License · v1.0.0</p>
@@ -25,11 +25,14 @@ Select a window or region, annotate it without leaving the screen, and pin the r
 
 ## Install
 
-Download a ZIP from [Releases](https://github.com/PROMLEE/promecapt/releases), choosing **arm64** for Apple Silicon or **x86_64** for Intel. Unzip, move **Promecapt.app** to Applications, and launch it. Look for the capture-frame icon in your menu bar.
+**An Apple Developer account is not required to build and run Promecapt on another Mac.** Choose one of these paths:
 
-**Signing status:** the initial distribution is ad-hoc signed, not Apple Developer ID signed or notarized. macOS may block opening it. Review the source and build locally, or follow [Apple's instructions for opening a trusted app](https://support.apple.com/102445). No security protections need to be disabled globally.
+1. **Build locally with free Apple tools.** Install Command Line Tools, clone the release source, run `bash scripts/package.sh`, and launch the generated `.app`. Follow the complete [local installation guide](docs/INSTALL.md) or the commands below.
+2. **Download a prebuilt ZIP** from [Releases](https://github.com/PROMLEE/promecapt/releases): **arm64** for Apple Silicon or **x86_64** for Intel. Unzip and move **Promecapt.app** to Applications.
 
-On first capture, allow Promecapt in **System Settings → Privacy & Security → Screen Recording** (called **Screen & System Audio Recording** on newer macOS), then relaunch. Accessibility permission enables app-element detection and more reliable global shortcuts. Audio is not recorded.
+The current ZIPs are ad-hoc signed, **not Developer ID signed or Apple-notarized**. This affects macOS's first-open verification, not whether the app is limited to one computer. If a trusted download is blocked, follow [Apple's per-app opening instructions](https://support.apple.com/en-us/102445) and the [installation troubleshooting guide](docs/INSTALL.md#option-b--use-a-prebuilt-release). Organization-managed Macs can impose additional restrictions.
+
+Allow Promecapt in **System Settings → Privacy & Security → Screen Recording** (called **Screen & System Audio Recording** on newer macOS), then relaunch if requested. Accessibility enables app-element detection and enhanced global shortcuts. Audio is not recorded. Look for the capture-frame icon in the menu bar.
 
 ## Quick start
 
@@ -62,20 +65,21 @@ A red dashed border and light outside shading mark the recording region without 
 
 Capture, annotation and OCR processing happen locally. There is no account, upload service or analytics in the app.
 
-History stores the selected image **and the full display snapshot with its selection position**, so browsing can restore the surrounding screen. Keep this in mind when capturing private material. The history limit and Clear History remove these backgrounds too; pins are stored separately. Older cropped-only records use the current capture's screen background because their original context was never saved.
+History stores the selected image **and the full display snapshot with its selection position**, so browsing can restore the surrounding screen. Keep this in mind when capturing private material. The history limit and Clear History remove these backgrounds too; pins are stored separately.
 
-Existing Promepaste users keep their preferences and library. For compatibility, the bundle identifier remains `com.promlee.promepaste` and the library remains under `~/Library/Application Support/Promepaste`. GIF clipboard attachments are cached locally and older copies expire when new copies are made.
+Your preferences and library remain on this Mac. GIF clipboard attachments are cached locally and older copies expire when new copies are made.
 
 ## Build from source
 
-Requires macOS 13+, Swift 5.9+ and Xcode Command Line Tools. Full Xcode is needed for `swift test`. No external Swift package dependencies.
+Install free Apple tools first with `xcode-select --install`, finish the installer, and check `swift --version` (5.9+). A paid Apple Developer account, certificate or signing secret is **not required**. Full Xcode is only needed for `swift test`, not packaging. Quit an existing Promecapt before replacing it. The commands below install in your personal Applications folder without administrator access. See [all steps and permission troubleshooting](docs/INSTALL.md).
 
 ```sh
-git clone https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
-bash scripts/test-local.sh
 bash scripts/package.sh
-open dist/Promecapt.app
+mkdir -p "$HOME/Applications"
+ditto dist/Promecapt.app "$HOME/Applications/Promecapt.app"
+open "$HOME/Applications/Promecapt.app"
 ```
 
 The local check runner works without the full Xcode installation. CI also runs XCTest on Apple Silicon and Intel. `ARCH=x86_64` or `ARCH=arm64` selects a packaging target. See [testing](docs/QA.md), [release instructions](docs/RELEASING.md) and the [changelog](CHANGELOG.md).
@@ -88,4 +92,8 @@ Developer ID signing, notarization and a signed automatic updater are planned; *
 
 ## License & attribution
 
-[MIT License](LICENSE)—personal and commercial use, modification and redistribution are permitted under its terms. Promecapt is an independent project inspired by screen-capture workflows, not affiliated with Snipaste. No Snipaste source code, binaries or visual assets are distributed with this project. The app and menu bar icons are generated from Promecapt's shared capture-frame mark.
+[MIT License](LICENSE)—personal and commercial use, modification and redistribution are permitted under its terms. The app and menu bar icons are generated from Promecapt's shared capture-frame mark.
+
+## LLM-readable documentation
+
+Use [llms.txt](llms.txt) as the documentation index, [llms-full.txt](llms-full.txt) for the consolidated guide, or [llm.txt](llm.txt) as a compatibility entry point. Raw Markdown links provide installation, usage, privacy and feature limits without requiring a browser-rendered page. These files do not grant app permissions or guarantee that a search engine or assistant will ingest them.

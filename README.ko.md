@@ -2,7 +2,7 @@
   <img src="assets/app-icon.svg" width="112" alt="Promecapt 아이콘">
   <h1>Promecapt</h1>
   <p><strong>캡처하고, 바로 편집하고, 곁에 고정하세요.</strong></p>
-  <p>macOS용 캡처·주석·화면 고정·GIF 녹화 앱</p>
+  <p>상용 캡처 도구의 오픈소스 대안 — macOS 캡처·주석·화면 고정·GIF 녹화</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a></p>
   <p><a href="https://github.com/PROMLEE/promecapt/releases">다운로드</a> · <a href="https://github.com/PROMLEE/promecapt/issues">문제 제보</a></p>
   <p>macOS 13 이상 · Apple Silicon / Intel · MIT 라이선스 · v1.0.0</p>
@@ -23,11 +23,14 @@
 
 ## 설치
 
-[Releases](https://github.com/PROMLEE/promecapt/releases)에서 Apple Silicon은 **arm64**, Intel은 **x86_64** ZIP을 받으세요. 압축을 풀고 **Promecapt.app**을 응용 프로그램 폴더로 옮겨 실행합니다. 메뉴 막대에 캡처 프레임 아이콘이 표시됩니다.
+**다른 Mac에서도 유료 Apple Developer 계정 없이 직접 빌드·실행할 수 있습니다.** 아래 두 방법 중 선택하세요.
 
-**서명 상태:** 첫 배포본은 ad-hoc 서명이며 Apple Developer ID 서명·공증은 아직 없습니다. macOS가 실행을 차단할 수 있습니다. 소스를 확인해 직접 빌드하거나, 신뢰하는 앱에 대해 [Apple이 안내하는 실행 방법](https://support.apple.com/102445)을 사용하세요. 시스템 보안을 일괄 해제할 필요는 없습니다.
+1. **무료 개발 도구로 직접 빌드:** Command Line Tools 설치 → 배포 태그 소스 받기 → `bash scripts/package.sh` → 생성한 `.app` 설치 순서입니다. [상세 로컬 설치 가이드](docs/INSTALL.ko.md)와 아래 명령을 제공합니다.
+2. **배포 ZIP 사용:** [Releases](https://github.com/PROMLEE/promecapt/releases)에서 Apple Silicon은 **arm64**, Intel은 **x86_64**를 받아 압축을 풀고 **Promecapt.app**을 응용 프로그램 폴더에 옮깁니다.
 
-첫 캡처 전 **시스템 설정 → 개인정보 보호 및 보안 → 화면 녹화**(최신 macOS에서는 **화면 및 시스템 오디오 녹음**)에서 Promecapt를 허용하고 앱을 다시 실행하세요. 손쉬운 사용 권한은 앱 내부 요소 감지와 안정적인 전역 단축키 처리에 사용됩니다. 오디오는 녹음하지 않습니다.
+현재 ZIP은 ad-hoc 서명이며 **Developer ID 서명·Apple 공증은 없습니다.** 다른 컴퓨터에서 설치 불가능하다는 뜻이 아니라, 다운로드 앱의 최초 실행 때 macOS가 차단할 수 있다는 뜻입니다. 신뢰하는 파일이라면 [Apple의 앱별 실행 안내](https://support.apple.com/en-us/102445)와 [설치 문제 해결](docs/INSTALL.ko.md#방법-b--배포-zip-사용)을 참고하세요. 회사에서 관리하는 Mac은 별도 정책이 적용될 수 있습니다.
+
+첫 캡처 전 **시스템 설정 → 개인정보 보호 및 보안 → 화면 녹화**(최신 macOS는 **화면 및 시스템 오디오 녹음**)에서 Promecapt를 허용하고, 요청하면 다시 실행합니다. 앱 내부 요소 감지와 안정적인 전역 단축키 처리는 손쉬운 사용 권한을 사용합니다. 오디오는 녹음하지 않습니다. 메뉴 막대의 캡처 프레임 아이콘에서 시작하세요.
 
 ## 빠른 사용법
 
@@ -58,20 +61,21 @@
 
 이미지와 OCR은 이 Mac에서 처리합니다. 계정·업로드 서버·분석 수집 기능이 없습니다.
 
-기록에는 선택 이미지뿐 아니라 **당시 화면 전체와 선택 위치**도 로컬에 저장합니다. 민감한 화면을 캡처할 때 이를 고려하세요. 보관 개수 제한과 기록 삭제는 배경도 함께 정리하며, 고정 이미지는 별도로 보관합니다. 이전 버전의 잘라낸 기록에는 당시 전체 화면이 없으므로 현재 캡처 배경을 사용합니다.
+기록에는 선택 이미지뿐 아니라 **당시 화면 전체와 선택 위치**도 로컬에 저장합니다. 민감한 화면을 캡처할 때 이를 고려하세요. 보관 개수 제한과 기록 삭제는 배경도 함께 정리하며, 고정 이미지는 별도로 보관합니다.
 
-기존 Promepaste 설정·보관함은 유지됩니다. 호환성을 위해 번들 ID는 `com.promlee.promepaste`, 보관 경로는 `~/Library/Application Support/Promepaste`를 사용합니다. 복사한 GIF 첨부 파일은 로컬 캐시에 보관되며, 새로 복사할 때 오래된 캐시를 정리합니다.
+설정과 보관함은 이 Mac에 유지됩니다. 복사한 GIF 첨부 파일은 로컬 캐시에 보관되며, 새로 복사할 때 오래된 캐시를 정리합니다.
 
 ## 직접 빌드
 
-macOS 13 이상, Swift 5.9 이상, Xcode Command Line Tools가 필요합니다. `swift test`에는 전체 Xcode가 필요합니다. 외부 Swift 패키지 의존성은 없습니다.
+`xcode-select --install`로 무료 개발 도구를 설치하고 설치 완료 후 `swift --version`으로 Swift 5.9 이상인지 확인하세요. **유료 Apple Developer 계정·인증서·서명용 비밀값은 필요 없습니다.** 전체 Xcode는 `swift test`에만 필요하며 앱 패키징에는 필요 없습니다. 기존 앱은 교체 전에 종료하세요. 아래는 관리자 권한 없이 개인 응용 프로그램 폴더에 설치하는 명령입니다. [전체 절차와 권한 문제 해결](docs/INSTALL.ko.md)을 참고하세요.
 
 ```sh
-git clone https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
-bash scripts/test-local.sh
 bash scripts/package.sh
-open dist/Promecapt.app
+mkdir -p "$HOME/Applications"
+ditto dist/Promecapt.app "$HOME/Applications/Promecapt.app"
+open "$HOME/Applications/Promecapt.app"
 ```
 
 CI는 Apple Silicon·Intel에서 XCTest를 실행합니다. 패키징 시 `ARCH=arm64` 또는 `ARCH=x86_64`를 지정할 수 있습니다. [검증](docs/QA.md) · [배포](docs/RELEASING.md) · [변경 기록](CHANGELOG.md) · [기여 안내](CONTRIBUTING.md)를 참고하세요.
@@ -80,4 +84,8 @@ CI는 Apple Silicon·Intel에서 XCTest를 실행합니다. 패키징 시 `ARCH=
 
 ## 라이선스
 
-[MIT](LICENSE). 라이선스 조건에 따라 개인·상업적 사용, 수정, 재배포가 가능합니다. Snipaste와 관계없는 독립 프로젝트이며 해당 제품의 소스·바이너리·시각 자산을 배포하지 않습니다. 앱과 메뉴 막대 아이콘은 자체 공통 캡처 프레임 심벌로 생성합니다.
+[MIT](LICENSE). 라이선스 조건에 따라 개인·상업적 사용, 수정, 재배포가 가능합니다. 앱과 메뉴 막대 아이콘은 자체 공통 캡처 프레임 심벌로 생성합니다.
+
+## LLM용 문서
+
+문서 색인은 [llms.txt](llms.txt), 통합 가이드는 [llms-full.txt](llms-full.txt), 단수 파일명 호환 진입점은 [llm.txt](llm.txt)입니다. 설치·사용·개인정보·기능 제한을 원문 Markdown으로 연결합니다. 파일을 제공한다고 모든 검색 엔진이나 AI가 자동으로 읽는 것은 아닙니다.

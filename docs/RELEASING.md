@@ -2,7 +2,7 @@
 
 ## Version and checks
 
-The first public version is **1.0.0**. Update `scripts/package.sh`, `CHANGELOG.md`, the four READMEs, and `docs/releases/VERSION.md` together. The executable, app bundle and download assets use **Promecapt**. The existing bundle identifier and data directory are intentionally retained for compatibility with local Promepaste previews.
+The first public version is **1.0.0**. Update `scripts/package.sh`, `CHANGELOG.md`, the four READMEs, and `docs/releases/VERSION.md` together. The executable, app bundle and download assets use **Promecapt**. Keep the app identifier and data format stable across releases; changes require a migration plan.
 
 Run `bash scripts/test-local.sh`, `swift test` with full Xcode, and `bash scripts/package.sh`. Confirm the installed app and archive show the same version, all four UI languages load, both icons use the shared mark, and captures / existing pins still work. Do not include local captures, `.build`, `dist`, signing materials or research notes in the source repository.
 

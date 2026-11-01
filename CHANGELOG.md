@@ -2,7 +2,7 @@
 
 ## 1.0.0 — First public release
 
-- Introduce **Promecapt**, formerly developed locally as Promepaste. Existing preferences and libraries remain compatible.
+- Introduce **Promecapt**, an MIT-licensed, open-source alternative to proprietary screenshot tools for macOS.
 - Share a capture-frame mark between the app icon and menu bar icon.
 - Add Korean, English, Japanese and Simplified Chinese UI, with system detection and a language selector.
 - Capture regions, windows and accessible app elements; resize and annotate in place.

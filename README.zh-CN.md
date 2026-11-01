@@ -2,7 +2,7 @@
   <img src="assets/app-icon.svg" width="112" alt="Promecapt 图标">
   <h1>Promecapt</h1>
   <p><strong>截图，原位标注，随时贴在眼前。</strong></p>
-  <p>原生 macOS 截图、标注、贴图与 GIF 录制应用</p>
+  <p>商业截图工具的开源替代方案：macOS 截图、标注、贴图与 GIF 录制</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a></p>
   <p><a href="https://github.com/PROMLEE/promecapt/releases">下载</a> · <a href="https://github.com/PROMLEE/promecapt/issues">反馈问题</a></p>
   <p>macOS 13 及以上 · Apple Silicon / Intel · MIT 许可证 · v1.0.0</p>
@@ -23,11 +23,14 @@
 
 ## 安装
 
-在 [Releases](https://github.com/PROMLEE/promecapt/releases) 下载 ZIP：Apple Silicon 选择 **arm64**，Intel 选择 **x86_64**。解压后将 **Promecapt.app** 移至“应用程序”并运行，菜单栏会显示截图框图标。
+**无需付费 Apple Developer 账号，也能在其他 Mac 上自行构建并运行 Promecapt。** 可以选择以下方式：
 
-**签名状态：** 首次发行使用 ad-hoc 签名，尚未使用 Apple Developer ID 签名或公证。macOS 可能阻止打开。你可以检查源码后自行构建，或针对信任的应用按照 [Apple 的说明](https://support.apple.com/102445) 打开。无需关闭系统的全局安全保护。
+1. **使用免费开发工具本地构建：** 安装 Command Line Tools，获取发行版源码，运行 `bash scripts/package.sh`，然后安装生成的 `.app`。参见下方构建步骤与[详细安装指南（英语）](docs/INSTALL.md)。
+2. **下载预构建 ZIP：** 在 [Releases](https://github.com/PROMLEE/promecapt/releases) 中为 Apple Silicon 选择 **arm64**、为 Intel 选择 **x86_64**。解压后将 **Promecapt.app** 移至“应用程序”。
 
-首次截图前，请在 **系统设置 → 隐私与安全性 → 屏幕录制**（新版 macOS 为 **屏幕与系统音频录制**）中允许 Promecapt，然后重新启动应用。应用内元素识别和更可靠的全局快捷键处理需要辅助功能权限。应用不会录制音频。
+当前 ZIP 使用 ad-hoc 签名，**没有 Developer ID 签名或 Apple 公证**。这不代表只能在开发者自己的电脑运行，而是 macOS 可能阻止下载应用的首次打开。针对确认可信的文件，请按照 [Apple 的单个应用打开说明](https://support.apple.com/en-us/102445)操作。受组织管理的 Mac 仍可能有额外限制。
+
+请在 **系统设置 → 隐私与安全性 → 屏幕录制**（新版 macOS 为 **屏幕与系统音频录制**）中允许 Promecapt，并根据提示重启应用。元素识别和更可靠的全局快捷键处理需要辅助功能权限。应用不录制音频，可从菜单栏的截图框图标开始操作。
 
 ## 快速上手
 
@@ -58,20 +61,21 @@
 
 图片及 OCR 均在本机处理。无需账号，不使用上传服务或分析数据收集功能。
 
-历史记录会在本机保存所选图片、**当时的完整屏幕及选区位置**，以便恢复周围画面。截取敏感内容时请留意这一点。历史数量限制和清空历史会一并删除背景，贴图则单独保存。旧版本历史只有裁剪图，无法恢复从未保存的完整屏幕，因此使用当前截图的背景。
+历史记录会在本机保存所选图片、**当时的完整屏幕及选区位置**，以便恢复周围画面。截取敏感内容时请留意这一点。历史数量限制和清空历史会一并删除背景，贴图则单独保存。
 
-原有 Promepaste 设置与图片库会继续保留。为保持兼容，包标识符仍为 `com.promlee.promepaste`，图片库位于 `~/Library/Application Support/Promepaste`。复制 GIF 时使用本地附件缓存，并在新复制时清理较旧的缓存。
+设置与图片库保存在本机。复制 GIF 时使用本地附件缓存，并在新复制时清理较旧的缓存。
 
 ## 从源码构建
 
-需要 macOS 13 及以上、Swift 5.9 及以上、Xcode Command Line Tools。`swift test` 需要完整 Xcode。无外部 Swift 包依赖。
+先运行 `xcode-select --install` 安装免费工具，安装完成后用 `swift --version` 确认 Swift 5.9 及以上。**无需付费 Apple Developer 账号、证书或签名密钥。** 仅 `swift test` 需要完整 Xcode，应用打包不需要。替换前请退出已有的 Promecapt。下面的命令安装到个人 Applications 文件夹，无需管理员权限。
 
 ```sh
-git clone https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
-bash scripts/test-local.sh
 bash scripts/package.sh
-open dist/Promecapt.app
+mkdir -p "$HOME/Applications"
+ditto dist/Promecapt.app "$HOME/Applications/Promecapt.app"
+open "$HOME/Applications/Promecapt.app"
 ```
 
 CI 会在 Apple Silicon 和 Intel 上运行 XCTest。使用 `ARCH=arm64` 或 `ARCH=x86_64` 选择打包架构。另见[测试说明](docs/QA.md)、[发布流程](docs/RELEASING.md)、[更新记录](CHANGELOG.md)与[贡献指南](CONTRIBUTING.md)。
@@ -80,4 +84,8 @@ CI 会在 Apple Silicon 和 Intel 上运行 XCTest。使用 `ARCH=arm64` 或 `AR
 
 ## 许可证
 
-采用 [MIT 许可证](LICENSE)，在其条款下允许个人及商业使用、修改和再分发。本项目独立开发，与 Snipaste 无关联，也不分发其源码、二进制文件或视觉素材。应用图标与菜单栏图标由同一个自有截图框标记生成。
+采用 [MIT 许可证](LICENSE)，在其条款下允许个人及商业使用、修改和再分发。应用图标与菜单栏图标由同一个自有截图框标记生成。
+
+## 面向 LLM 的文档
+
+[llms.txt](llms.txt) 提供文档索引，[llms-full.txt](llms-full.txt) 提供合并指南，[llm.txt](llm.txt) 为单数文件名的兼容入口。通过原始 Markdown 链接提供安装、使用、隐私与功能限制信息；不保证所有搜索引擎或 AI 会自动读取。

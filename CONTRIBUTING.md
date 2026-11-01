@@ -14,6 +14,10 @@ The UI catalog is `Sources/Promecapt/Resources/Translations.json`. Korean source
 
 Persisted `DrawingTool` and `ConcealStyle` raw values are data-format identifiers: do not translate or rename them. Localize their labels at the UI boundary. Keep all four READMEs aligned when changing installation steps, privacy behavior or supported features. Existing editors use their creation-time language; new windows and menus follow the selected language immediately.
 
+## Documentation
+
+Keep the four READMEs aligned and update the installation guides when build or permission steps change. Run `python3 scripts/generate-llms.py` after changing documentation, then `python3 scripts/check-docs.py`. The generated `llms.txt` index, `llm.txt` compatibility entry and `llms-full.txt` consolidated guide must stay in sync with their source files; CI checks freshness and repository links.
+
 ## Issues and security
 
 Include app version, macOS version, CPU architecture, steps to reproduce, expected behavior and actual behavior. Screen captures can contain an entire display in their history context; remove private content before sharing files. Do not post credentials or signing keys. For sensitive security reports, see [SECURITY.md](SECURITY.md).

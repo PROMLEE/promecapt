@@ -2,7 +2,7 @@
   <img src="assets/app-icon.svg" width="112" alt="Promecaptのアイコン">
   <h1>Promecapt</h1>
   <p><strong>撮る。その場で書き込む。いつでも見える場所に。</strong></p>
-  <p>macOS向けの画面キャプチャ・注釈・ピン留め・GIF録画アプリ</p>
+  <p>商用キャプチャツールの代わりに使える、macOS向けオープンソースアプリ</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a></p>
   <p><a href="https://github.com/PROMLEE/promecapt/releases">ダウンロード</a> · <a href="https://github.com/PROMLEE/promecapt/issues">問題を報告</a></p>
   <p>macOS 13以降 · Apple Silicon / Intel · MITライセンス · v1.0.0</p>
@@ -23,11 +23,14 @@
 
 ## インストール
 
-[Releases](https://github.com/PROMLEE/promecapt/releases)から、Apple Siliconは **arm64**、Intelは **x86_64** のZIPをダウンロードします。展開して **Promecapt.app** をアプリケーションフォルダに移し、起動してください。メニューバーにキャプチャ枠のアイコンが表示されます。
+**有料のApple Developerアカウントがなくても、別のMacでビルドして実行できます。** 次の方法から選んでください。
 
-**署名について：** 初回配布はad-hoc署名です。Apple Developer ID署名・公証はまだありません。macOSが起動をブロックする場合があります。ソースを確認して自分でビルドするか、信頼するアプリについて[Appleの案内](https://support.apple.com/102445)に従ってください。システム全体の保護を無効にする必要はありません。
+1. **無料の開発ツールでビルド：** Command Line Toolsをインストールし、リリースのソースから `bash scripts/package.sh` を実行します。下のビルド手順と[詳しいインストールガイド（英語）](docs/INSTALL.md)を参照してください。
+2. **配布ZIPを使用：** [Releases](https://github.com/PROMLEE/promecapt/releases)からApple Siliconは **arm64**、Intelは **x86_64** を選びます。展開して **Promecapt.app** をアプリケーションフォルダに移します。
 
-最初のキャプチャ前に、**システム設定 → プライバシーとセキュリティ → 画面収録**（新しいmacOSでは **画面とシステムオーディオの収録**）でPromecaptを許可し、アプリを再起動します。アプリ内部の要素検出と安定したグローバルキー処理にはアクセシビリティ権限を使います。音声は録音しません。
+現在のZIPはad-hoc署名で、**Developer ID署名・Apple公証はありません**。別のMacで実行できないという意味ではなく、ダウンロードしたアプリの初回起動をmacOSがブロックする場合があるという意味です。信頼できるファイルについては[Appleのアプリごとの起動手順](https://support.apple.com/en-us/102445)に従ってください。管理されたMacでは組織の制限が適用される場合があります。
+
+**システム設定 → プライバシーとセキュリティ → 画面収録**（新しいmacOSでは **画面とシステムオーディオの収録**）でPromecaptを許可し、必要に応じて再起動します。アプリ内部の要素検出と安定したグローバルキー処理にはアクセシビリティ権限を使います。音声は録音しません。メニューバーのキャプチャ枠アイコンから操作できます。
 
 ## 基本操作
 
@@ -58,20 +61,21 @@
 
 画像とOCRはこのMacで処理します。アカウント、アップロードサービス、分析収集機能はありません。
 
-履歴には選択画像だけでなく、**当時の画面全体と選択位置**もローカル保存します。機密情報を含む画面では、この点にご注意ください。件数制限と履歴の消去では背景も削除し、ピン留め画像は別に保持します。旧バージョンの切り抜き画像には元の画面がないため、現在のキャプチャの背景を使います。
+履歴には選択画像だけでなく、**当時の画面全体と選択位置**もローカル保存します。機密情報を含む画面では、この点にご注意ください。件数制限と履歴の消去では背景も削除し、ピン留め画像は別に保持します。
 
-既存のPromepaste設定とライブラリは維持します。互換性のため、バンドルIDは `com.promlee.promepaste`、保存場所は `~/Library/Application Support/Promepaste` のままです。コピーしたGIFの添付ファイルはローカルにキャッシュし、新しいコピー時に古いものを整理します。
+設定とライブラリはこのMacに保存します。コピーしたGIFの添付ファイルはローカルにキャッシュし、新しいコピー時に古いものを整理します。
 
 ## ソースからビルド
 
-macOS 13以降、Swift 5.9以降、Xcode Command Line Toolsが必要です。`swift test`にはXcode全体が必要です。外部Swiftパッケージへの依存はありません。
+`xcode-select --install`で無料のツールをインストールし、完了後に `swift --version`で5.9以降を確認します。**有料Apple Developerアカウント、証明書、署名用シークレットは不要です。** Xcode全体が必要なのは `swift test` のみで、パッケージ作成には不要です。既存のアプリを終了してから置き換えてください。次の手順は管理者権限を使わず個人のApplicationsフォルダにインストールします。
 
 ```sh
-git clone https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
-bash scripts/test-local.sh
 bash scripts/package.sh
-open dist/Promecapt.app
+mkdir -p "$HOME/Applications"
+ditto dist/Promecapt.app "$HOME/Applications/Promecapt.app"
+open "$HOME/Applications/Promecapt.app"
 ```
 
 CIはApple SiliconとIntelでXCTestを実行します。`ARCH=arm64` / `ARCH=x86_64`でパッケージの対象を指定できます。[検証](docs/QA.md)、[配布手順](docs/RELEASING.md)、[変更履歴](CHANGELOG.md)、[貢献ガイド](CONTRIBUTING.md)も参照してください。
@@ -80,4 +84,8 @@ CIはApple SiliconとIntelでXCTestを実行します。`ARCH=arm64` / `ARCH=x86
 
 ## ライセンス
 
-[MIT](LICENSE)。条件に従い、個人・商用利用、変更、再配布が可能です。Snipasteとは関係のない独立プロジェクトで、同製品のソース、バイナリ、視覚素材は配布しません。アプリとメニューバーのアイコンは、共通の独自キャプチャ枠マークから生成します。
+[MIT](LICENSE)。条件に従い、個人・商用利用、変更、再配布が可能です。アプリとメニューバーのアイコンは、共通の独自キャプチャ枠マークから生成します。
+
+## LLM向けドキュメント
+
+[llms.txt](llms.txt)は文書の索引、[llms-full.txt](llms-full.txt)は統合ガイド、[llm.txt](llm.txt)は互換用の入口です。インストール、使い方、プライバシー、機能制限のMarkdownにリンクします。すべての検索エンジンやAIによる自動利用を保証するものではありません。

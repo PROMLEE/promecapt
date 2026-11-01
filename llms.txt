@@ -1,0 +1,35 @@
+# Promecapt
+
+> An MIT-licensed, open-source alternative to proprietary macOS screenshot tools: capture, editable annotations, floating image / GIF pins, region OCR and GIF recording.
+
+Current public release: 1.0.0. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Downloaded packages are ad-hoc signed, not Developer ID signed or notarized. Managed Mac policies still apply.
+
+Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Automatic updates and GIF frame editing are not implemented.
+
+## Getting started
+
+- [English overview](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.md): Features, defaults, privacy and installation choices.
+- [한국어 안내](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.ko.md): 한국어 제품 소개와 사용법.
+- [日本語ガイド](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.ja.md): 日本語の機能・インストール・使い方.
+- [简体中文指南](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.zh-CN.md): 功能、安装及使用说明。
+- [Build and install without a developer account](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.md): Free Apple tools, local ad-hoc build, app installation, permissions and troubleshooting.
+- [개발자 계정 없는 설치 가이드](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.ko.md): 무료 개발 도구·로컬 빌드·설치·권한·문제 해결.
+
+## Capabilities and trust
+
+- [Feature matrix](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md): Supported features and their limits; UI language and OCR language are separate.
+- [1.0.0 release notes](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/releases/1.0.0.md): Initial release scope, macOS requirements and ad-hoc signing status.
+- [Security](https://raw.githubusercontent.com/PROMLEE/promecapt/main/SECURITY.md): Local processing, permissions and reporting guidance.
+- [MIT license](https://raw.githubusercontent.com/PROMLEE/promecapt/main/LICENSE): Terms for personal and commercial use, modification and redistribution.
+
+## Development
+
+- [Contributing](https://raw.githubusercontent.com/PROMLEE/promecapt/main/CONTRIBUTING.md): Build checks, translations, contribution scope and private screen content.
+- [Testing](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/QA.md): Automated checks and manual acceptance flows.
+- [Release workflow](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/RELEASING.md): Architecture builds, checksums and signing / publishing steps.
+- [Changelog](https://raw.githubusercontent.com/PROMLEE/promecapt/main/CHANGELOG.md): Public release history.
+
+## Optional
+
+- [Consolidated guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/llms-full.txt): English overview, full local installation guide, feature limits, security and license in one file.
+- [Future updater design](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/AUTO-UPDATE.md): Design only; automatic updates are not implemented in 1.0.0.

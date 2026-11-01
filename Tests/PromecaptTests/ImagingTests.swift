@@ -12,10 +12,14 @@ final class ImagingTests: XCTestCase {
         }
     }
 
+    private func channelValues<T: FixedWidthInteger>(_ count: Int, _ read: (UnsafeMutablePointer<T>) -> Void) -> [UInt] {
+        var values = [T](repeating: 0, count: count)
+        values.withUnsafeMutableBufferPointer { read($0.baseAddress!) }
+        return values.map { UInt($0) }
+    }
     private func pixel(_ image: NSImage, _ x: Int, _ y: Int) -> String {
         let rep = Imaging.bitmap(image)!
-        var channels = [UInt](repeating: 0, count: rep.samplesPerPixel)
-        rep.getPixel(&channels, atX: x, y: y)
+        let channels = channelValues(rep.samplesPerPixel) { rep.getPixel($0, atX: x, y: y) }
         return String(format: "#%02X%02X%02X", channels[0], channels[1], channels[2])
     }
 

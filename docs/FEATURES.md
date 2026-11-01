@@ -1,4 +1,4 @@
-# Feature status — Promecapt 1.0.0
+# Feature status — Promecapt 1.1.0
 
 | Area | Included | Limits |
 | --- | --- | --- |
@@ -11,6 +11,6 @@
 | GIF | Configurable fps, long edge, time limit and cursor; region overlay; preview, copy, animated pin, save | One display, no audio or Promecapt windows; no GIF annotation/rotation/frame editing; temporary-frame budget |
 | Languages | Korean, English, Japanese, Simplified Chinese; automatic or manual choice | Existing editors use their creation-time language; native OS dialogs follow macOS |
 | Distribution | Apple Silicon and Intel ZIP workflows; SHA-256 checksums; MIT | Initial distribution is ad-hoc signed and not notarized |
-| Automatic updates | Design only | No automatic updater in 1.0.0 |
+| Updates | Manual checks; optional automatic download, installation and relaunch via Sparkle | Stable releases only; 1.0.0 needs one manual installation; ad-hoc permissions may need refreshing |
 
 See the [README](../README.md), [testing guide](QA.md), and [release guide](RELEASING.md) for operation and verification.

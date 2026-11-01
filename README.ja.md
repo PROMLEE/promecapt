@@ -23,7 +23,7 @@
 | **OCR** | 選択領域の韓国語・英語をローカル認識 |
 | **GIF** | 5〜30fps、解像度・時間設定、プレビュー・コピー・固定・保存 |
 
-UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英語）](docs/FEATURES.md) · 1.0.0は自動更新非対応。
+UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英語）](docs/FEATURES.md) · 1.1.0から[手動・任意の自動更新](docs/AUTO-UPDATE.md)に対応。1.0.0からは一度手動でインストールしてください。
 
 <details>
 <summary>GIF設定</summary>
@@ -59,7 +59,7 @@ UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英�
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

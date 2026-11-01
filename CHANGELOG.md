@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Add manual update checks and opt-in automatic download, installation and relaunch through Sparkle.
+- Verify signed, architecture-specific update feeds and archives.
+- Defer installation during capture, recording, editing and open OCR / GIF results.
+- Add an About tab with bundle version, build, revision, architecture, latest version and last check time.
+
+
 ## 1.0.0 — First public release
 
 - Introduce **Promecapt**, an MIT-licensed, open-source alternative to proprietary screenshot tools for macOS.

@@ -23,7 +23,7 @@
 | **OCR** | Select a text region; recognize Korean and English locally |
 | **GIF** | 5–30 fps, resolution / duration controls, preview, copy, pin and save |
 
-UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](docs/FEATURES.md) · No automatic updates in 1.0.0.
+UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](docs/FEATURES.md) · [Manual & optional automatic updates](docs/AUTO-UPDATE.md) from 1.1.0. Install 1.1.0 manually once if upgrading from 1.0.0.
 
 <details>
 <summary>GIF settings</summary>
@@ -59,7 +59,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

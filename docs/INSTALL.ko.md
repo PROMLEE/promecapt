@@ -31,12 +31,12 @@ swift --version
 소스를 보관할 폴더에서 실행합니다.
 
 ```sh
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 ```
 
-완료되면 `dist/Promecapt.app`과 현재 Mac CPU용 ZIP이 만들어집니다. 기본적으로 이 Mac에서 **ad-hoc 서명**을 합니다. Apple Developer 로그인·인증서·개인 키·서명용 비밀값을 준비할 필요가 없고, 외부 Swift 패키지 의존성도 없습니다.
+완료되면 `dist/Promecapt.app`과 현재 Mac CPU용 ZIP이 만들어집니다. 기본적으로 이 Mac에서 **ad-hoc 서명**을 합니다. Apple Developer 로그인·인증서·개인 키·서명용 비밀값을 준비할 필요가 없고, Swift Package Manager가 고정된 버전의 Sparkle 업데이트 프레임워크를 내려받습니다.
 
 이 방법은 직접 소스를 빌드하는 것이며 Apple 공증을 받은 배포본이 되는 것은 아닙니다. 회사 관리 정책이나 macOS 접근 권한을 우회하지도 않습니다.
 

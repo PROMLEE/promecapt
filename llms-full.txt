@@ -32,7 +32,7 @@ Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.md
 | **OCR** | Select a text region; recognize Korean and English locally |
 | **GIF** | 5–30 fps, resolution / duration controls, preview, copy, pin and save |
 
-UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md) · No automatic updates in 1.0.0.
+UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md) · [Manual & optional automatic updates](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/AUTO-UPDATE.md) from 1.1.0. Install 1.1.0 manually once if upgrading from 1.0.0.
 
 <details>
 <summary>GIF settings</summary>
@@ -68,7 +68,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -122,12 +122,12 @@ Use **Swift 5.9 or newer**. The app runs on macOS 13+, but building requires a m
 Run these commands in the folder where you want to keep the source:
 
 ```sh
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 ```
 
-This produces `dist/Promecapt.app` and a ZIP for your Mac's CPU. The script uses a local **ad-hoc signature** by default. It does not need an Apple Developer login, certificate, private key or signing secret. No external Swift packages are downloaded.
+This produces `dist/Promecapt.app` and a ZIP for your Mac's CPU. The script uses a local **ad-hoc signature** by default. It does not need an Apple Developer login, certificate, private key or signing secret. Swift Package Manager downloads the pinned Sparkle updater framework.
 
 This is a source build, not an Apple-notarized build. It does not override an employer's device policy or other macOS access controls.
 
@@ -180,7 +180,7 @@ The DMG is a drag-to-install container, not an automatic installer. It does not 
 
 `bash scripts/test-local.sh` runs local checks using Command Line Tools; `swift test` additionally requires full Xcode. The release is tested on both Apple Silicon and Intel in CI.
 
-Automatic updates are not implemented in 1.0.0. To update, quit the app and replace it with a newer official build, or build a newer reviewed release tag at the same installation path. Keep your library; do not delete application data just to refresh a permission.
+From 1.1.0, use Settings → About → Check for Updates, or opt in to automatic download, installation and relaunch. Version 1.0.0 needs one manual installation of 1.1.0. You can also quit the app and replace it with a newer official build, or build a newer reviewed release tag at the same installation path. Keep your library; do not delete application data just to refresh a permission.
 
 
 ---
@@ -229,7 +229,7 @@ Your preferences and library remain on this Mac. GIF clipboard attachments are c
 
 Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md
 
-# Feature status — Promecapt 1.0.0
+# Feature status — Promecapt 1.1.0
 
 | Area | Included | Limits |
 | --- | --- | --- |
@@ -242,7 +242,7 @@ Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.m
 | GIF | Configurable fps, long edge, time limit and cursor; region overlay; preview, copy, animated pin, save | One display, no audio or Promecapt windows; no GIF annotation/rotation/frame editing; temporary-frame budget |
 | Languages | Korean, English, Japanese, Simplified Chinese; automatic or manual choice | Existing editors use their creation-time language; native OS dialogs follow macOS |
 | Distribution | Apple Silicon and Intel ZIP workflows; SHA-256 checksums; MIT | Initial distribution is ad-hoc signed and not notarized |
-| Automatic updates | Design only | No automatic updater in 1.0.0 |
+| Updates | Manual checks; optional automatic download, installation and relaunch via Sparkle | Stable releases only; 1.0.0 needs one manual installation; ad-hoc permissions may need refreshing |
 
 See the [README](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.md), [testing guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/QA.md), and [release guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/RELEASING.md) for operation and verification.
 

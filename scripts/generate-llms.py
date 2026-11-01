@@ -18,7 +18,7 @@ SECTIONS = {
     ],
     'Capabilities and trust': [
         ('docs/FEATURES.md', 'Feature matrix', 'Supported features and their limits; UI language and OCR language are separate.'),
-        ('docs/releases/1.0.0.md', '1.0.0 release notes', 'Initial release scope, macOS requirements and ad-hoc signing status.'),
+        ('docs/releases/1.1.0.md', '1.1.0 release notes', 'Signed updates, opt-in automatic installation and About tab.'),
         ('SECURITY.md', 'Security', 'Local processing, permissions and reporting guidance.'),
         ('LICENSE', 'MIT license', 'Terms for personal and commercial use, modification and redistribution.'),
     ],
@@ -30,7 +30,7 @@ SECTIONS = {
     ],
     'Optional': [
         ('llms-full.txt', 'Consolidated guide', 'English overview, full local installation guide, feature limits, security and license in one file.'),
-        ('docs/AUTO-UPDATE.md', 'Future updater design', 'Design only; automatic updates are not implemented in 1.0.0.'),
+        ('docs/AUTO-UPDATE.md', 'Updates', 'Manual and optional automatic download, installation and relaunch; signing and release setup.'),
     ],
 }
 FULL_FILES = ['README.md', 'docs/INSTALL.md', 'docs/USAGE.md', 'docs/FEATURES.md', 'CONTRIBUTING.md', 'SECURITY.md', 'LICENSE']
@@ -50,8 +50,8 @@ def raw_links(text, source):
 
 def generated():
     parts = ['# Promecapt', '', '> An MIT-licensed, open-source alternative to proprietary macOS screenshot tools: capture, editable annotations, floating image / GIF pins, region OCR and GIF recording.', '',
-             'Current public release: 1.0.0. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Downloaded packages are ad-hoc signed, not Developer ID signed or notarized. Managed Mac policies still apply.', '',
-             'Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Automatic updates and GIF frame editing are not implemented.', '']
+             'Current release: 1.1.0. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Downloaded packages are ad-hoc signed, not Developer ID signed or notarized. Managed Mac policies still apply.', '',
+             'Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Manual and opt-in automatic updates use signed Sparkle feeds and archives. Version 1.0.0 requires one manual bootstrap installation. GIF frame editing is not implemented.', '']
     for heading, links in SECTIONS.items():
         parts += ['## ' + heading, '']
         parts += [f'- [{title}]({RAW}{path}): {note}' for path, title, note in links]
@@ -61,7 +61,7 @@ def generated():
     for filename in FULL_FILES:
         source = ROOT / filename
         full += '\n\n---\n\nSource: ' + RAW + filename + '\n\n' + raw_links(source.read_text(), source).strip() + '\n'
-    alias = index.replace('Current public release:', 'Canonical index: ' + RAW + 'llms.txt\n\nCurrent public release:', 1)
+    alias = index.replace('Current release:', 'Canonical index: ' + RAW + 'llms.txt\n\nCurrent public release:', 1)
     return {'llms.txt': index, 'llm.txt': alias, 'llms-full.txt': full}
 
 

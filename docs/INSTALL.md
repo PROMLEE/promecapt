@@ -31,12 +31,12 @@ Use **Swift 5.9 or newer**. The app runs on macOS 13+, but building requires a m
 Run these commands in the folder where you want to keep the source:
 
 ```sh
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 ```
 
-This produces `dist/Promecapt.app` and a ZIP for your Mac's CPU. The script uses a local **ad-hoc signature** by default. It does not need an Apple Developer login, certificate, private key or signing secret. No external Swift packages are downloaded.
+This produces `dist/Promecapt.app` and a ZIP for your Mac's CPU. The script uses a local **ad-hoc signature** by default. It does not need an Apple Developer login, certificate, private key or signing secret. Swift Package Manager downloads the pinned Sparkle updater framework.
 
 This is a source build, not an Apple-notarized build. It does not override an employer's device policy or other macOS access controls.
 
@@ -89,4 +89,4 @@ The DMG is a drag-to-install container, not an automatic installer. It does not 
 
 `bash scripts/test-local.sh` runs local checks using Command Line Tools; `swift test` additionally requires full Xcode. The release is tested on both Apple Silicon and Intel in CI.
 
-Automatic updates are not implemented in 1.0.0. To update, quit the app and replace it with a newer official build, or build a newer reviewed release tag at the same installation path. Keep your library; do not delete application data just to refresh a permission.
+From 1.1.0, use Settings → About → Check for Updates, or opt in to automatic download, installation and relaunch. Version 1.0.0 needs one manual installation of 1.1.0. You can also quit the app and replace it with a newer official build, or build a newer reviewed release tag at the same installation path. Keep your library; do not delete application data just to refresh a permission.

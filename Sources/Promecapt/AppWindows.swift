@@ -15,7 +15,18 @@ final class PreferencesController: NSWindowController {
     private var actions: [Int: (NSControl) -> Void] = [:]
     private var actionID = 0
 
-    init() {
+    private let updates: AppUpdates
+    private var aboutTab: NSTabViewItem?
+    private weak var tabView: NSTabView?
+    private let updateStatus = NSTextField(wrappingLabelWithString: "")
+    private let latestLabel = NSTextField(labelWithString: "")
+    private let lastCheckLabel = NSTextField(labelWithString: "")
+    private var checkButton: NSButton!
+    private var automaticButton: NSButton!
+    private var updateObserver: NSObjectProtocol?
+
+    init(updates: AppUpdates) {
+        self.updates = updates
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 650, height: 510),
             styleMask: [.titled, .closable], backing: .buffered, defer: false)
         super.init(window: window)
@@ -24,6 +35,7 @@ final class PreferencesController: NSWindowController {
         window.center()
         let container = NSView()
         let tabs = NSTabView()
+        tabView = tabs
         tabs.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(tabs)
         window.contentView = container
@@ -184,9 +196,54 @@ final class PreferencesController: NSWindowController {
         bind(clear) { [weak self] _ in self?.onClearHistory?() }
         history.addArrangedSubview(clear)
         history.addArrangedSubview(note(L("이미지와 OCR은 이 Mac에서 처리합니다. 기록 이동 시 바깥 화면을 복원하도록 선택 이미지와 당시 화면 전체·선택 위치를 이 Mac에 함께 보관합니다. 기록 지우기는 이 배경도 함께 지웁니다.")))
+
+        let about = page(L("정보"), tabs: tabs)
+        about.spacing = 10
+        aboutTab = tabs.tabViewItems.last
+        let identity = NSStackView()
+        let icon = NSImageView(image: NSApp.applicationIconImage)
+        icon.setContentHuggingPriority(.required, for: .horizontal)
+        icon.widthAnchor.constraint(equalToConstant: 54).isActive = true
+        icon.heightAnchor.constraint(equalToConstant: 54).isActive = true
+        let identityText = NSStackView(views: [heading("Promecapt"), note(L("macOS 캡처·주석·화면 고정·GIF 녹화"))])
+        identityText.orientation = .vertical; identityText.alignment = .leading; identityText.spacing = 4
+        identity.addArrangedSubview(icon); identity.addArrangedSubview(identityText); identity.spacing = 16
+        about.addArrangedSubview(identity)
+        about.addArrangedSubview(note(L("버전 {0} · 빌드 {1}", AppInfo.version, AppInfo.build)))
+        about.addArrangedSubview(note(AppInfo.architecture + " · " + ProcessInfo.processInfo.operatingSystemVersionString + " · " + AppInfo.revision))
+        about.addArrangedSubview(heading(L("업데이트")))
+        automaticButton = NSButton(checkboxWithTitle: L("자동으로 다운로드·설치하고 다시 실행"), target: nil, action: nil)
+        bind(automaticButton) { [weak self] sender in self?.updates.setAutomatic((sender as! NSButton).state == .on); self?.refreshUpdates() }
+        about.addArrangedSubview(automaticButton)
+        about.addArrangedSubview(latestLabel)
+        about.addArrangedSubview(lastCheckLabel)
+        checkButton = NSButton(title: L("업데이트 확인…"), target: nil, action: nil)
+        bind(checkButton) { [weak self] _ in self?.updates.check() }
+        let releases = NSButton(title: L("릴리스 보기"), target: nil, action: nil)
+        bind(releases) { _ in NSWorkspace.shared.open(AppInfo.releases) }
+        let website = NSButton(title: "GitHub", target: nil, action: nil)
+        bind(website) { _ in NSWorkspace.shared.open(AppInfo.website) }
+        about.addArrangedSubview(NSStackView(views: [checkButton, releases, website]))
+        updateStatus.font = .systemFont(ofSize: 12); updateStatus.textColor = .secondaryLabelColor
+        updateStatus.preferredMaxLayoutWidth = 510
+        about.addArrangedSubview(updateStatus)
+        about.addArrangedSubview(note(L("안정 버전만 확인합니다. 자동 업데이트는 선택 사항이며, 캡처·녹화·편집 중에는 재실행을 미룹니다.")))
+        about.addArrangedSubview(note("MIT · © 2026 PROMLEE · Sparkle (MIT)"))
+        updateObserver = NotificationCenter.default.addObserver(forName: AppUpdates.changed, object: updates, queue: .main) { [weak self] _ in self?.refreshUpdates() }
+        refreshUpdates()
     }
     required init?(coder: NSCoder) { fatalError() }
-    func show() { NSApp.activate(ignoringOtherApps: true); window?.makeKeyAndOrderFront(nil) }
+    func show() { refreshUpdates(); NSApp.activate(ignoringOtherApps: true); window?.makeKeyAndOrderFront(nil) }
+    func showAbout() { if let aboutTab { tabView?.selectTabViewItem(aboutTab) }; show() }
+    private func refreshUpdates() {
+        automaticButton.state = updates.automatic ? .on : .off
+        automaticButton.isEnabled = updates.configured
+        checkButton.isEnabled = updates.canCheck
+        latestLabel.stringValue = L("최신 버전: {0}", updates.latestVersion ?? "—")
+        lastCheckLabel.stringValue = L("마지막 확인: {0}", updates.lastChecked.map { DateFormatter.localizedString(from: $0, dateStyle: .short, timeStyle: .short) } ?? L("확인한 적 없음"))
+        updateStatus.stringValue = updates.status
+    }
+    deinit { if let updateObserver { NotificationCenter.default.removeObserver(updateObserver) } }
     private func refreshRecorders() {
         let bindings = ShortcutPreferences.bindings()
         for (action, recorder) in recorders { recorder.shortcut = bindings[action] }

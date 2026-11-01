@@ -23,7 +23,7 @@
 | **OCR** | 选定文字区域，本地识别韩语和英语 |
 | **GIF** | 5–30fps，分辨率和时长设置，预览、复制、置顶、保存 |
 
-界面：한국어 · English · 日本語 · 简体中文。[功能限制（英语）](docs/FEATURES.md) · 1.0.0 不支持自动更新。
+界面：한국어 · English · 日本語 · 简体中文。[功能限制（英语）](docs/FEATURES.md) · 1.1.0 起支持[手动和可选自动更新](docs/AUTO-UPDATE.md)。1.0.0 用户需先手动安装一次。
 
 <details>
 <summary>GIF 设置</summary>
@@ -59,7 +59,7 @@
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

@@ -25,6 +25,7 @@ final class AnnotationTextPanel: NSPanel, NSWindowDelegate {
 }
 
 final class OCRResultController: NSWindowController, NSWindowDelegate {
+    static var hasOpenResults: Bool { !openControllers.isEmpty }
     private static var openControllers: [ObjectIdentifier: OCRResultController] = [:]
     private let output = NSTextView()
     private let status = NSTextField(labelWithString: L("텍스트 인식 중…"))

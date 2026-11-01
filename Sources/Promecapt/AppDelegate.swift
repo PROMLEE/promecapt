@@ -1,7 +1,8 @@
 import AppKit
 import ServiceManagement
 
-final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemValidation {
+    private let updates = AppUpdates()
     private var item: NSStatusItem!
     private let menu = NSMenu()
     private var library: Library!
@@ -21,7 +22,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UserDefaults.standard.register(defaults: ["restorePins": true, "historyLimit": 50, "hotkeyProfile": 1, "captureDelay": 0, "autoCopy": true, "showDock": true, "showDashboard": true, "pinShadow": true])
-        do { library = try Library() }
+        do {
+            #if DEBUG
+            if Bundle.main.bundleIdentifier == "com.promlee.promecapt.update-test" {
+                library = try Library(root: Bundle.main.bundleURL.deletingLastPathComponent().appendingPathComponent("TestLibrary"))
+            } else { library = try Library() }
+            #else
+            library = try Library()
+            #endif
+        }
         catch { showError(L("보관함을 열지 못했습니다: {0}", error.localizedDescription)); NSApp.terminate(nil); return }
         menu.delegate = self
         configureStatusItem()
@@ -49,6 +58,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             } catch { showError(L("고정 이미지 복원 실패: {0}", error.localizedDescription)) }
         }
         rebuildMenu()
+        updates.isBusy = { [weak self] in
+            guard let self else { return true }
+            return self.capturePending || self.captureSession != nil || self.gifRecorder != nil
+                || self.editors.contains { $0.window?.isVisible == true }
+                || self.gifResults.contains { $0.window?.isVisible == true }
+                || self.pins.contains { $0.isEditingAnnotations }
+                || OCRResultController.hasOpenResults
+                || NSApp.windows.contains { $0.isVisible && $0 is AnnotationTextPanel }
+        }
+        updates.saveBeforeInstall = { [weak self] in
+            guard let self else { return }
+            self.persistTask?.cancel()
+            try self.library.savePins(self.pins)
+        }
+        updates.start()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -80,6 +104,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let appItem = root.addItem(withTitle: "Promecapt", action: nil, keyEquivalent: "")
         let appMenu = NSMenu(title: "Promecapt")
         appItem.submenu = appMenu
+        add(L("정보"), #selector(showAbout), to: appMenu)
+        add(L("업데이트 확인…"), #selector(checkForUpdates), to: appMenu)
         add(L("설정 열기"), #selector(showDashboard), to: appMenu)
         add(L("메뉴 막대 아이콘 복구"), #selector(restoreStatusIcon), to: appMenu)
         let settings = add(L("설정…"), #selector(showSettings), to: appMenu)
@@ -114,7 +140,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         captureProcess?.terminate()
         persistTask?.cancel()
         do { try library?.savePins(pins) }
-        catch { showError(L("고정 이미지 저장 실패: {0}", error.localizedDescription)) }
+        catch { terminating = false; showError(L("고정 이미지 저장 실패: {0}", error.localizedDescription)); return .terminateCancel }
         return .terminateNow
     }
 
@@ -171,6 +197,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         add(L("Promecapt 설정"), #selector(showDashboard))
         add(L("설정…"), #selector(showSettings))
         add(L("사용 방법…"), #selector(showWelcome))
+        add(L("업데이트 확인…"), #selector(checkForUpdates)).isEnabled = updates.canCheck
+        add(L("정보"), #selector(showAbout))
         add(L("종료"), #selector(quit))
     }
 
@@ -378,9 +406,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func showWelcome() { showDashboard() }
 
+    func validateMenuItem(_ item: NSMenuItem) -> Bool { item.action == #selector(checkForUpdates) ? updates.canCheck : true }
+    @objc private func checkForUpdates() { updates.check() }
+    @objc private func showAbout() { showSettings(); preferences?.showAbout() }
+
     @objc func showSettings() {
         if preferences == nil {
-            let controller = PreferencesController()
+            let controller = PreferencesController(updates: updates)
             controller.onLanguageChange = { [weak self] in
                 guard let self else { return }
                 self.preferences?.close(); self.preferences = nil

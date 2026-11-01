@@ -27,6 +27,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
     var onDrop: ((NSImage) -> Void)?
     private var normalSize: NSSize?
     private var imageView: PinView!
+    var isEditingAnnotations: Bool { editCanvas != nil }
     private var editCanvas: CanvasView?
     private var editTools: NSPanel?
 

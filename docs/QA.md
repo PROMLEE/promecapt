@@ -29,3 +29,10 @@ The local check runner covers image geometry and pixel output, editable annotati
 ## Signing and permissions
 
 Ad-hoc rebuilt binaries can lose their existing macOS permission association. Refresh only this app's existing Screen Recording and Accessibility entries in System Settings, then relaunch. Authentication is completed by the user. Do not edit the TCC database, reset unrelated app permissions or disable system protections. Developer ID signing and notarization remain release prerequisites for a smoother trusted installation experience.
+
+## Updater acceptance (1.1.0)
+
+- Manual check found a signed newer version; download / extraction and installation completed in an isolated app under the personal Applications folder.
+- Enabling the automatic option downloaded and installed test version 1.1.2 over 1.1.1 without another install click. The relaunched process and About tab both reported 1.1.2, and the option remained on. A subsequent manual check reported up to date and refreshed the latest-version / last-check fields.
+- Tampered archive and an archive signed by a different key failed verification against the bundled public key.
+- The isolated DEBUG bundle uses its own app identifier, preferences, signing key and TestLibrary. Test feeds / archives are never published as production updates.

@@ -1,39 +1,41 @@
-# 자동 업데이트 설계
+# 업데이트
 
-상태: 설계. 현재 앱과 배포 workflow에는 자동 업데이트가 연결되지 않았습니다.
+Promecapt 1.1.0부터 Sparkle 2로 수동·자동 업데이트를 지원합니다.
 
-## 선택
+## 사용
 
-macOS는 Sparkle 2를 사용합니다. 배포 파일은 GitHub Releases, 업데이트 목록(appcast)은 GitHub Pages에서 HTTPS로 제공합니다. 향후 자동 업데이트를 도입하는 버전은 arm64/x86_64를 합친 universal 앱 하나로 배포해 잘못된 CPU용 업데이트를 받는 분기를 없앱니다. 기존 아키텍처별 ZIP은 수동 다운로드용으로 남길 수 있습니다.
+- **수동:** 메뉴 막대 → 업데이트 확인…, 또는 설정 → 정보 → 업데이트 확인…
+- **자동(선택):** 설정 → 정보 → 자동으로 다운로드·설치하고 다시 실행. 기본값은 꺼짐입니다.
+- 안정 버전만 확인하며 자동 확인 간격은 하루입니다. 옵션을 켤 때도 한 번 확인합니다.
+- 캡처·녹화·주석 편집·OCR 결과·저장 전 GIF 결과가 열려 있으면 설치·재실행을 미룹니다.
+- 정보 탭은 설치된 앱의 버전·빌드·소스 리비전·CPU·OS와 최신 확인 결과·시각을 표시합니다.
+- 1.0.0에는 업데이터가 없으므로 1.1.0은 DMG로 한 번 직접 설치해야 합니다.
 
-Sparkle의 공식 방식은 SUFeedURL과 SUPublicEDKey를 앱에 포함하고, 배포 아카이브에 Ed25519 서명을 추가하는 것입니다. Developer ID 서명·공증은 별도로 수행합니다. 근거: https://sparkle-project.org/documentation/ 및 https://sparkle-project.org/documentation/publishing/
+## 배포
 
-## 사용자 동작
+아키텍처별 `appcast-arm64.xml` / `appcast-x86_64.xml`을 GitHub Releases의 안정 버전 자산으로 제공합니다. 앱에 각 CPU의 `releases/latest/download/appcast-CPU.xml` 주소와 Ed25519 공개 키를 포함합니다. 버전은 앱의 Info.plist에서 읽으며 별도의 UI 상수로 관리하지 않습니다.
 
-- 메뉴 막대 → 업데이트 확인… 을 항상 제공합니다.
-- 최초 업데이트 설정에서 자동 확인 여부를 선택합니다. 자동 설치는 별도 선택이며 기본은 알림 후 사용자가 설치합니다.
-- 설정에 현재 버전·마지막 확인 시각·안정/미리보기 채널을 표시합니다.
-- 캡처, 텍스트 입력, OCR 처리 중에는 설치·재실행을 보류합니다. 다운로드는 백그라운드에서 가능합니다.
-- 설치 직전에 주석 원본·고정 이미지 위치·그룹·설정을 저장합니다. 재시작 후 메뉴 아이콘과 단축키가 복구돼야 합니다.
-- 네트워크 장애·서명 불일치 때 현재 앱은 계속 실행합니다. 서명이 잘못된 파일은 설치하지 않습니다.
+`package.sh` → `package-dmg.sh` → `sign-release.sh` 순서로 생성합니다. 마지막 단계는 ZIP과 feed를 서명하고 앱에 포함된 공개 키로 ZIP 서명을 별도 검증합니다. 배포 파일과 feed는 같은 초안 릴리스에 올리고 함께 공개합니다. 이미 공개한 자산은 교체하지 않습니다.
 
-## 릴리스 순서
+GitHub Actions secret `SPARKLE_ED_PRIVATE_KEY`에 서명용 개인 키가 필요합니다. 키가 없거나 앱의 공개 키와 맞지 않으면 릴리스 작업이 실패합니다. 키를 로그·소스·릴리스 자산에 포함하지 마세요. 로컬 서명은 `generate-appcast.py --version VERSION --arch CPU --key-file PRIVATE_FILE`로 수행합니다.
 
-1. 태그와 증가하는 CFBundleVersion으로 양쪽 아키텍처를 테스트합니다.
-2. universal 실행 파일과 Sparkle 프레임워크/헬퍼를 조립한 뒤 내부 구성부터 Developer ID로 서명합니다. 현재 package.sh의 단일 앱 ad-hoc 서명만으로 대체하지 않습니다.
-3. 앱 공증 → staple → 최종 ZIP 생성 → Sparkle 서명 → 체크섬 생성 순서를 지킵니다. 서명한 ZIP은 변경하지 않습니다.
-4. GitHub 초안 릴리스에 ZIP과 변경 내역을 올리고 설치 검증을 수행합니다.
-5. 릴리스를 먼저 공개한 뒤 다운로드가 가능한 것을 확인하고 appcast를 마지막에 게시합니다. 피드가 아직 없는 파일을 가리키지 않게 합니다.
-6. stable/beta 피드를 분리합니다. 미리보기 사용자가 정식으로 돌아올 때는 현재보다 높은 build 번호의 정식 버전을 기다리게 하며 임의 자동 다운그레이드는 하지 않습니다.
+## 서명과 권한
 
-## 키·권한·데이터
+Sparkle은 feed와 업데이트 파일의 Ed25519 서명을 검증합니다. 서명 오류·네트워크 장애 시 현재 앱을 교체하지 않습니다. CPU별 feed를 사용하며 낮은 버전으로 자동 다운그레이드하지 않습니다. 설치 전에 고정 이미지·주석·그룹을 저장하고, 저장 실패 시 앱 종료를 취소합니다.
 
-개인 키와 공증 자격 증명은 저장소에 넣지 않습니다. 승인된 릴리스 작업에서만 CI secret을 읽고 외부 PR에서는 서명 작업을 실행하지 않습니다. 서명 전후 앱의 bundle ID와 Developer Team을 유지합니다. 현재 ad-hoc 빌드 교체 때 발생한 TCC 재연결 문제를 공개 자동 업데이트 방식으로 그대로 가져가면 안 됩니다. 정식 서명에서도 화면 녹화·손쉬운 사용 권한이 실제로 유지되는지는 이전 버전에서 업데이트하는 장치 테스트로 확인합니다.
+Apple Developer ID 서명·공증은 업데이트 서명과 별개이며 현재 배포본은 ad-hoc입니다. 첫 설치의 macOS 실행 확인과 교체 후 화면 캡처·손쉬운 사용 재연결이 필요할 수 있습니다. DMG를 이용해 Applications에 설치하세요.
 
-라이브러리 스키마는 version 필드를 두고 마이그레이션 전 백업합니다. 업데이트 실패 시 Sparkle 설치 실패 처리와 사용자 데이터 복구를 구분합니다. 이미 설치된 문제 버전은 수정 릴리스를 더 높은 번호로 배포하며, 데이터 스키마를 무시한 강제 다운그레이드를 하지 않습니다.
+개발자용: ad-hoc 빌드는 upstream 서명된 Sparkle 프레임워크를 로드하기 위해 이 앱의 Library Validation 예외 entitlement만 사용하며 Hardened Runtime은 유지합니다. Developer ID 빌드에서는 내부 구성부터 같은 identity로 서명하고 해당 예외를 적용하지 않습니다. 시스템 Gatekeeper 설정은 바꾸지 않습니다.
 
-## 구현 전 결정 및 출고 기준
+## 검증
 
-GitHub 저장소 소유자/주소, Apple Developer ID, Sparkle 공개 키, stable/beta 피드 URL이 필요합니다. 현재는 이 값들을 임의로 만들거나 공개하지 않았습니다.
+- `swift test` 및 `bash scripts/test-local.sh`
+- 서명된 정상 ZIP / 변조 ZIP / 다른 키로 서명한 ZIP
+- 정보 탭의 수동 확인, 최신 버전·오류·마지막 확인 시각
+- 자동 옵션 유지 및 작업 중 재실행 보류
+- 별도 테스트 앱의 구버전 → 신버전 교체·재실행·버전 갱신
+- 오프라인, 쓰기 불가 경로, 서명 오류에서 기존 앱·보관함 유지
 
-출고 검증: 구버전→신버전 실제 설치, 오래된 macOS에서 호환 버전 선택, 캡처 중 보류, 고정 주석/그룹 유지, 단축키·메뉴 아이콘 복구, 오프라인, 변조 ZIP, 손상 다운로드, 설치 경로 쓰기 불가, 데이터 마이그레이션 실패를 확인합니다. 이 조건을 통과하기 전에는 자동 설치를 활성화하지 않습니다.
+DEBUG 전용 테스트 번들은 `com.promlee.promecapt.update-test` ID를 사용하며 보관함을 앱 옆 `TestLibrary`에 분리합니다. 이 번들에서만 loopback HTTP feed를 허용하며, release 빌드에는 이 예외가 없습니다. 테스트 파일을 공개 릴리스에 올리지 마세요.
+
+공식 문서: [Sparkle 설정](https://sparkle-project.org/documentation/) · [업데이트 배포](https://sparkle-project.org/documentation/publishing/)

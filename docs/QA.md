@@ -36,3 +36,11 @@ Ad-hoc rebuilt binaries can lose their existing macOS permission association. Re
 - Enabling the automatic option downloaded and installed test version 1.1.2 over 1.1.1 without another install click. The relaunched process and About tab both reported 1.1.2, and the option remained on. A subsequent manual check reported up to date and refreshed the latest-version / last-check fields.
 - Tampered archive and an archive signed by a different key failed verification against the bundled public key.
 - The isolated DEBUG bundle uses its own app identifier, preferences, signing key and TestLibrary. Test feeds / archives are never published as production updates.
+
+## Published DMG installation check (1.1.0)
+
+- Downloaded the arm64 DMG through Safari from the public 1.1.0 release; its SHA-256 matched the published checksum.
+- Opened the downloaded DMG in Finder, dragged the app onto Applications and selected Replace. Installed files matched the mounted app, and strict deep code-signature verification passed. Safari quarantine was preserved.
+- Ejected the disk and launched `/Applications/Promecapt.app`. macOS blocked the unnotarized app; Done → Privacy & Security → Open Anyway → Open Anyway allowed this app to run. No global security settings or quarantine attributes were changed.
+- The installed app reported 1.1.0 / revision 324a5fe, fetched the public update feed and reported up to date.
+- Capture was denied despite the existing Screen Recording switch being on after replacing the local build. After user authentication, removed only the existing Promecapt entry, added `/Applications/Promecapt.app` and relaunched. Region capture then displayed its selection / annotation overlay successfully; Escape returned to Settings.

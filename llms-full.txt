@@ -155,7 +155,7 @@ Dock visibility can be off while the app keeps running. Reopen the app from Appl
 ## Option B — Use a prebuilt release
 
 1. Download from the [official Releases page](https://github.com/PROMLEE/promecapt/releases): `arm64` for Apple Silicon, `x86_64` for Intel.
-2. Compare the downloaded file's SHA-256 with its accompanying `.sha256` file. For example, run `shasum -a 256 Promecapt-1.0.0-macos-arm64.zip` in the download folder and compare the first hash value.
+2. Compare the downloaded file's SHA-256 with its accompanying `.sha256` file. For example, run `shasum -a 256 Promecapt-1.1.0-macos-arm64.dmg` in the download folder and compare the first hash value.
 3. **DMG (recommended):** open it and drag **Promecapt.app** onto **Applications** in the installation window. Eject the disk image and launch the installed app from Applications. **ZIP:** unzip and move the app to Applications manually.
 4. The current release is ad-hoc signed and **not Developer ID signed or notarized**. If macOS blocks an unidentified / unnotarized app, review the source and checksum first. If you trust this exact app, follow [Apple's per-app opening procedure](https://support.apple.com/en-us/102445): after attempting to open it, use **System Settings → Privacy & Security → Open Anyway**, then confirm the app in the prompt.
 5. Complete the capture permissions above.
@@ -172,7 +172,7 @@ The DMG is a drag-to-install container, not an automatic installer. It does not 
 | Compiler is older than Swift 5.9 | Update compatible Apple command-line tools / macOS before building. |
 | App is running but there is no Dock icon | Use the menu bar icon, or reopen the `.app` to reach settings. |
 | F1 changes brightness | Use `Fn+F1`, change macOS function-key behavior, or choose another shortcut. |
-| Screen capture is denied even though its switch is on | Quit the app. A new ad-hoc build may need its own existing Promecapt permission entry refreshed in System Settings; add the exact installed `.app` and relaunch. Leave unrelated apps' permissions untouched. |
+| Screen capture is denied even though its switch is on | Quit the app. A new ad-hoc build may need its permission refreshed: remove only the existing Promecapt entry in System Settings, use + to add the exact installed `.app`, then relaunch. macOS may require Touch ID or password authentication. Leave unrelated apps' permissions untouched. |
 | Internal buttons / text fields are not detected | Check Accessibility permission. Detection also depends on what the target app exposes. |
 | A company Mac blocks the app | Ask IT about approved installation / local compilation. Local builds do not bypass organization policy. |
 

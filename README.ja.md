@@ -34,8 +34,8 @@ UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英�
 
 ## インストール
 
-1. [Releases](https://github.com/PROMLEE/promecapt/releases/latest)から **Apple Silicon (arm64)** または **Intel (x86_64)** のZIPを取得します。
-2. 展開して **Promecapt.app** をアプリケーションフォルダに移動します。
+1. [Releases](https://github.com/PROMLEE/promecapt/releases/latest)から **Apple Silicon (arm64)** または **Intel (x86_64)** のDMGを取得します。
+2. DMGを開き、**Promecapt.app** を **Applications** にドラッグしてから、ディスクを取り出します。
 3. 起動後、**画面収録**と**アクセシビリティ**を許可します。
 
 **Apple公証は未対応です。** 信頼するダウンロードがブロックされた場合は[インストールガイド（英語）](docs/INSTALL.md)をご覧ください。ローカルビルドに有料開発者アカウントは不要です。

@@ -2,7 +2,7 @@
 
 **You do not need a paid Apple Developer account to build and run Promecapt on your own Mac.** Developer ID signing and notarization affect how macOS verifies a downloaded app; their absence does not mean that the app can only run on its author's computer.
 
-Choose either a local source build or a prebuilt ZIP. Both still need the macOS permissions used by a screen-capture app. Company-managed Macs may restrict either option; check with your IT administrator if policy blocks installation.
+Choose either a local source build or a prebuilt DMG or ZIP. Both still need the macOS permissions used by a screen-capture app. Company-managed Macs may restrict either option; check with your IT administrator if policy blocks installation.
 
 [한국어 설치 가이드](INSTALL.ko.md) · [English README](../README.md) · [日本語](../README.ja.md#ソースからビルド) · [简体中文](../README.zh-CN.md#从源码构建)
 
@@ -64,12 +64,14 @@ Dock visibility can be off while the app keeps running. Reopen the app from Appl
 ## Option B — Use a prebuilt release
 
 1. Download from the [official Releases page](https://github.com/PROMLEE/promecapt/releases): `arm64` for Apple Silicon, `x86_64` for Intel.
-2. Compare the ZIP's SHA-256 with its accompanying `.sha256` file. For example, run `shasum -a 256 Promecapt-1.0.0-macos-arm64.zip` in the download folder and compare the first hash value.
-3. Unzip, move **Promecapt.app** to Applications, and try opening it.
+2. Compare the downloaded file's SHA-256 with its accompanying `.sha256` file. For example, run `shasum -a 256 Promecapt-1.0.0-macos-arm64.zip` in the download folder and compare the first hash value.
+3. **DMG (recommended):** open it and drag **Promecapt.app** onto **Applications** in the installation window. Eject the disk image and launch the installed app from Applications. **ZIP:** unzip and move the app to Applications manually.
 4. The current release is ad-hoc signed and **not Developer ID signed or notarized**. If macOS blocks an unidentified / unnotarized app, review the source and checksum first. If you trust this exact app, follow [Apple's per-app opening procedure](https://support.apple.com/en-us/102445): after attempting to open it, use **System Settings → Privacy & Security → Open Anyway**, then confirm the app in the prompt.
 5. Complete the capture permissions above.
 
 A warning that software is damaged or contains malware is not the same as an unidentified-developer warning. Stop and check the download / contact the maintainer in that case. Do not disable Gatekeeper globally or remove security controls to install Promecapt. Managed devices may not offer a per-app exception.
+
+The DMG is a drag-to-install container, not an automatic installer. It does not change signing or notarization status. ZIP downloads remain available.
 
 ## Troubleshooting
 

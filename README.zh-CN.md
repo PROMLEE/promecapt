@@ -34,8 +34,8 @@
 
 ## 安装
 
-1. 从 [Releases](https://github.com/PROMLEE/promecapt/releases/latest) 下载 **Apple Silicon (arm64)** 或 **Intel (x86_64)** ZIP。
-2. 解压后将 **Promecapt.app** 移至“应用程序”文件夹。
+1. 从 [Releases](https://github.com/PROMLEE/promecapt/releases/latest) 下载 **Apple Silicon (arm64)** 或 **Intel (x86_64)** DMG。
+2. 打开 DMG，将 **Promecapt.app** 拖至 **Applications**，然后推出磁盘映像。
 3. 启动后允许**屏幕录制**和**辅助功能**权限。
 
 **目前尚未经过 Apple 公证。** 如果 macOS 阻止了可信下载，请参阅[安装指南（英语）](docs/INSTALL.md)。本地构建无需付费开发者账户。

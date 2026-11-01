@@ -6,7 +6,7 @@ The first public version is **1.0.0**. Update `scripts/package.sh`, `CHANGELOG.m
 
 Run `bash scripts/test-local.sh`, `swift test` with full Xcode, and `bash scripts/package.sh`. Confirm the installed app and archive show the same version, all four UI languages load, both icons use the shared mark, and captures / existing pins still work. Do not include local captures, `.build`, `dist`, signing materials or research notes in the source repository.
 
-CI uses the standard `macos-15` arm64 and `macos-15-intel` runners documented in the [GitHub runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners). The Release workflow builds both architectures and attaches ZIPs plus SHA-256 files to a **draft** release. If the version already has a release, it skips building and publishing; publishing a draft therefore does not rebuild or overwrite that release when its tag event arrives.
+CI uses the standard `macos-15` arm64 and `macos-15-intel` runners documented in the [GitHub runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners). The Release workflow builds both architectures and attaches DMGs, ZIPs and SHA-256 files to a **draft** release. If the version already has a release, it skips building and publishing; publishing a draft therefore does not rebuild or overwrite that release when its tag event arrives.
 
 ## Create a release
 
@@ -35,3 +35,9 @@ Configure the notarization profile in the owner's Keychain first; do not commit 
 Ad-hoc rebuilding may invalidate this app's existing Screen Recording or Accessibility association. Refresh only the same app's entries in System Settings and relaunch; OS authentication is completed by the user. Preserve the user's library and shortcut choices.
 
 Automatic updates are **not present in 1.0.0**. See [AUTO-UPDATE.md](AUTO-UPDATE.md) for the proposed future Sparkle design; do not publish an appcast or claim updater support until signing, verification and installation flows are implemented and tested.
+
+## Drag-to-install DMG
+
+After packaging, run `bash scripts/package-dmg.sh`. It creates a Finder window with the app, an Applications link and a directional arrow. Python packaging tools are pinned in `scripts/dmg-requirements.txt` and installed only in `.build/dmg-venv`; the app has no new runtime dependencies. `APP_PATH=/path/to/Promecapt.app` packages an already signed app without rebuilding it. Version and CPU architecture come from that app.
+
+The script verifies the DMG checksum, mounts it read-only, checks the app signature and Applications link, and compares all app files with the input. Finder metadata must not be written onto the signed app. Release CI generates DMG and ZIP for both architectures. For notarized releases, staple the app before creating either container.

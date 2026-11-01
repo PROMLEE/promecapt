@@ -56,11 +56,14 @@ jobs:
           REQUESTED_VERSION: ${{ inputs.version }}
         run: |
           VERSION="${REQUESTED_VERSION:-${RELEASE_TAG#v}}" bash scripts/package.sh
+      - name: Build drag-to-install DMG
+        run: bash scripts/package-dmg.sh
       - uses: actions/upload-artifact@v6
         with:
           name: release-${{ runner.arch }}
           path: |
             dist/Promecapt-*.zip
+            dist/Promecapt-*.dmg
             dist/Promecapt-*.sha256
   publish:
     needs: [prepare, build]

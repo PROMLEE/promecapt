@@ -17,9 +17,11 @@ jobs:
       - run: swift test
       - run: bash scripts/test-local.sh
       - run: bash scripts/package.sh
+      - run: bash scripts/package-dmg.sh
       - uses: actions/upload-artifact@v6
         with:
           name: Promecapt-${{ runner.arch }}
           path: |
             dist/Promecapt-*.zip
+            dist/Promecapt-*.dmg
             dist/Promecapt-*.sha256

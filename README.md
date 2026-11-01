@@ -34,8 +34,8 @@ UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](docs/FEA
 
 ## Install
 
-1. Download the ZIP for **Apple Silicon (arm64)** or **Intel (x86_64)** from [Releases](https://github.com/PROMLEE/promecapt/releases/latest).
-2. Unzip and move **Promecapt.app** to Applications.
+1. Download the DMG for **Apple Silicon (arm64)** or **Intel (x86_64)** from [Releases](https://github.com/PROMLEE/promecapt/releases/latest).
+2. Open the DMG and drag **Promecapt.app** onto **Applications**, then eject the disk image.
 3. Open the app; enable **Screen Recording** and **Accessibility** when needed.
 
 **Not notarized yet.** If macOS blocks a trusted download, follow the [installation guide](docs/INSTALL.md). Local builds need no paid Apple Developer account.

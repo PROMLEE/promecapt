@@ -34,8 +34,8 @@ UI: 한국어 · English · 日本語 · 简体中文. [기능 제한](docs/FEAT
 
 ## 설치
 
-1. [Releases](https://github.com/PROMLEE/promecapt/releases/latest)에서 **Apple Silicon(arm64)** 또는 **Intel(x86_64)** ZIP을 받습니다.
-2. 압축을 풀고 **Promecapt.app**을 응용 프로그램 폴더로 옮깁니다.
+1. [Releases](https://github.com/PROMLEE/promecapt/releases/latest)에서 **Apple Silicon(arm64)** 또는 **Intel(x86_64)** DMG를 받습니다.
+2. DMG를 열고 **Promecapt.app**을 **Applications** 폴더로 드래그한 뒤 디스크를 추출합니다.
 3. 실행 후 **화면 녹화**와 **손쉬운 사용** 권한을 허용합니다.
 
 **현재 Apple 공증은 없습니다.** macOS가 신뢰하는 다운로드 앱을 차단하면 [설치 가이드](docs/INSTALL.ko.md)를 참고하세요. 직접 빌드에는 유료 개발자 계정이 필요 없습니다.

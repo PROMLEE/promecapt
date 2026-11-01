@@ -12,6 +12,7 @@ Processing is local. History includes full display snapshots. UI languages: Kore
 - [한국어 안내](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.ko.md): 한국어 제품 소개와 사용법.
 - [日本語ガイド](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.ja.md): 日本語の機能・インストール・使い方.
 - [简体中文指南](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.zh-CN.md): 功能、安装及使用说明。
+- [Usage guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/USAGE.md): Shortcuts, GIF controls, local storage and privacy.
 - [Build and install without a developer account](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.md): Free Apple tools, local ad-hoc build, app installation, permissions and troubleshooting.
 - [개발자 계정 없는 설치 가이드](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.ko.md): 무료 개발 도구·로컬 빌드·설치·권한·문제 해결.
 

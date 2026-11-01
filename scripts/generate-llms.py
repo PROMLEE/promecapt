@@ -12,6 +12,7 @@ SECTIONS = {
         ('README.ko.md', '한국어 안내', '한국어 제품 소개와 사용법.'),
         ('README.ja.md', '日本語ガイド', '日本語の機能・インストール・使い方.'),
         ('README.zh-CN.md', '简体中文指南', '功能、安装及使用说明。'),
+        ('docs/USAGE.md', 'Usage guide', 'Shortcuts, GIF controls, local storage and privacy.'),
         ('docs/INSTALL.md', 'Build and install without a developer account', 'Free Apple tools, local ad-hoc build, app installation, permissions and troubleshooting.'),
         ('docs/INSTALL.ko.md', '개발자 계정 없는 설치 가이드', '무료 개발 도구·로컬 빌드·설치·권한·문제 해결.'),
     ],
@@ -32,7 +33,7 @@ SECTIONS = {
         ('docs/AUTO-UPDATE.md', 'Future updater design', 'Design only; automatic updates are not implemented in 1.0.0.'),
     ],
 }
-FULL_FILES = ['README.md', 'docs/INSTALL.md', 'docs/FEATURES.md', 'CONTRIBUTING.md', 'SECURITY.md', 'LICENSE']
+FULL_FILES = ['README.md', 'docs/INSTALL.md', 'docs/USAGE.md', 'docs/FEATURES.md', 'CONTRIBUTING.md', 'SECURITY.md', 'LICENSE']
 
 
 def raw_links(text, source):

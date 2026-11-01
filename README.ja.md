@@ -1,75 +1,64 @@
 <div align="center">
-  <img src="assets/app-icon.svg" width="112" alt="Promecaptのアイコン">
+  <img src="assets/app-icon.svg" width="88" alt="Promecapt">
   <h1>Promecapt</h1>
-  <p><strong>撮る。その場で書き込む。いつでも見える場所に。</strong></p>
-  <p>商用キャプチャツールの代わりに使える、macOS向けオープンソースアプリ</p>
+  <p><strong>キャプチャして、編集して、そばに固定。</strong></p>
+  <p>macOS向けオープンソースのスクリーンショットツール。注釈・画像固定・GIF録画に対応。</p>
+  <p><a href="https://github.com/PROMLEE/promecapt/releases/latest">ダウンロード</a> · <a href="docs/INSTALL.md">インストール</a> · <a href="https://github.com/PROMLEE/promecapt/issues">Issues</a></p>
+  <p>macOS 13+ · Apple Silicon & Intel · MIT</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a></p>
-  <p><a href="https://github.com/PROMLEE/promecapt/releases">ダウンロード</a> · <a href="https://github.com/PROMLEE/promecapt/issues">問題を報告</a></p>
-  <p>macOS 13以降 · Apple Silicon / Intel · MITライセンス · v1.0.0</p>
 </div>
 
-![キャプチャ・注釈・ピン留めの操作イメージ](assets/overview.svg)
+![実際のPromecaptエディタで、サンプル画像に矩形・矢印・番号を追加した画面。](assets/screenshots/editor.jpg)
+
+<p align="center"><sub>実際のアプリ画面 · サンプルデータ · 英語UI</sub></p>
 
 ## 主な機能
 
-- **画面上でそのまま編集：** ウィンドウやアクセシビリティ要素を検出。範囲をドラッグして選び、8つのハンドルやキーで調整できます。
-- **後から変更できる注釈：** ペン、蛍光ペン、図形、矢印、テキスト、番号。選択ツールで移動・サイズ・色・太さを変更します。
-- **1つのツールで隠す：** モザイク・ぼかし・黒塗り。ホイールと数値入力で太さや強さを調整します。
-- **画像とGIFのピン留め：** 常に手前に表示し、拡大縮小・透明度・グループ・クリック透過に対応。再起動後も復元され、GIFはアニメーションを維持します。
-- **範囲OCR：** 読みたい文字だけをドラッグし、結果を確認・修正してコピー。現在の認識言語は韓国語と英語です。
-- **キャプチャ履歴：** `,` / `.`で履歴を移動し、周囲の画面も復元します。
-- **GIF録画：** 範囲表示、フレーム数・解像度・時間の設定、録画後の再生確認・コピー・ピン留め・保存。
-- **4言語のUI：** 韓国語・英語・日本語・簡体字中国語。システム言語による自動選択と手動設定が可能です。
+| 機能 | 対応内容 |
+| --- | --- |
+| **キャプチャ** | 領域・ウィンドウ・アクセシブルなアプリ要素 |
+| **注釈** | ペン・図形・矢印・文字・番号、再選択して編集 |
+| **マスキング** | モザイク・ぼかし・不透明な黒塗り |
+| **固定** | 画像・アニメーションGIF、ズーム・透明度・グループ |
+| **OCR** | 選択領域の韓国語・英語をローカル認識 |
+| **GIF** | 5〜30fps、解像度・時間設定、プレビュー・コピー・固定・保存 |
+
+UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英語）](docs/FEATURES.md) · 1.0.0は自動更新非対応。
+
+<details>
+<summary>GIF設定</summary>
+
+![GIF設定](assets/screenshots/gif-settings.jpg)
+
+</details>
 
 ## インストール
 
-**有料のApple Developerアカウントがなくても、別のMacでビルドして実行できます。** 次の方法から選んでください。
+1. [Releases](https://github.com/PROMLEE/promecapt/releases/latest)から **Apple Silicon (arm64)** または **Intel (x86_64)** のZIPを取得します。
+2. 展開して **Promecapt.app** をアプリケーションフォルダに移動します。
+3. 起動後、**画面収録**と**アクセシビリティ**を許可します。
 
-1. **無料の開発ツールでビルド：** Command Line Toolsをインストールし、リリースのソースから `bash scripts/package.sh` を実行します。下のビルド手順と[詳しいインストールガイド（英語）](docs/INSTALL.md)を参照してください。
-2. **配布ZIPを使用：** [Releases](https://github.com/PROMLEE/promecapt/releases)からApple Siliconは **arm64**、Intelは **x86_64** を選びます。展開して **Promecapt.app** をアプリケーションフォルダに移します。
+**Apple公証は未対応です。** 信頼するダウンロードがブロックされた場合は[インストールガイド（英語）](docs/INSTALL.md)をご覧ください。ローカルビルドに有料開発者アカウントは不要です。
 
-現在のZIPはad-hoc署名で、**Developer ID署名・Apple公証はありません**。別のMacで実行できないという意味ではなく、ダウンロードしたアプリの初回起動をmacOSがブロックする場合があるという意味です。信頼できるファイルについては[Appleのアプリごとの起動手順](https://support.apple.com/en-us/102445)に従ってください。管理されたMacでは組織の制限が適用される場合があります。
+## ショートカット
 
-**システム設定 → プライバシーとセキュリティ → 画面収録**（新しいmacOSでは **画面とシステムオーディオの収録**）でPromecaptを許可し、必要に応じて再起動します。アプリ内部の要素検出と安定したグローバルキー処理にはアクセシビリティ権限を使います。音声は録音しません。メニューバーのキャプチャ枠アイコンから操作できます。
-
-## 基本操作
-
-| 操作 | 初期設定のキー・ジェスチャー |
+| 操作 | ショートカット |
 | --- | --- |
-| 範囲・ウィンドウをキャプチャ | `⌥⌘1` → ドラッグ、または検出対象をクリック |
-| キャプチャをコピー / ピン留め | `⌘C` / `⌘Enter` |
-| クリップボードをピン留め | `⌥⌘3` |
-| すべてのピンを表示・非表示 | `⌥⌘4` |
-| 前・次の履歴 | キャプチャ中に `,` / `.` |
-| キャプチャ取消 / ピンを閉じる | `Esc` |
-| 設定 | メニューバーのアイコン → 設定、またはアプリ使用中に `⌘,` |
-| 太さ・ぼかしの強さ | 画像上のホイール、または数値入力と上下ボタン |
-| ピンの移動 / 拡大縮小 | ドラッグ / ホイール |
-| 透明度 | `Ctrl` + ホイール |
-| 静止画像のピンをその場で編集 | `Space`。既存の注釈は選択ツールで変更 |
-| GIF録画 | メニューの範囲録画、またはキャプチャツールバーのGIFボタン |
+| キャプチャ | `⌥⌘1` |
+| コピー / 固定 | `⌘C` / `⌘Enter` |
+| クリップボードを固定 | `⌥⌘3` |
+| 固定画像の表示 / 非表示 | `⌥⌘4` |
+| 前 / 次のキャプチャ | `,` / `.` |
+| キャンセル / 固定を閉じる | `Esc` |
 
-設定 → ショートカットで **F1 / F3 / F4** プリセットや独自の組み合わせを指定できます。明るさ・音量キーモードでは `Fn+F1` を使用するか、macOSで標準のファンクションキーを有効にしてください。`Enter` は文字入力の確定に使い、キャプチャを終了しません。設定 → 一般で言語とDock表示を変更できます。
-
-## GIFの設定と出力
-
-設定 → GIFで **5～30fps**、**長辺640・1280・1920pxまたは元のRetinaピクセル数**、**最長15・30・60秒**、ポインタの録画を設定できます。元の解像度より拡大しません。静止画面では実際のフレーム数が減る場合があります。一時フレームが256MiBに達しても録画を終了します。
-
-赤い点線と範囲外の薄い陰影で録画範囲を示し、クリックを妨げません。停止後は結果ウィンドウで再生を確認し、**コピー・ピン留め・保存**を選びます。コピーにはGIF本体、添付用ファイルパス、代替PNGが含まれます。貼り付け先でのアニメーション表示は、そのアプリのGIF対応によります。1つの画面内を録画し、Promecaptのウィンドウと音声は含みません。GIFへの注釈、回転、フレーム編集は未対応です。
-
-## プライバシーと保存
-
-画像とOCRはこのMacで処理します。アカウント、アップロードサービス、分析収集機能はありません。
-
-履歴には選択画像だけでなく、**当時の画面全体と選択位置**もローカル保存します。機密情報を含む画面では、この点にご注意ください。件数制限と履歴の消去では背景も削除し、ピン留め画像は別に保持します。
-
-設定とライブラリはこのMacに保存します。コピーしたGIFの添付ファイルはローカルにキャッシュし、新しいコピー時に古いものを整理します。
+設定 → ショートカットでF1などに変更できます。メディアキーモードでは `Fn+F1` を使用します。
 
 ## ソースからビルド
 
-`xcode-select --install`で無料のツールをインストールし、完了後に `swift --version`で5.9以降を確認します。**有料Apple Developerアカウント、証明書、署名用シークレットは不要です。** Xcode全体が必要なのは `swift test` のみで、パッケージ作成には不要です。既存のアプリを終了してから置き換えてください。次の手順は管理者権限を使わず個人のApplicationsフォルダにインストールします。
+無料のApple Command Line ToolsとSwift 5.9以降が必要です。有料開発者アカウント・証明書は不要です。
 
 ```sh
+xcode-select --install # complete the installer before continuing
 git clone --branch v1.0.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
@@ -78,14 +67,10 @@ ditto dist/Promecapt.app "$HOME/Applications/Promecapt.app"
 open "$HOME/Applications/Promecapt.app"
 ```
 
-CIはApple SiliconとIntelでXCTestを実行します。`ARCH=arm64` / `ARCH=x86_64`でパッケージの対象を指定できます。[検証](docs/QA.md)、[配布手順](docs/RELEASING.md)、[変更履歴](CHANGELOG.md)、[貢献ガイド](CONTRIBUTING.md)も参照してください。
+## ドキュメント
 
-**1.0.0には自動更新機能はありません。** Developer ID署名・公証と署名付き更新を計画しており、[更新設計](docs/AUTO-UPDATE.md)を公開しています。
+[インストール](docs/INSTALL.md) · [使い方](docs/USAGE.md) · [貢献ガイド](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
 
-## ライセンス
+画像・OCRはローカル処理。アップロード・分析収集なし。履歴には画面全体も保存されます。[保存とプライバシー（英語）](docs/USAGE.md#privacy--storage)。
 
-[MIT](LICENSE)。条件に従い、個人・商用利用、変更、再配布が可能です。アプリとメニューバーのアイコンは、共通の独自キャプチャ枠マークから生成します。
-
-## LLM向けドキュメント
-
-[llms.txt](llms.txt)は文書の索引、[llms-full.txt](llms-full.txt)は統合ガイド、[llm.txt](llm.txt)は互換用の入口です。インストール、使い方、プライバシー、機能制限のMarkdownにリンクします。すべての検索エンジンやAIによる自動利用を保証するものではありません。
+[MIT](LICENSE) — 個人・商用利用可能。

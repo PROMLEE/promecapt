@@ -1,0 +1,7 @@
+.build/
+dist/
+.DS_Store
+*.p12
+*.mobileprovision
+.env*
+!.env.example

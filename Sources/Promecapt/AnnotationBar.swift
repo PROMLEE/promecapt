@@ -26,22 +26,20 @@ final class AnnotationBar: NSView {
     private var tipAreas: [NSTrackingArea] = []
     private var pendingTip: DispatchWorkItem?
     private var tipWindow: NSPanel?
-    static let preferredSize = NSSize(width: 560, height: 68)
+    static let preferredSize = NSSize(width: 560, height: 76)
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         setAccessibilityElement(true)
         setAccessibilityRole(.group)
         setAccessibilityLabel(L("주석 도구 막대"))
-        appearance = NSAppearance(named: .darkAqua)
         wantsLayer = true
-        layer?.backgroundColor = AnnotationPalette.background.cgColor
         layer?.masksToBounds = true
         layer?.cornerRadius = 7
-        layer?.borderWidth = 1
-        layer?.borderColor = AnnotationPalette.border.cgColor
         let top = NSStackView()
-        top.spacing = 2
+        top.spacing = 4
+        top.alignment = .centerY
+        top.detachesHiddenViews = true
         top.orientation = .horizontal
         top.addArrangedSubview(toolButton("viewfinder", L("캡처 영역 조절: 테두리 이동·8개 핸들 크기 조절"), index: -1))
         let icons = ["cursorarrow", "pencil.tip", "highlighter", "rectangle", "circle", "line.diagonal", "arrow.up.right", "textformat", "1.circle", "square.grid.3x3.fill"]
@@ -54,8 +52,7 @@ final class AnnotationBar: NSView {
         styles.toolTip = L("가리기 방식: 모자이크·블러·블랙박스")
         styles.widthAnchor.constraint(equalToConstant: 78).isActive = true
         styles.controlSize = .small
-        styles.font = .systemFont(ofSize: 12, weight: .semibold)
-        styles.contentTintColor = AnnotationPalette.foreground
+        styles.font = .systemFont(ofSize: 12)
         top.addArrangedSubview(styles)
         let well = colorWell
         well.color = .systemRed
@@ -68,23 +65,32 @@ final class AnnotationBar: NSView {
         top.addArrangedSubview(parameter)
         addSubview(top)
         let bottom = NSStackView()
-        bottom.spacing = 3
-        info.font = .monospacedSystemFont(ofSize: 12, weight: .semibold)
-        info.textColor = .white
+        bottom.spacing = 4
+        bottom.alignment = .centerY
+        bottom.detachesHiddenViews = true
+        info.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
+        info.textColor = .labelColor
+        info.lineBreakMode = .byTruncatingTail
+        info.maximumNumberOfLines = 1
+        info.widthAnchor.constraint(greaterThanOrEqualToConstant: 0).isActive = true
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         bottom.addArrangedSubview(info)
         let spacer = NSView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         bottom.addArrangedSubview(spacer)
-        for (title, action, tip) in [("↶", #selector(undoAction), L("실행 취소 (⌘Z)")), ("↷", #selector(redoAction), L("다시 실행 (⌘⇧Z)")),
-                                     ("OCR", #selector(ocrAction), L("OCR 영역 선택: 버튼을 누른 뒤 읽을 글자 범위만 드래그 · Esc 취소")),
-                                     (L("복사"), #selector(copyAction), L("주석을 포함한 이미지를 클립보드에 복사 (⌘C)")),
-                                     ("GIF", #selector(recordAction), L("선택 영역 GIF 녹화 · 프레임·해상도는 설정 → GIF에서 변경")),
-                                     (L("저장"), #selector(saveAction), L("주석을 포함한 이미지 저장 (⌘S)")),
-                                     (L("고정"), #selector(pinAction), L("캡처를 화면에 고정하거나 고정 주석 편집 적용 (⌘Enter)")),
-                                     (L("닫기"), #selector(cancelAction), L("캡처 또는 고정 주석 편집 취소"))] {
-            let button = AnnotationButton(title: title, target: self, action: action)
-            button.bezelStyle = .rounded
+        for (symbol, action, tip) in [("arrow.uturn.backward", #selector(undoAction), L("실행 취소 (⌘Z)")), ("arrow.uturn.forward", #selector(redoAction), L("다시 실행 (⌘⇧Z)")),
+                                     ("text.viewfinder", #selector(ocrAction), L("OCR 영역 선택: 버튼을 누른 뒤 읽을 글자 범위만 드래그 · Esc 취소")),
+                                     ("doc.on.doc", #selector(copyAction), L("주석을 포함한 이미지를 클립보드에 복사 (⌘C)")),
+                                     ("record.circle", #selector(recordAction), L("선택 영역 GIF 녹화 · 프레임·해상도는 설정 → GIF에서 변경")),
+                                     ("square.and.arrow.down", #selector(saveAction), L("주석을 포함한 이미지 저장 (⌘S)")),
+                                     ("pin", #selector(pinAction), L("캡처를 화면에 고정하거나 고정 주석 편집 적용 (⌘Enter)")),
+                                     ("xmark", #selector(cancelAction), L("캡처 또는 고정 주석 편집 취소"))] {
+            let button = AnnotationButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: tip) ?? NSImage(), target: self, action: action)
+            button.bezelStyle = .texturedRounded
+            button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
+            button.setAccessibilityLabel(tip)
+            button.widthAnchor.constraint(equalToConstant: 28).isActive = true
+            button.heightAnchor.constraint(equalToConstant: 28).isActive = true
             button.controlSize = .small
             button.toolTip = tip
             if action == #selector(recordAction) { recordButton = button; button.isHidden = onRecord == nil }
@@ -95,13 +101,19 @@ final class AnnotationBar: NSView {
         for row in [top, bottom] {
             row.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
-                row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7),
-                row.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -7),
-                row.heightAnchor.constraint(equalToConstant: 26)])
+                row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+                row.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+                row.heightAnchor.constraint(equalToConstant: 28)])
         }
-        top.topAnchor.constraint(equalTo: topAnchor, constant: 6).isActive = true
-        bottom.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6).isActive = true
+        top.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
+        bottom.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8).isActive = true
         choose(-1)
+    }
+    override func draw(_ dirtyRect: NSRect) {
+        NSColor.windowBackgroundColor.setFill()
+        NSBezierPath(roundedRect: bounds, xRadius: 7, yRadius: 7).fill()
+        NSColor.separatorColor.setStroke()
+        NSBezierPath(roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5), xRadius: 7, yRadius: 7).stroke()
     }
     override func hitTest(_ point: NSPoint) -> NSView? {
         guard !isHidden, bounds.contains(convert(point, from: superview)) else { return nil }
@@ -155,12 +167,15 @@ final class AnnotationBar: NSView {
         // Native help windows can sit behind a screen-saver-level capture overlay.
         panel.level = NSWindow.Level(rawValue: window.level.rawValue + 2)
         let background = NSView(frame: NSRect(origin: .zero, size: size))
-        background.appearance = NSAppearance(named: .darkAqua)
         background.wantsLayer = true; background.layer?.cornerRadius = 6
-        background.layer?.backgroundColor = AnnotationPalette.background.cgColor
-        background.layer?.borderWidth = 1; background.layer?.borderColor = AnnotationPalette.border.cgColor
+        background.appearance = effectiveAppearance
+        effectiveAppearance.performAsCurrentDrawingAppearance {
+            background.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+            background.layer?.borderWidth = 1
+            background.layer?.borderColor = NSColor.separatorColor.cgColor
+        }
         let label = NSTextField(wrappingLabelWithString: text)
-        label.font = font; label.textColor = .white
+        label.font = font; label.textColor = .labelColor
         label.frame = NSRect(x: 10, y: 8, width: size.width - 20, height: size.height - 16)
         background.addSubview(label); panel.contentView = background
         let anchor = window.convertToScreen(convert(rect, to: nil))
@@ -171,13 +186,14 @@ final class AnnotationBar: NSView {
     }
     private func toolButton(_ symbol: String, _ label: String, index: Int) -> NSButton {
         let button = AnnotationButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: label) ?? NSImage(), target: self, action: #selector(toolAction(_:)))
+        button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
         button.tag = index
         button.bezelStyle = .texturedRounded
         button.setButtonType(.pushOnPushOff)
         button.toolTip = label
         button.setAccessibilityLabel(index < 0 ? L("캡처 영역 이동 / 크기 조절") : L(Self.tools[index].rawValue))
         button.widthAnchor.constraint(equalToConstant: 28).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 26).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
         toolButtons.append(button)
         return button
     }

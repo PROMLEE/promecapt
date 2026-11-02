@@ -54,11 +54,23 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         root.orientation = .vertical
         root.spacing = 0
         root.alignment = .leading
-        window.contentView = root
+        let background = NSBox()
+        background.boxType = .custom
+        background.borderType = .noBorder
+        background.fillColor = .windowBackgroundColor
+        background.contentViewMargins = .zero
+        background.contentView = root
+        window.contentView = background
 
         tools.segmentCount = DrawingTool.allCases.count
+        let symbols = ["cursorarrow", "pencil.tip", "highlighter", "rectangle", "circle", "line.diagonal", "arrow.up.right", "textformat", "1.circle", "square.grid.3x3.fill", "crop"]
+        tools.segmentStyle = .rounded
+        tools.trackingMode = .selectOne
         for (index, tool) in DrawingTool.allCases.enumerated() {
-            tools.setLabel(L(tool.rawValue), forSegment: index)
+            let icon = NSImage(systemSymbolName: symbols[index], accessibilityDescription: L(tool.rawValue))?
+                .withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
+            tools.setImage(icon, forSegment: index)
+            tools.setWidth(30, forSegment: index)
             tools.setToolTip(tool.tip, forSegment: index)
         }
         tools.selectedSegment = 0
@@ -66,6 +78,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         tools.action = #selector(selectTool)
         tools.toolTip = L("영역 도구는 이미지에서 드래그합니다. 텍스트는 클릭합니다.")
         concealStyles.addItems(withTitles: ConcealStyle.allCases.map { L($0.rawValue) })
+        concealStyles.widthAnchor.constraint(equalToConstant: 100).isActive = true
         concealStyles.target = self; concealStyles.action = #selector(selectConcealStyle(_:))
         concealStyles.setAccessibilityLabel(L("가리기 방식"))
         let toolRow = row([tools, concealStyles])
@@ -120,9 +133,16 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     }
 
     private func button(_ title: String, _ selector: Selector, _ tip: String? = nil) -> NSButton {
-        let button = NSButton(title: title, target: self, action: selector)
-        button.bezelStyle = .rounded
-        button.toolTip = tip
+        let symbols: [Selector: String] = [#selector(undoEdit): "arrow.uturn.backward", #selector(redoEdit): "arrow.uturn.forward", #selector(rotateImage): "rotate.left", #selector(flip): "arrow.left.and.right.righttriangle.left.righttriangle.right", #selector(copyOutput): "doc.on.doc", #selector(saveOutput): "square.and.arrow.down", #selector(pinOutput): "pin", #selector(ocr): "text.viewfinder"]
+        let button = NSButton(image: NSImage(systemSymbolName: symbols[selector] ?? "ellipsis", accessibilityDescription: title) ?? NSImage(), target: self, action: selector)
+        button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
+        button.bezelStyle = .texturedRounded
+        button.controlSize = .small
+        button.contentTintColor = .labelColor
+        button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        button.setAccessibilityLabel(title)
+        button.toolTip = title + (tip.map { " (" + $0 + ")" } ?? "")
         return button
     }
 
@@ -138,6 +158,8 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         parameter.isEnabled = canvas.parameterIsEnabled
         parameter.updateAccessibility(conceal ? L("가리기 세기") : L("주석 두께"))
         parameterLabel.stringValue = conceal ? L("세기") : L("두께")
+        info.lineBreakMode = .byTruncatingTail
+        info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         info.stringValue = L("{0} × {1} px  ·  {2}  ·  클릭 선택 · Delete 삭제 · 휠 조절", Int(canvas.image.size.width), Int(canvas.image.size.height), conceal ? canvas.concealStyle.rawValue : canvas.effectiveTool.rawValue)
     }
 

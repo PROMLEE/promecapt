@@ -29,13 +29,6 @@ final class NumericStepper: NSControl, NSTextFieldDelegate {
         field.alignment = .center
         field.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
         field.bezelStyle = .roundedBezel; field.isBezeled = true
-        if compact {
-            appearance = NSAppearance(named: .darkAqua)
-            field.font = .monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
-            field.textColor = AnnotationPalette.foreground
-            field.backgroundColor = AnnotationPalette.control
-            field.drawsBackground = true
-        }
         field.delegate = self
         stepper.controlSize = .small; stepper.increment = 1
         stepper.autorepeat = true; stepper.valueWraps = false

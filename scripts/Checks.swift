@@ -19,23 +19,7 @@ import ImageIO
         return String(format: "#%02X%02X%02X", channels[0], channels[1], channels[2])
     }
     static func main() throws {
-        func luminance(_ color: NSColor) -> Double {
-            let c = color.usingColorSpace(.sRGB)!
-            func linear(_ value: CGFloat) -> Double {
-                let v = Double(value)
-                return v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4)
-            }
-            return 0.2126 * linear(c.redComponent) + 0.7152 * linear(c.greenComponent) + 0.0722 * linear(c.blueComponent)
-        }
-        func contrast(_ a: NSColor, _ b: NSColor) -> Double {
-            let x = luminance(a), y = luminance(b)
-            return (max(x, y) + 0.05) / (min(x, y) + 0.05)
-        }
-        check(contrast(AnnotationPalette.foreground, AnnotationPalette.background) >= 7, "toolbar text has strong contrast against its opaque background")
-        check(contrast(AnnotationPalette.foreground, AnnotationPalette.control) >= 7, "toolbar icons and labels retain strong contrast on controls")
-        check(contrast(AnnotationPalette.foreground, AnnotationPalette.selected) >= 4.5, "selected tool labels retain readable contrast")
-        check(contrast(AnnotationPalette.disabled, AnnotationPalette.control) >= 4.5, "disabled toolbar labels remain readable")
-        check(contrast(AnnotationPalette.border, AnnotationPalette.control) >= 3, "toolbar button boundaries are visible")
+        try ToolbarLayoutChecks.run()
         let savedAutoSelect = UserDefaults.standard.object(forKey: "autoSelectAnnotations")
         UserDefaults.standard.set(false, forKey: "autoSelectAnnotations")
         defer { UserDefaults.standard.set(savedAutoSelect, forKey: "autoSelectAnnotations") }

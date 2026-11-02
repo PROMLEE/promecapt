@@ -11,5 +11,5 @@ for source in Sources/Promecapt/*.swift; do
 done
 xcrun swiftc -parse-as-library -module-cache-path .build/checks-module-cache \
   -F "$SPARKLE_DIR" -framework Sparkle -Xlinker -rpath -Xlinker "$SPARKLE_DIR" \
-  "${SOURCES[@]}" scripts/Checks.swift -o .build/PromecaptChecks
+  "${SOURCES[@]}" scripts/Checks.swift scripts/ToolbarLayoutChecks.swift -o .build/PromecaptChecks
 .build/PromecaptChecks "$@"

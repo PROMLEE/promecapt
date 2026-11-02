@@ -155,6 +155,9 @@ final class PinController: NSWindowController, NSWindowDelegate {
         bar.onPin = { [weak self] in self?.finishEditing(apply: true) }
         bar.onCancel = { [weak self] in self?.finishEditing(apply: false) }
         bar.onOCR = { [weak self] in self?.extractText() }
+        bar.onOCRRegion = { [weak self, weak canvas] in
+            canvas?.beginOCRSelection { [weak self] image in OCRResultController.present(image, parent: self?.window) }
+        }
         bar.onSizeChange = { [weak self] in self?.positionTools() }
         bar.onDrag = { [weak self, weak tools] delta in
             guard let self, let tools else { return }
@@ -165,10 +168,15 @@ final class PinController: NSWindowController, NSWindowDelegate {
         editTools = tools
         window.addChildWindow(tools, ordered: .above)
         positionTools()
-        canvas.onShortcut = { [weak self] event in
+        canvas.onShortcut = { [weak self, weak bar] event in
             guard let self else { return false }
             if event.keyCode == 49 && self.editCanvas?.activeTextInput == nil { self.finishEditing(apply: true); return true }
             if event.keyCode == 53 { self.finishEditing(apply: false); return true }
+            if event.keyCode == 31, event.modifierFlags.intersection([.command, .option, .control]).isEmpty {
+                if event.modifierFlags.contains(.shift) { bar?.onOCRRegion?() }
+                else { bar?.onOCR?() }
+                return true
+            }
             guard event.modifierFlags.contains(.command) else { return false }
             guard let action = ImageKeyboardCommand.resolve(keyCode: event.keyCode, flags: event.modifierFlags) else { return false }
             switch action {

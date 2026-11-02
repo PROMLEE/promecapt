@@ -151,6 +151,13 @@ final class PreferencesController: NSWindowController {
         capture.addArrangedSubview(toggle(L("캡처 결과를 클립보드에 자동 복사"), key: "autoCopy", fallback: true))
         capture.addArrangedSubview(toggle(L("마지막 캡처 영역 기억"), key: "rememberRegion", fallback: false))
         capture.addArrangedSubview(toggle(L("캡처 전 창·앱 요소 자동 감지"), key: "autoDetectTargets", fallback: true))
+        let targetDetail = NSPopUpButton()
+        targetDetail.addItems(withTitles: CaptureTargetDetail.allCases.map(\.title))
+        targetDetail.selectItem(at: CaptureTargetDetail.current.rawValue)
+        targetDetail.setAccessibilityLabel(L("자동 영역 인식 범위"))
+        bind(targetDetail) { UserDefaults.standard.set(($0 as! NSPopUpButton).indexOfSelectedItem, forKey: "captureTargetDetail") }
+        capture.addArrangedSubview(heading(L("자동 영역 인식 범위")))
+        capture.addArrangedSubview(withHelp(targetDetail, text: L("균형은 작은 아이콘·글자 영역을 건너뜁니다. 큰 영역 위주는 패널·넓은 구역을 우선하고, 창만은 내부 요소를 감지하지 않습니다. Tab으로 상위 영역을 선택할 수 있습니다.")))
         capture.addArrangedSubview(toggle(L("그린 주석을 자동으로 선택"), key: "autoSelectAnnotations", fallback: true))
         refreshPermissionStatus()
         capture.addArrangedSubview(accessibilityLabel)

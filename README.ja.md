@@ -59,7 +59,7 @@ UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英�
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.6 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

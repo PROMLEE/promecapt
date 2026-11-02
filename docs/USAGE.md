@@ -43,3 +43,11 @@ Your preferences and library remain on this Mac. GIF clipboard attachments are c
 
 
 Drag empty space in a capture or pin-edit toolbar to move it. The position is retained during that editing session, including tool changes, and kept inside the display’s visible area below the menu bar/notch.
+
+## Capture controls — 1.1.7
+
+- Size appears once: next to the region while dragging, then in the toolbar after selection.
+- A separate draggable shortcut card lists capture, history and annotation shortcuts. Press H to collapse or expand it; the preference is remembered.
+- Shift-drag creates/resizes a square. Command-drag preserves the aspect ratio from the start of the adjustment; a fresh region with no previous ratio uses 1:1. Moving an existing region preserves its size regardless of these modifiers.
+- Settings → Capture → Automatic target detail offers Fine, Balanced (default), Prefer large areas and Windows only. These filter small targets rather than adding recognition delay. Tab / Shift-Tab cycles the remaining parent/child targets.
+- Click OCR or press O to read the current capture without selecting it again. Option-click OCR or press Shift-O to drag a smaller OCR region. Esc cancels region OCR before cancelling capture.

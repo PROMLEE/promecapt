@@ -15,6 +15,7 @@ final class AnnotationBar: NSView {
     var onCancel: (() -> Void)?
     var onRecord: (() -> Void)? { didSet { recordButton?.isHidden = onRecord == nil; onSizeChange?() } }
     private var recordButton: NSButton?
+    var onOCRRegion: (() -> Void)?
     var onOCR: (() -> Void)?
     var onColor: ((NSColor) -> Void)?
     var onParameter: ((CGFloat) -> Void)?
@@ -106,7 +107,7 @@ final class AnnotationBar: NSView {
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         bottom.addArrangedSubview(info)
         for (symbol, action, tip) in [("arrow.uturn.backward", #selector(undoAction), L("실행 취소 (⌘Z)")), ("arrow.uturn.forward", #selector(redoAction), L("다시 실행 (⌘⇧Z)")),
-                                     ("text.viewfinder", #selector(ocrAction), L("OCR 영역 선택: 버튼을 누른 뒤 읽을 글자 범위만 드래그 · Esc 취소")),
+                                     ("text.viewfinder", #selector(ocrAction), L("OCR: 캡처 전체 읽기 · ⌥클릭 부분 영역 지정 · O 전체 / Shift+O 부분")),
                                      ("doc.on.doc", #selector(copyAction), L("주석을 포함한 이미지를 클립보드에 복사 (⌘C)")),
                                      ("record.circle", #selector(recordAction), L("선택 영역 GIF 녹화 · 프레임·해상도는 설정 → GIF에서 변경")),
                                      ("square.and.arrow.down", #selector(saveAction), L("주석을 포함한 이미지 저장 (⌘S)")),
@@ -330,5 +331,10 @@ final class AnnotationBar: NSView {
     @objc private func saveAction() { window?.makeFirstResponder(nil); onSave?() }
     @objc private func pinAction() { window?.makeFirstResponder(nil); onPin?() }
     @objc private func cancelAction() { onCancel?() }
-    @objc private func ocrAction() { window?.makeFirstResponder(nil); onOCR?() }
+    @objc private func ocrAction() {
+        ocrButton?.state = .off
+        window?.makeFirstResponder(nil)
+        if NSApp.currentEvent?.modifierFlags.contains(.option) == true, let onOCRRegion { onOCRRegion() }
+        else { onOCR?() }
+    }
 }

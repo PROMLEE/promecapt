@@ -168,6 +168,8 @@ final class CaptureView: NSView {
     let canvas: CanvasView
     var selection: CaptureSelection
     let bar = AnnotationBar(frame: .zero)
+    private let shortcutHelp = CaptureHelpView(frame: .zero)
+    private var helpOrigin: NSPoint?
     var onFinish: ((AnnotationDocument, CaptureDestination, NSRect, CaptureHistoryContext) -> Void)?
     var onCancel: (() -> Void)?
     private let surface: CaptureSurface
@@ -234,6 +236,14 @@ final class CaptureView: NSView {
         shade.autoresizingMask = [.width, .height]
         addSubview(shade)
         addSubview(bar)
+        addSubview(shortcutHelp)
+        shortcutHelp.onMove = { [weak self] delta in
+            guard let self else { return }
+            self.helpOrigin = NSPoint(x: self.shortcutHelp.frame.minX + delta.x, y: self.shortcutHelp.frame.minY + delta.y)
+            self.positionHelp()
+        }
+        shortcutHelp.onResize = { [weak self] in self?.positionHelp() }
+        positionHelp()
         bar.isHidden = true
         bar.onSizeChange = { [weak self] in self?.positionBar() }
         bar.onDrag = { [weak self] delta in
@@ -266,12 +276,8 @@ final class CaptureView: NSView {
         bar.onSave = { [weak self] in self?.finish(.save) }
         bar.onPin = { [weak self] in self?.finish(.pin) }
         bar.onCancel = { [weak self] in self?.onCancel?() }
-        bar.onOCR = { [weak self] in
-            guard let self, self.selection.isValid else { return }
-            self.canvas.beginOCRSelection(in: self.selection.pixelRect(imageSize: self.canvas.image.size)) { [weak self] image in
-                OCRResultController.present(image, parent: self?.window)
-            }
-        }
+        bar.onOCR = { [weak self] in self?.readOCR(partial: false) }
+        bar.onOCRRegion = { [weak self] in self?.readOCR(partial: true) }
         let tracking = NSTrackingArea(rect: .zero, options: [.activeAlways, .mouseMoved, .cursorUpdate, .inVisibleRect], owner: self)
         addTrackingArea(tracking)
         setAccessibilityElement(true)
@@ -287,6 +293,7 @@ final class CaptureView: NSView {
         for area in trackingAreas { removeTrackingArea(area) }
         bar.dismissHelp()
         bar.isHidden = true
+        shortcutHelp.isHidden = true
         onFinish = nil; onCancel = nil
     }
     override func resetCursorRects() {
@@ -305,6 +312,7 @@ final class CaptureView: NSView {
             }
         }
         if !bar.isHidden { addCursorRect(bar.frame, cursor: .arrow) }
+        addCursorRect(shortcutHelp.frame, cursor: .arrow)
     }
 
     override func scrollWheel(with event: NSEvent) {
@@ -313,6 +321,7 @@ final class CaptureView: NSView {
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
+        if shortcutHelp.frame.contains(point) { return shortcutHelp.hitTest(point) ?? shortcutHelp }
         if !bar.isHidden && bar.frame.contains(point) { return bar.hitTest(point) ?? bar }
         if let input = canvas.activeTextInput, input.window === window, input.frame.contains(point) { return canvas.hitTest(point) }
         if canvas.isSelectingOCR, selection.isValid, selection.rect.contains(point) { return canvas.hitTest(point) }
@@ -344,13 +353,13 @@ final class CaptureView: NSView {
             pendingTarget = nil
             selection.begin(at: downPoint, forceNew: true)
         }
-        selection.update(to: p)
+        selection.update(to: p, constraint: dragConstraint(event.modifierFlags))
         subviews.forEach { $0.needsDisplay = true }
     }
     override func mouseUp(with event: NSEvent) {
         guard dragging else { return }
         if let pendingTarget { selection.rect = pendingTarget }
-        else { selection.update(to: convert(event.locationInWindow, from: nil)) }
+        else { selection.update(to: convert(event.locationInWindow, from: nil), constraint: dragConstraint(event.modifierFlags)) }
         pendingTarget = nil
         dragging = false
         detector.cancel()
@@ -365,6 +374,7 @@ final class CaptureView: NSView {
         guard interactionActive, let window, window.isVisible, NSApp.isActive else { return }
         let p = convert(location ?? window.mouseLocationOutsideOfEventStream, from: nil)
         guard bounds.contains(p) else { return }
+        if shortcutHelp.frame.contains(p) { NSCursor.arrow.set(); return }
         if !bar.isHidden && bar.frame.contains(p) { NSCursor.arrow.set() }
         else if canvas.isSelectingOCR && selection.rect.contains(p) { NSCursor.crosshair.set() }
         else if selection.isValid && tool == nil, let handle = selection.handle(at: p) {
@@ -386,14 +396,15 @@ final class CaptureView: NSView {
             targets = []; targetIndex = 0; hoveredWindow = nil
             updateTargetLabel(); return
         }
-        targets = windowMode ? [CaptureTarget(rect: candidate.rect, label: L("창"))] : detector.cached(at: p, window: candidate, bounds: bounds)
+        targets = windowMode ? [CaptureTarget(rect: candidate.rect, label: L("창"))] : CaptureTargetDetail.current.filter(detector.cached(at: p, window: candidate, bounds: bounds))
         targetIndex = 0
         hoveredWindow = targets.first?.rect
         updateTargetLabel()
-        if !windowMode && CaptureTargetDetector.canReadElements {
+        if !windowMode && CaptureTargetDetail.current != .windows && CaptureTargetDetector.canReadElements {
             detector.detect(at: p, screen: surface.screen, window: candidate) { [weak self] targets in
                 guard let self, self.interactionActive, !self.selection.isValid else { return }
                 if self.dragging && self.pendingTarget == nil { return }
+                let targets = CaptureTargetDetail.current.filter(targets)
                 self.targets = targets; self.targetIndex = 0
                 self.hoveredWindow = targets.first?.rect
                 if self.dragging { self.pendingTarget = targets.first?.rect }
@@ -418,6 +429,35 @@ final class CaptureView: NSView {
         bar.isHidden = !selection.isValid
         positionBar()
         subviews.forEach { $0.needsDisplay = true }
+    }
+    private func dragConstraint(_ flags: NSEvent.ModifierFlags) -> CaptureSelection.Constraint {
+        flags.contains(.shift) ? .square : flags.contains(.command) ? .aspect : .free
+    }
+    override func flagsChanged(with event: NSEvent) {
+        if dragging {
+            selection.update(to: convert(event.locationInWindow, from: nil), constraint: dragConstraint(event.modifierFlags))
+            subviews.forEach { $0.needsDisplay = true }
+        }
+        super.flagsChanged(with: event)
+    }
+    private func readOCR(partial: Bool) {
+        guard selection.isValid else { return }
+        if canvas.isSelectingOCR { canvas.cancelOCRSelection(); return }
+        let rect = selection.pixelRect(imageSize: canvas.image.size)
+        if partial {
+            canvas.beginOCRSelection(in: rect) { [weak self] image in OCRResultController.present(image, parent: self?.window) }
+        } else {
+            canvas.flushText()
+            OCRResultController.present(canvas.ocrImage(in: rect), parent: window)
+        }
+    }
+    private func positionHelp() {
+        let screen = surface.screen
+        let safe = screen.visibleFrame.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY).intersection(bounds)
+        let size = shortcutHelp.preferredSize
+        let origin = AnnotationBar.constrainedOrigin(helpOrigin ?? NSPoint(x: safe.minX + 12, y: safe.minY + 12), size: size, within: safe)
+        shortcutHelp.frame = NSRect(origin: origin, size: size)
+        if helpOrigin != nil { helpOrigin = origin }
     }
     private var manualBarOrigin: NSPoint?
     private func positionBar() {
@@ -458,6 +498,8 @@ final class CaptureView: NSView {
         }
         guard !command else { return false }
         switch event.keyCode {
+        case 4: shortcutHelp.toggle()
+        case 31: readOCR(partial: event.modifierFlags.contains(.shift))
         case 43: browseHistory(older: true)
         case 47: browseHistory(older: false)
         case 53: onCancel?()
@@ -494,30 +536,29 @@ final class CaptureView: NSView {
         shade.windingRule = .evenOdd
         NSColor.black.withAlphaComponent(0.45).setFill()
         shade.fill()
-        guard let hole else {
-            (L("드래그 영역 선택  ·  , 이전 기록 / . 다음  ·  클릭 자동 선택  ·  Tab 상위 요소  ·  Space 창 선택  ·  Esc 취소") as NSString).draw(at: NSPoint(x: 36, y: bounds.maxY - 70), withAttributes: [
-                .font: NSFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: NSColor.white])
-            return
-        }
+        guard let hole else { return }
         NSColor.systemMint.setStroke()
         let border = NSBezierPath(rect: hole)
         border.lineWidth = 1.5
         border.stroke()
         if !selection.isValid, targets.indices.contains(targetIndex) {
-            let label = L("{0} · 클릭 선택 / 드래그 직접 지정 · Tab 상위 요소 · Space 창 선택", targets[targetIndex].label)
+            let label = targets[targetIndex].label
             (label as NSString).draw(at: NSPoint(x: max(8, hole.minX + 8), y: min(bounds.maxY - 24, hole.maxY + 8)), withAttributes: [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.white, .backgroundColor: NSColor.black.withAlphaComponent(0.85)])
         }
         if selection.isValid {
+            if dragging {
+                let pixels = selection.pixelRect(imageSize: canvas.image.size)
+                let text = "\(Int(pixels.width)) × \(Int(pixels.height)) px"
+                (text as NSString).draw(at: NSPoint(x: hole.minX + 8, y: min(bounds.maxY - 24, hole.maxY + 9)),
+                    withAttributes: [.font: NSFont.monospacedSystemFont(ofSize: 11, weight: .medium), .foregroundColor: NSColor.white, .backgroundColor: NSColor.black.withAlphaComponent(0.8)])
+            }
             for handle in CaptureSelection.Handle.allCases {
                 let p = selection.point(for: handle)
                 let box = NSRect(x: p.x - 3, y: p.y - 3, width: 6, height: 6)
                 NSColor.white.setFill(); box.fill()
                 NSColor.systemMint.setStroke(); NSBezierPath(rect: box).stroke()
             }
-            let pixels = selection.pixelRect(imageSize: canvas.image.size)
-            let text = L("{0} × {1} px  ·  방향키 이동 / Shift+방향키 크기", Int(pixels.width), Int(pixels.height))
-            let labelPoint = NSPoint(x: hole.minX + 8, y: min(bounds.maxY - 24, hole.maxY + 9))
-            (text as NSString).draw(at: labelPoint, withAttributes: [.font: NSFont.monospacedSystemFont(ofSize: 11, weight: .medium), .foregroundColor: NSColor.white, .backgroundColor: NSColor.black.withAlphaComponent(0.8)])
+
         }
     }
 }

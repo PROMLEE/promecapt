@@ -28,6 +28,10 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     private(set) var isSelectingOCR = false
     private var ocrLimit = NSRect.zero
     private var ocrCompletion: ((NSImage) -> Void)?
+    func ocrImage(in rect: NSRect) -> NSImage {
+        flushText()
+        return Imaging.crop(image, rect: rect.intersection(NSRect(origin: .zero, size: image.size)))
+    }
     func beginOCRSelection(in rect: NSRect? = nil, completion: @escaping (NSImage) -> Void) {
         flushText()
         if isSelectingOCR { cancelOCRSelection(); return }

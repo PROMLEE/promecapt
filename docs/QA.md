@@ -100,3 +100,9 @@ Button spacing is 2pt, with explicit extra clearance around native popup and col
 - Automated: background mouse down/drag/up reports movement and ends on release; top/right and bottom/left constraints on a display with negative coordinates.
 - Live owner Mac: capture toolbar moved by dragging its empty space, stopped below the menu bar when dragged to the top edge, retained its position when rectangle options expanded the bar.
 - Same installed development build: screen capture and accessibility both remained granted after quitting and reopening. This does not prove retention across an update.
+
+## Capture usability changes — 1.1.7
+
+- Automated: square selection in both directions and at display edges, all eight aspect-preserving resize handles, releasing a modifier, moving without resizing, four detection detail levels and tiny full-region OCR extraction.
+- Live Mac: capture setting defaults to Balanced; H collapses/expands the shortcut card; selecting a region shows one size field; OCR button and O open recognition directly; Shift-O enters partial OCR and Esc exits it without dismissing capture. Recognized text was returned from the selected frozen-screen region.
+- Modifier-held physical drag and browser target filtering feel still require owner verification. The computer-use API does not support holding a modifier across a drag.

@@ -9,6 +9,7 @@ struct CaptureSelection {
         var changesTop: Bool { [.northWest, .north, .northEast].contains(self) }
         var changesBottom: Bool { [.southWest, .south, .southEast].contains(self) }
     }
+    enum Constraint { case free, square, aspect }
     enum Drag { case new, move, resize(Handle) }
     var rect: NSRect = .zero
     let bounds: NSRect
@@ -45,8 +46,24 @@ struct CaptureSelection {
         else if !forceNew, isValid, rect.contains(location) { drag = .move }
         else { drag = .new; rect = NSRect(origin: location, size: .zero) }
     }
-    mutating func update(to location: NSPoint) {
+    mutating func update(to location: NSPoint, constraint: Constraint = .free) {
         let p = NSPoint(x: min(bounds.maxX, max(bounds.minX, location.x)), y: min(bounds.maxY, max(bounds.minY, location.y)))
+        let ratio: CGFloat? = constraint == .square ? 1 : constraint == .aspect ? (original.width >= 2 && original.height >= 2 ? original.width / original.height : 1) : nil
+        if let ratio {
+            switch drag {
+            case .new:
+                rect = proportional(anchor: start, pointer: p, ratio: ratio, horizontal: true, vertical: true)
+                return
+            case .resize(let handle):
+                let anchor = NSPoint(x: handle.changesLeft ? original.maxX : handle.changesRight ? original.minX : original.midX,
+                                     y: handle.changesBottom ? original.maxY : handle.changesTop ? original.minY : original.midY)
+                rect = proportional(anchor: anchor, pointer: p, ratio: ratio,
+                                    horizontal: handle.changesLeft || handle.changesRight,
+                                    vertical: handle.changesTop || handle.changesBottom)
+                return
+            case .move: break
+            }
+        }
         switch drag {
         case .new:
             rect = NSRect(x: min(start.x, p.x), y: min(start.y, p.y), width: abs(p.x - start.x), height: abs(p.y - start.y))
@@ -62,6 +79,19 @@ struct CaptureSelection {
             if handle.changesTop { y2 = max(p.y, y1 + 2) }
             rect = NSRect(x: x1, y: y1, width: x2 - x1, height: y2 - y1).intersection(bounds)
         }
+    }
+    private func proportional(anchor: NSPoint, pointer: NSPoint, ratio: CGFloat, horizontal: Bool, vertical: Bool) -> NSRect {
+        let sx: CGFloat = pointer.x < anchor.x ? -1 : 1
+        let sy: CGFloat = pointer.y < anchor.y ? -1 : 1
+        let maxWidth = horizontal ? (sx > 0 ? bounds.maxX - anchor.x : anchor.x - bounds.minX) : 2 * min(anchor.x - bounds.minX, bounds.maxX - anchor.x)
+        let maxHeight = vertical ? (sy > 0 ? bounds.maxY - anchor.y : anchor.y - bounds.minY) : 2 * min(anchor.y - bounds.minY, bounds.maxY - anchor.y)
+        let proposedWidth = horizontal ? abs(pointer.x - anchor.x) : abs(pointer.y - anchor.y) * ratio
+        let proposed = horizontal && vertical ? max(proposedWidth, abs(pointer.y - anchor.y) * ratio) : proposedWidth
+        let width = max(0, min(max(2, proposed), maxWidth, maxHeight * ratio))
+        let height = width / ratio
+        return NSRect(x: horizontal ? (sx > 0 ? anchor.x : anchor.x - width) : anchor.x - width / 2,
+                      y: vertical ? (sy > 0 ? anchor.y : anchor.y - height) : anchor.y - height / 2,
+                      width: width, height: height)
     }
     mutating func nudge(dx: CGFloat, dy: CGFloat, resize: Bool) {
         guard isValid else { return }

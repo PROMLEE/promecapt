@@ -68,7 +68,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.6 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -160,7 +160,7 @@ Download the matching `.dmg.sha256` file too. In Terminal, run the following, ch
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.6-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.7-macos-arm64.dmg.sha256
 ```
 
 `OK` means a match. For `FAILED`, do not install; download again from official Releases. For `No such file`, check the filename and folder. In-app Sparkle updates verify their signatures automatically, with no manual hash comparison.
@@ -179,7 +179,7 @@ Finish Apple’s installer, then run:
 
 ```sh
 swift --version
-git clone --branch v1.1.6 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -244,20 +244,28 @@ Your preferences and library remain on this Mac. GIF clipboard attachments are c
 
 Drag empty space in a capture or pin-edit toolbar to move it. The position is retained during that editing session, including tool changes, and kept inside the display’s visible area below the menu bar/notch.
 
+## Capture controls — 1.1.7
+
+- Size appears once: next to the region while dragging, then in the toolbar after selection.
+- A separate draggable shortcut card lists capture, history and annotation shortcuts. Press H to collapse or expand it; the preference is remembered.
+- Shift-drag creates/resizes a square. Command-drag preserves the aspect ratio from the start of the adjustment; a fresh region with no previous ratio uses 1:1. Moving an existing region preserves its size regardless of these modifiers.
+- Settings → Capture → Automatic target detail offers Fine, Balanced (default), Prefer large areas and Windows only. These filter small targets rather than adding recognition delay. Tab / Shift-Tab cycles the remaining parent/child targets.
+- Click OCR or press O to read the current capture without selecting it again. Option-click OCR or press Shift-O to drag a smaller OCR region. Esc cancels region OCR before cancelling capture.
+
 
 ---
 
 Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md
 
-# Feature status — Promecapt 1.1.6
+# Feature status — Promecapt 1.1.7
 
 | Area | Included | Limits |
 | --- | --- | --- |
-| Capture | Region, window, accessible elements; eight handles; keyboard adjustment | Element detection varies by target app's accessibility support |
+| Capture | Region, window, accessible elements; target detail presets; square/aspect-constrained handles; shortcut card | Element detection varies by target app's accessibility support |
 | Annotations | Pen, highlighter, shapes, arrows, text, numbers; optional automatic selection after drawing and explicit reselection | Flattened images cannot recover old annotation objects |
 | Redaction | Mosaic, blur, opaque black box; numeric and wheel adjustment | Mosaic and blur are visual effects; choose opaque black box for complete coverage |
 | Pins | Move, resize, opacity, groups, hide, click-through recovery, persisted annotations | Full-image transformations flatten still-image annotations |
-| OCR | User-selected region, editable result, local Vision processing | Korean and English recognition; UI languages are separate |
+| OCR | Full capture or smaller selected region; editable result; local Vision processing | Korean and English recognition; UI languages are separate |
 | History | Comma / period traversal, full screen context and original selection | Old cropped-only entries use the current desktop background |
 | GIF | Configurable fps, long edge, time limit and cursor; region overlay; preview, copy, animated pin, save | One display, no audio or Promecapt windows; no GIF annotation/rotation/frame editing; temporary-frame budget |
 | Languages | Korean, English, Japanese, Simplified Chinese; automatic or manual choice | Existing editors use their creation-time language; native OS dialogs follow macOS |

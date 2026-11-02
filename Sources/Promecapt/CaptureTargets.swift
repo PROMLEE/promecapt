@@ -11,6 +11,29 @@ struct CaptureTarget: Equatable {
     var label: String
 }
 
+enum CaptureTargetDetail: Int, CaseIterable {
+    case fine, balanced, large, windows
+    static var current: Self {
+        guard let value = UserDefaults.standard.object(forKey: "captureTargetDetail") as? Int else { return .balanced }
+        return Self(rawValue: value) ?? .balanced
+    }
+    var title: String {
+        switch self {
+        case .fine: return L("세밀하게")
+        case .balanced: return L("균형")
+        case .large: return L("큰 영역 위주")
+        case .windows: return L("창만")
+        }
+    }
+    func filter(_ targets: [CaptureTarget]) -> [CaptureTarget] {
+        guard let window = targets.last else { return [] }
+        if self == .windows { return [window] }
+        let side: CGFloat = self == .fine ? 5 : self == .balanced ? 24 : 64
+        let area: CGFloat = self == .fine ? 25 : self == .balanced ? 2400 : 16000
+        return targets.dropLast().filter { $0.rect.width >= side && $0.rect.height >= side && $0.rect.width * $0.rect.height >= area } + [window]
+    }
+}
+
 enum CaptureTargetGeometry {
     static func appKitRect(_ rect: NSRect, mainTop: CGFloat) -> NSRect {
         NSRect(x: rect.minX, y: mainTop - rect.maxY, width: rect.width, height: rect.height)

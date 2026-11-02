@@ -1,0 +1,46 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.7",
+    "changes": [
+      "Replace duplicate capture dimensions with one size readout and a draggable shortcut card; H collapses or expands the card.",
+      "Use Shift-drag for a square and Command-drag to preserve the aspect ratio at the start of a region adjustment.",
+      "Add automatic target detail settings: Fine, Balanced (default), Prefer large areas and Windows only.",
+      "Read the entire selected capture with OCR or O; use Option-click or Shift-O for a smaller OCR region."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.7 업데이트 내용",
+    "changes": [
+      "크기 중복 표시를 없애고 이동 가능한 단축키 안내 패널을 추가했습니다. H로 접고 펼칠 수 있습니다.",
+      "Shift 드래그는 정사각형, ⌘ 드래그는 영역 조절 시작 시 비율을 유지합니다.",
+      "자동 영역 인식 범위를 세밀하게·균형(기본)·큰 영역 위주·창만으로 설정할 수 있습니다.",
+      "OCR 버튼이나 O로 캡처 전체를 바로 읽습니다. ⌥클릭 또는 Shift+O는 부분 OCR입니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.7 の更新内容",
+    "changes": [
+      "サイズの重複表示をなくし、移動可能なショートカット一覧を追加しました。Hで折りたためます。",
+      "Shiftドラッグで正方形、⌘ドラッグで領域調整開始時の縦横比を維持します。",
+      "自動検出を細かく・バランス（既定）・大きい領域を優先・ウィンドウのみから選べます。",
+      "OCRボタンまたはOでキャプチャ全体を認識します。⌥クリックまたはShift+Oで部分OCRを選べます。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.7 更新内容",
+    "changes": [
+      "移除重复的尺寸显示，并新增可拖动的快捷键说明面板，可按 H 折叠或展开。",
+      "Shift 拖动保持正方形，⌘拖动保持区域调整前的宽高比。",
+      "可将自动区域识别设为精细、均衡（默认）、优先大区域或仅窗口。",
+      "点击 OCR 或按 O 直接识别整个截图；⌥点击或 Shift+O 可选择局部 OCR 区域。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

@@ -25,6 +25,11 @@ enum ToolbarLayoutChecks {
         dragBar.mouseUp(with: dragEvent(.leftMouseUp, 35, 22))
         dragBar.mouseDragged(with: dragEvent(.leftMouseDragged, 70, 50))
         Checks.check(movement == NSPoint(x: 25, y: 12), "toolbar background drag reports movement and stops on release")
+        var fullOCRCalls = 0
+        dragBar.onOCR = { fullOCRCalls += 1 }
+        let ocrButton = dragBar.subviews.compactMap { $0 as? NSStackView }.flatMap(\.arrangedSubviews).compactMap { $0 as? NSButton }.first { $0.action == NSSelectorFromString("ocrAction") }!
+        ocrButton.performClick(nil)
+        Checks.check(fullOCRCalls == 1 && ocrButton.state == .off, "whole OCR action does not leave the region-selection button latched")
         let savedLanguage = UserDefaults.standard.object(forKey: "appLanguage")
         defer { UserDefaults.standard.set(savedLanguage, forKey: "appLanguage") }
         let output = URL(fileURLWithPath: ".build/toolbar-layout", isDirectory: true)
@@ -141,6 +146,17 @@ enum ToolbarLayoutChecks {
                     }
                     layoutCheck(whitePixels > 0, "\(context): inactive-window enabled icon actually renders white")
                 }
+                let helpPreference = UserDefaults.standard.object(forKey: "captureHelpExpanded")
+                UserDefaults.standard.set(true, forKey: "captureHelpExpanded")
+                let reference = CaptureHelpView(frame: .zero)
+                reference.appearance = NSAppearance(named: appearance)
+                reference.frame.size = reference.preferredSize
+                reference.layoutSubtreeIfNeeded()
+                inspect(reference, context: context + "-shortcuts")
+                try snapshot(reference, name: "shortcuts-" + context)
+                reference.toggle()
+                layoutCheck(reference.preferredSize.height == 32, "shortcut reference collapses without closing capture")
+                UserDefaults.standard.set(helpPreference, forKey: "captureHelpExpanded")
                 let confirm = AnnotationColorWell().confirmationAccessory()
                 confirm.appearance = NSAppearance(named: appearance)
                 confirm.layoutSubtreeIfNeeded()

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.7
+
+- Replace duplicate capture dimensions with one size readout and a draggable shortcut card; H collapses or expands the card.
+- Use Shift-drag for a square and Command-drag to preserve the aspect ratio at the start of a region adjustment.
+- Add automatic target detail settings: Fine, Balanced (default), Prefer large areas and Windows only.
+- Read the entire selected capture with OCR or O; use Option-click or Shift-O for a smaller OCR region.
+
 ## 1.1.6
 
 - Drag empty toolbar space to reposition capture and pin-edit tools.

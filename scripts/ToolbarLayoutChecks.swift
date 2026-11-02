@@ -47,7 +47,7 @@ enum ToolbarLayoutChecks {
                     // A segmented control's internal implementation may contain child controls.
                     if control.isDescendant(of: other) || other.isDescendant(of: control) { continue }
                     let overlap = rect.intersection(other.convert(other.bounds, to: root))
-                    Checks.check(overlap.isNull || overlap.width < 0.5 || overlap.height < 0.5, "\(context): native control drawing does not overlap")
+                    Checks.check(overlap.isNull || overlap.width < 0.5 || overlap.height < 0.5, "\(context): \(type(of: control)) \(rect) overlaps \(type(of: other)) \(other.convert(other.bounds, to: root))")
                 }
             }
         }

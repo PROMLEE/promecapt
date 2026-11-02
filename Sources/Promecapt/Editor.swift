@@ -134,7 +134,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
 
     private func button(_ title: String, _ selector: Selector, _ tip: String? = nil) -> NSButton {
         let symbols: [Selector: String] = [#selector(undoEdit): "arrow.uturn.backward", #selector(redoEdit): "arrow.uturn.forward", #selector(rotateImage): "rotate.left", #selector(flip): "arrow.left.and.right.righttriangle.left.righttriangle.right", #selector(copyOutput): "doc.on.doc", #selector(saveOutput): "square.and.arrow.down", #selector(pinOutput): "pin", #selector(ocr): "text.viewfinder"]
-        let button = NSButton(image: NSImage(systemSymbolName: symbols[selector] ?? "ellipsis", accessibilityDescription: title) ?? NSImage(), target: self, action: selector)
+        let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[selector] ?? "ellipsis", accessibilityDescription: title) ?? NSImage(), target: self, action: selector)
         button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
         button.bezelStyle = .texturedRounded
         button.controlSize = .small

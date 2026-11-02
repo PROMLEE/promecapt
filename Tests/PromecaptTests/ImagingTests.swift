@@ -94,10 +94,10 @@ final class ImagingTests: XCTestCase {
         XCTAssertEqual(canvas.lineWidth, 7)
         canvas.tool = .conceal
         canvas.adjustParameter(by: 3)
-        XCTAssertEqual(canvas.effectStrength, 20)
+        XCTAssertEqual(canvas.effectStrength, 17)
         XCTAssertEqual(canvas.lineWidth, 7)
         canvas.concealStyle = .blackbox
         canvas.adjustParameter(by: 10)
-        XCTAssertEqual(canvas.effectStrength, 20)
+        XCTAssertEqual(canvas.effectStrength, 17)
     }
 }

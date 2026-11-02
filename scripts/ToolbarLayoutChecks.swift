@@ -62,7 +62,8 @@ enum ToolbarLayoutChecks {
         func optionVisible(_ root: NSView, id: String) -> Bool {
             func find(_ view: NSView) -> NSView? {
                 if view.identifier?.rawValue == id { return view }
-                return view.subviews.compactMap { find($0) }.first
+                let children = (view as? NSStackView)?.arrangedSubviews ?? view.subviews
+                return children.compactMap { find($0) }.first
             }
             guard let view = find(root) else { fatalError("Missing option: " + id) }
             return !view.isHiddenOrHasHiddenAncestor

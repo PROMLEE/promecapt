@@ -89,98 +89,109 @@ Local processing; no uploads or analytics. History includes full display snapsho
 
 Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.md
 
-# Install Promecapt without an Apple Developer account
+# Install Promecapt
 
-**You do not need a paid Apple Developer account to build and run Promecapt on your own Mac.** Developer ID signing and notarization affect how macOS verifies a downloaded app; their absence does not mean that the app can only run on its author's computer.
+**For normal use, choose Option A and download the DMG.** No Terminal, developer tools or paid Apple Developer account is needed. Requires macOS 13+.
 
-Choose either a local source build or a prebuilt DMG or ZIP. Both still need the macOS permissions used by a screen-capture app. Company-managed Macs may restrict either option; check with your IT administrator if policy blocks installation.
+[한국어](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.ko.md) · [Download](https://github.com/PROMLEE/promecapt/releases/latest)
 
-[한국어 설치 가이드](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/INSTALL.ko.md) · [English README](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.md) · [日本語](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.ja.md#ソースからビルド) · [简体中文](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.zh-CN.md#从源码构建)
+## Option A — Install a release (recommended)
 
-## Option A — Build locally, with free Apple tools
+### 1. Choose your Mac
 
-### 1. Install the command-line tools
+Open  → **About This Mac** and check the chip / processor.
 
-Open Terminal and run:
+| Mac | File to download |
+| --- | --- |
+| Apple M1, M2, M3, M4, etc. | Ends in `macos-arm64.dmg` |
+| Intel | Ends in `macos-x86_64.dmg` |
+
+On the [latest release](https://github.com/PROMLEE/promecapt/releases/latest), expand **Assets** and choose the `.dmg`. You do not need `.sha256`, appcast XML or Source code to install.
+
+### 2. Install in Applications
+
+1. Quit any existing Promecapt instance.
+2. Double-click the downloaded DMG.
+3. Drag **Promecapt** onto **Applications**. Choose **Replace** if an older app exists.
+4. Eject the Promecapt disk in Finder, then open **Applications → Promecapt**.
+
+![Drag Promecapt onto Applications in the DMG window](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/assets/install/dmg-install.jpg)
+
+**Downloaded a ZIP?** Double-click to extract it, then drag `Promecapt.app` into Finder’s **Applications** folder before opening it. **The 1.1.0 ZIP does not show a move-to-Applications prompt.** The DMG installation window is separate. Move the extracted app into Applications before launching it.
+
+### 3. If macOS blocks opening
+
+The current public app is not Apple-notarized. Follow these steps only for the exact official download you trust. The screenshots below show Korean macOS; the equivalent English button labels are provided here.
+
+1. If macOS says it cannot check Promecapt for malicious software, click **Done**, not **Move to Trash**.
+
+<img src="https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/assets/install/macos-blocked.jpg" alt="First-launch warning; select Done" width="420">
+
+2. Open ** → System Settings → Privacy & Security**. Scroll down to **Security**.
+3. Find the message naming **Promecapt** and click **Open Anyway**.
+
+<img src="https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/assets/install/macos-open-anyway.jpg" alt="Privacy & Security showing Open Anyway for Promecapt" width="660">
+
+4. Confirm the app name in the next dialog and click **Open Anyway** or **Open** again. Authenticate with Touch ID or your Mac login password in the system dialog if requested.
+5. Use the installed app from Applications afterward. It may run only in the menu bar; reopening the app displays Settings.
+
+If the button is missing, try opening the installed app once, then reopen this settings page. Wording varies by macOS version and language; managed Macs may restrict exceptions. [Apple’s opening instructions](https://support.apple.com/en-us/102445).
+
+If macOS says the app will damage your computer, contains malware or is damaged, stop instead of following this exception procedure.
+
+### 4. Allow capture permissions
+
+**Open Anyway and capture permissions are separate.**
+
+1. In **System Settings → Privacy & Security → Screen & System Audio Recording**, enable **Promecapt**. Older macOS calls this **Screen Recording**.
+2. Enable Promecapt under **Accessibility** for internal app-element detection and enhanced global shortcuts.
+3. Quit and reopen the app if requested. Choose region capture in the menu bar. The default shortcut is `⌥⌘1`; customize it in Settings → Shortcuts.
+
+If capture is denied despite its switch being on: quit the app, remove **only Promecapt’s** entry, click **+**, add the exact app in Applications, then relaunch. Authentication may be required. Keep your capture library.
+
+## Do I need to compare SHA-256?
+
+**It is optional, not part of the normal installation flow.** Download the matching DMG from official Releases and follow the steps above. The `.sha256` file lets interested users check download integrity; it does not mean the app is Apple-notarized.
+
+<details>
+<summary>Optional: verify a downloaded file</summary>
+
+Download the matching `.dmg.sha256` file too. In Terminal, run the following, changing the filename to match the release you downloaded:
+
+```sh
+cd ~/Downloads
+shasum -a 256 -c Promecapt-1.1.0-macos-arm64.dmg.sha256
+```
+
+`OK` means a match. For `FAILED`, do not install; download again from official Releases. For `No such file`, check the filename and folder. In-app Sparkle updates verify their signatures automatically, with no manual hash comparison.
+
+</details>
+
+## Option B — Build from source (developers)
+
+Install Apple Command Line Tools and use Swift 5.9 or newer. No paid developer account is required.
 
 ```sh
 xcode-select --install
 ```
 
-Finish Apple's installer before continuing. If the tools are already installed, macOS may simply report that fact. A paid developer membership, signing certificate and App Store Connect credentials are not needed.
-
-Verify your compiler:
+Finish Apple’s installer, then run:
 
 ```sh
 swift --version
-```
-
-Use **Swift 5.9 or newer**. The app runs on macOS 13+, but building requires a macOS / Command Line Tools combination that supplies a compatible compiler. Update your available Apple tools or macOS if the compiler is too old. Full Xcode is optional for packaging; it is required for the XCTest command `swift test`.
-
-### 2. Download the released source and build the app
-
-Run these commands in the folder where you want to keep the source:
-
-```sh
 git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
-```
-
-This produces `dist/Promecapt.app` and a ZIP for your Mac's CPU. The script uses a local **ad-hoc signature** by default. It does not need an Apple Developer login, certificate, private key or signing secret. Swift Package Manager downloads the pinned Sparkle updater framework.
-
-This is a source build, not an Apple-notarized build. It does not override an employer's device policy or other macOS access controls.
-
-### 3. Install in your own Applications folder
-
-Quit any existing Promecapt instance before replacing it. The following destination is your personal Applications folder and does not require administrator access:
-
-```sh
 mkdir -p "$HOME/Applications"
 ditto dist/Promecapt.app "$HOME/Applications/Promecapt.app"
 open "$HOME/Applications/Promecapt.app"
 ```
 
-You can instead move the app to `/Applications` in Finder if you have permission. Use **one installation at a stable path** so permissions attach to the app you actually launch. For normal use, launch the packaged `.app`, rather than `swift run` or the executable inside `.build`.
+The build downloads the pinned Sparkle dependency. Full Xcode is needed for `swift test`, but not packaging. Allow capture and Accessibility permissions as above.
 
-### 4. Allow capture and element detection
+## Updates
 
-1. Open **System Settings → Privacy & Security → Screen Recording** (or **Screen & System Audio Recording** on newer macOS).
-2. Enable **Promecapt**, then quit and reopen the app if requested.
-3. Enable **Promecapt** under **Accessibility** for app-element detection and enhanced global shortcuts.
-4. Use the capture-frame icon in the menu bar. The default capture shortcut is `⌥⌘1`; select the F1 preset in Settings → Shortcuts if desired.
-
-Dock visibility can be off while the app keeps running. Reopen the app from Applications to open settings.
-
-## Option B — Use a prebuilt release
-
-1. Download from the [official Releases page](https://github.com/PROMLEE/promecapt/releases): `arm64` for Apple Silicon, `x86_64` for Intel.
-2. Compare the downloaded file's SHA-256 with its accompanying `.sha256` file. For example, run `shasum -a 256 Promecapt-1.1.0-macos-arm64.dmg` in the download folder and compare the first hash value.
-3. **DMG (recommended):** open it and drag **Promecapt.app** onto **Applications** in the installation window. Eject the disk image and launch the installed app from Applications. **ZIP:** unzip and move the app to Applications manually.
-4. The current release is ad-hoc signed and **not Developer ID signed or notarized**. If macOS blocks an unidentified / unnotarized app, review the source and checksum first. If you trust this exact app, follow [Apple's per-app opening procedure](https://support.apple.com/en-us/102445): after attempting to open it, use **System Settings → Privacy & Security → Open Anyway**, then confirm the app in the prompt.
-5. Complete the capture permissions above.
-
-A warning that software is damaged or contains malware is not the same as an unidentified-developer warning. Stop and check the download / contact the maintainer in that case. Do not disable Gatekeeper globally or remove security controls to install Promecapt. Managed devices may not offer a per-app exception.
-
-The DMG is a drag-to-install container, not an automatic installer. It does not change signing or notarization status. ZIP downloads remain available.
-
-## Troubleshooting
-
-| Symptom | What to check |
-| --- | --- |
-| `xcode-select` opens an installer | Finish the installer, then rerun `swift --version`. |
-| Compiler is older than Swift 5.9 | Update compatible Apple command-line tools / macOS before building. |
-| App is running but there is no Dock icon | Use the menu bar icon, or reopen the `.app` to reach settings. |
-| F1 changes brightness | Use `Fn+F1`, change macOS function-key behavior, or choose another shortcut. |
-| Screen capture is denied even though its switch is on | Quit the app. A new ad-hoc build may need its permission refreshed: remove only the existing Promecapt entry in System Settings, use + to add the exact installed `.app`, then relaunch. macOS may require Touch ID or password authentication. Leave unrelated apps' permissions untouched. |
-| Internal buttons / text fields are not detected | Check Accessibility permission. Detection also depends on what the target app exposes. |
-| A company Mac blocks the app | Ask IT about approved installation / local compilation. Local builds do not bypass organization policy. |
-
-## Build checks and updates
-
-`bash scripts/test-local.sh` runs local checks using Command Line Tools; `swift test` additionally requires full Xcode. The release is tested on both Apple Silicon and Intel in CI.
-
-From 1.1.0, use Settings → About → Check for Updates, or opt in to automatic download, installation and relaunch. Version 1.0.0 needs one manual installation of 1.1.0. You can also quit the app and replace it with a newer official build, or build a newer reviewed release tag at the same installation path. Keep your library; do not delete application data just to refresh a permission.
+From 1.1.0, use **Settings → About → Check for Updates**, or opt in to automatic download, installation and relaunch. Version 1.0.0 needs a one-time manual installation of a newer release. Current public ad-hoc signed builds may require capture / Accessibility permission refresh after updating. The self-signed certificate experiment has not yet been applied to public releases.
 
 
 ---

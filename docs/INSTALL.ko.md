@@ -26,7 +26,7 @@ Apple 메뉴  → **이 Mac에 관하여**에서 칩/프로세서를 확인�
 
 ![DMG를 열고 Promecapt를 Applications로 드래그](assets/install/dmg-install.jpg)
 
-**ZIP을 받은 경우:** 더블클릭해 압축을 풀고 `Promecapt.app`을 Finder의 **응용 프로그램** 폴더로 직접 드래그한 뒤 실행하세요. **1.1.0 ZIP에는 이동 팝업이 없습니다.** DMG의 설치 창과 ZIP 앱은 다릅니다. ZIP을 압축 해제한 위치에서 바로 실행하지 말고 먼저 응용 프로그램 폴더로 옮겨 주세요.
+**ZIP을 받은 경우:** 더블클릭해 압축을 풀고 `Promecapt.app`을 Finder의 **응용 프로그램** 폴더로 직접 드래그한 뒤 실행하세요. **1.1.1부터** 응용 프로그램 폴더 밖에서 실행하면 **설치하고 실행**을 제안합니다. 1.1.0 ZIP에는 이 팝업이 없습니다. macOS 실행 차단은 아래 절차로 별도 허용해야 합니다.
 
 ### 3. ‘열지 않음’ 경고가 나오면
 
@@ -50,7 +50,7 @@ Apple 메뉴  → **이 Mac에 관하여**에서 칩/프로세서를 확인�
 
 ### 4. 캡처 권한 허용
 
-**‘그래도 열기’와 캡처 권한은 별도입니다.**
+**‘그래도 열기’와 캡처 권한은 별도입니다.** 1.1.1부터 권한이 없으면 앱 시작 시 권한 안내가 열립니다. 앱의 **화면 캡처 허용…**, **손쉬운 사용 허용…** 버튼을 누르고 macOS 설정에서 Promecapt를 허용하세요. 메뉴 막대 → **권한 설정…**에서도 다시 열 수 있습니다.
 
 1. 시스템 설정 → **개인정보 보호 및 보안 → 화면 및 시스템 오디오 녹음**에서 **Promecapt**를 켭니다. 구형 macOS에서는 **화면 녹화**입니다.
 2. **손쉬운 사용**에서도 **Promecapt**를 켭니다. 버튼·입력칸 감지와 전역 단축키에 사용합니다.
@@ -70,7 +70,7 @@ Apple 메뉴  → **이 Mac에 관하여**에서 칩/프로세서를 확인�
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.0-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.1-macos-arm64.dmg.sha256
 ```
 
 `OK`면 일치합니다. `FAILED`면 설치하지 말고 공식 페이지에서 다시 받으세요. `No such file`이면 파일명·폴더를 확인하세요. Sparkle를 통한 앱 내 업데이트는 서명을 자동 검증하므로 사용자가 해시를 직접 비교하지 않습니다.
@@ -89,7 +89,7 @@ xcode-select --install
 
 ```sh
 swift --version
-git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.1 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

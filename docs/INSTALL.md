@@ -26,7 +26,7 @@ On the [latest release](https://github.com/PROMLEE/promecapt/releases/latest), e
 
 ![Drag Promecapt onto Applications in the DMG window](assets/install/dmg-install.jpg)
 
-**Downloaded a ZIP?** Double-click to extract it, then drag `Promecapt.app` into Finder’s **Applications** folder before opening it. **The 1.1.0 ZIP does not show a move-to-Applications prompt.** The DMG installation window is separate. Move the extracted app into Applications before launching it.
+**Downloaded a ZIP?** Double-click to extract it, then drag `Promecapt.app` into Finder’s **Applications** folder before opening it. **From 1.1.1**, launching outside Applications offers **Install and Open**. The 1.1.0 ZIP has no such prompt. macOS opening approval is a separate step below.
 
 ### 3. If macOS blocks opening
 
@@ -50,7 +50,7 @@ If macOS says the app will damage your computer, contains malware or is damaged,
 
 ### 4. Allow capture permissions
 
-**Open Anyway and capture permissions are separate.**
+**Open Anyway and capture permissions are separate.** From 1.1.1, a startup guide shows missing permissions. Use its **Allow Screen Capture…** and **Allow Accessibility…** buttons, then allow Promecapt in macOS. Reopen it from the menu bar → **Permissions…**.
 
 1. In **System Settings → Privacy & Security → Screen & System Audio Recording**, enable **Promecapt**. Older macOS calls this **Screen Recording**.
 2. Enable Promecapt under **Accessibility** for internal app-element detection and enhanced global shortcuts.
@@ -69,7 +69,7 @@ Download the matching `.dmg.sha256` file too. In Terminal, run the following, ch
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.0-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.1-macos-arm64.dmg.sha256
 ```
 
 `OK` means a match. For `FAILED`, do not install; download again from official Releases. For `No such file`, check the filename and folder. In-app Sparkle updates verify their signatures automatically, with no manual hash comparison.
@@ -88,7 +88,7 @@ Finish Apple’s installer, then run:
 
 ```sh
 swift --version
-git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.1 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

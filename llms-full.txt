@@ -68,7 +68,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.1 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -117,7 +117,7 @@ On the [latest release](https://github.com/PROMLEE/promecapt/releases/latest), e
 
 ![Drag Promecapt onto Applications in the DMG window](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/assets/install/dmg-install.jpg)
 
-**Downloaded a ZIP?** Double-click to extract it, then drag `Promecapt.app` into Finder’s **Applications** folder before opening it. **The 1.1.0 ZIP does not show a move-to-Applications prompt.** The DMG installation window is separate. Move the extracted app into Applications before launching it.
+**Downloaded a ZIP?** Double-click to extract it, then drag `Promecapt.app` into Finder’s **Applications** folder before opening it. **From 1.1.1**, launching outside Applications offers **Install and Open**. The 1.1.0 ZIP has no such prompt. macOS opening approval is a separate step below.
 
 ### 3. If macOS blocks opening
 
@@ -141,7 +141,7 @@ If macOS says the app will damage your computer, contains malware or is damaged,
 
 ### 4. Allow capture permissions
 
-**Open Anyway and capture permissions are separate.**
+**Open Anyway and capture permissions are separate.** From 1.1.1, a startup guide shows missing permissions. Use its **Allow Screen Capture…** and **Allow Accessibility…** buttons, then allow Promecapt in macOS. Reopen it from the menu bar → **Permissions…**.
 
 1. In **System Settings → Privacy & Security → Screen & System Audio Recording**, enable **Promecapt**. Older macOS calls this **Screen Recording**.
 2. Enable Promecapt under **Accessibility** for internal app-element detection and enhanced global shortcuts.
@@ -160,7 +160,7 @@ Download the matching `.dmg.sha256` file too. In Terminal, run the following, ch
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.0-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.1-macos-arm64.dmg.sha256
 ```
 
 `OK` means a match. For `FAILED`, do not install; download again from official Releases. For `No such file`, check the filename and folder. In-app Sparkle updates verify their signatures automatically, with no manual hash comparison.
@@ -179,7 +179,7 @@ Finish Apple’s installer, then run:
 
 ```sh
 swift --version
-git clone --branch v1.1.0 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.1 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -240,19 +240,19 @@ Your preferences and library remain on this Mac. GIF clipboard attachments are c
 
 Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md
 
-# Feature status — Promecapt 1.1.0
+# Feature status — Promecapt 1.1.1
 
 | Area | Included | Limits |
 | --- | --- | --- |
 | Capture | Region, window, accessible elements; eight handles; keyboard adjustment | Element detection varies by target app's accessibility support |
-| Annotations | Pen, highlighter, shapes, arrows, text, numbers; explicit reselection | Flattened images cannot recover old annotation objects |
+| Annotations | Pen, highlighter, shapes, arrows, text, numbers; optional automatic selection after drawing and explicit reselection | Flattened images cannot recover old annotation objects |
 | Redaction | Mosaic, blur, opaque black box; numeric and wheel adjustment | Mosaic and blur are visual effects; choose opaque black box for complete coverage |
 | Pins | Move, resize, opacity, groups, hide, click-through recovery, persisted annotations | Full-image transformations flatten still-image annotations |
 | OCR | User-selected region, editable result, local Vision processing | Korean and English recognition; UI languages are separate |
 | History | Comma / period traversal, full screen context and original selection | Old cropped-only entries use the current desktop background |
 | GIF | Configurable fps, long edge, time limit and cursor; region overlay; preview, copy, animated pin, save | One display, no audio or Promecapt windows; no GIF annotation/rotation/frame editing; temporary-frame budget |
 | Languages | Korean, English, Japanese, Simplified Chinese; automatic or manual choice | Existing editors use their creation-time language; native OS dialogs follow macOS |
-| Distribution | Apple Silicon and Intel ZIP workflows; SHA-256 checksums; MIT | Initial distribution is ad-hoc signed and not notarized |
+| Distribution | Apple Silicon and Intel DMG / ZIP; ZIP installation offer; optional SHA-256 checksums; MIT | Initial distribution is ad-hoc signed and not notarized |
 | Updates | Manual checks; optional automatic download, installation and relaunch via Sparkle | Stable releases only; 1.0.0 needs one manual installation; ad-hoc permissions may need refreshing |
 
 See the [README](https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.md), [testing guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/QA.md), and [release guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/RELEASING.md) for operation and verification.

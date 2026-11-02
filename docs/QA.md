@@ -47,7 +47,7 @@ Ad-hoc rebuilt binaries can lose their existing macOS permission association. Re
 
 ## Pending 1.1.1 UI acceptance
 
-The Mac is locked and its owner is away. Release compilation, localization validation and the local regression checks are available; native UI acceptance is not complete. Do not label these behaviors as visually verified or publish a release until checked:
+The Mac is locked and its owner is away. Release compilation, localization validation and the local regression checks are available; native UI acceptance is not complete. The owner explicitly requested publishing 1.1.1 for user testing before native acceptance. Do not label these behaviors as visually verified; the release notes disclose this limitation:
 
 - ZIP fixture: installation offer, Run Here, Applications copy/relaunch, existing-app handling and no repeated prompt after installation.
 - Capture: open the color well, change a shape color, confirm the panel remains above capture on each display, then close capture and confirm panel cleanup. Repeat in pinned-image editing.

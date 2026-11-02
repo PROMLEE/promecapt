@@ -2,7 +2,7 @@
 
 > An MIT-licensed, open-source alternative to proprietary macOS screenshot tools: capture, editable annotations, floating image / GIF pins, region OCR and GIF recording.
 
-Current release: 1.1.0. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Downloaded packages are ad-hoc signed, not Developer ID signed or notarized. Managed Mac policies still apply.
+Current release: 1.1.1. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Downloaded packages are ad-hoc signed, not Developer ID signed or notarized. Managed Mac policies still apply.
 
 Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Manual and opt-in automatic updates use signed Sparkle feeds and archives. Version 1.0.0 requires one manual bootstrap installation. GIF frame editing is not implemented.
 
@@ -19,7 +19,7 @@ Processing is local. History includes full display snapshots. UI languages: Kore
 ## Capabilities and trust
 
 - [Feature matrix](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md): Supported features and their limits; UI language and OCR language are separate.
-- [1.1.0 release notes](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/releases/1.1.0.md): Signed updates, opt-in automatic installation and About tab.
+- [1.1.1 release notes](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/releases/1.1.1.md): Annotation selection, toolbar contrast, installation and permission setup.
 - [Security](https://raw.githubusercontent.com/PROMLEE/promecapt/main/SECURITY.md): Local processing, permissions and reporting guidance.
 - [MIT license](https://raw.githubusercontent.com/PROMLEE/promecapt/main/LICENSE): Terms for personal and commercial use, modification and redistribution.
 

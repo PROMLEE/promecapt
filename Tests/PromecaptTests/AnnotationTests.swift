@@ -44,10 +44,14 @@ final class AnnotationTests: XCTestCase {
                          color: AnnotationColor(.red), lineWidth: 4, strength: 14, concealStyle: .mosaic)
     }
     func testSelectionMoveResizeAndUndoPreserveSource() throws {
+        let saved = UserDefaults.standard.object(forKey: "autoSelectAnnotations")
+        UserDefaults.standard.set(true, forKey: "autoSelectAnnotations")
+        defer { UserDefaults.standard.set(saved, forKey: "autoSelectAnnotations") }
         let source = fixture(), canvas = CanvasView(image: fixture()), object = rectangle()
         canvas.addAnnotation(object)
         let original = Imaging.png(canvas.image)
-        XCTAssertNil(canvas.selectedID)
+        XCTAssertEqual(canvas.selectedID, object.id)
+        XCTAssertEqual(canvas.tool, .select)
         canvas.tool = .select; canvas.selectAnnotation(object.id)
         XCTAssertEqual(canvas.tool, .select)
         XCTAssertEqual(canvas.selectedID, object.id)
@@ -63,6 +67,16 @@ final class AnnotationTests: XCTestCase {
         XCTAssertEqual(Imaging.png(canvas.document.base), Imaging.png(source))
         canvas.deleteSelection(); XCTAssertEqual(Imaging.png(canvas.image), Imaging.png(source))
         canvas.undoEdit(); XCTAssertEqual(canvas.document.objects.count, 1)
+    }
+    func testDisablingAutomaticSelectionKeepsDrawingTool() {
+        let saved = UserDefaults.standard.object(forKey: "autoSelectAnnotations")
+        UserDefaults.standard.set(false, forKey: "autoSelectAnnotations")
+        defer { UserDefaults.standard.set(saved, forKey: "autoSelectAnnotations") }
+        let canvas = CanvasView(image: fixture())
+        canvas.tool = .rectangle
+        canvas.addAnnotation(rectangle())
+        XCTAssertNil(canvas.selectedID)
+        XCTAssertEqual(canvas.tool, .rectangle)
     }
     func testObjectSerializationAndCaptureCrop() throws {
         let object = rectangle()

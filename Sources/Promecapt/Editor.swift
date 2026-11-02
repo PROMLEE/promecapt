@@ -56,7 +56,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         root.alignment = .leading
         let background = NSBox()
         background.boxType = .custom
-        background.borderType = .noBorder
+        background.borderWidth = 0
         background.fillColor = .windowBackgroundColor
         background.contentViewMargins = .zero
         background.contentView = root
@@ -77,6 +77,9 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         tools.target = self
         tools.action = #selector(selectTool)
         tools.toolTip = L("영역 도구는 이미지에서 드래그합니다. 텍스트는 클릭합니다.")
+        concealStyles.identifier = .init("redaction-style")
+        colorWell.identifier = .init("annotation-color")
+        parameter.identifier = .init("annotation-parameter")
         concealStyles.addItems(withTitles: ConcealStyle.allCases.map { L($0.rawValue) })
         concealStyles.widthAnchor.constraint(equalToConstant: 100).isActive = true
         concealStyles.target = self; concealStyles.action = #selector(selectConcealStyle(_:))
@@ -148,9 +151,17 @@ final class EditorController: NSWindowController, NSWindowDelegate {
 
     private func updateInfo() {
         colorWell.color = canvas.color
+        colorWell.isHidden = canvas.isSelectingOCR || !canvas.colorIsEnabled
+        if colorWell.isHidden && colorWell.isActive {
+            colorWell.deactivate()
+            NSColorPanel.shared.orderOut(nil)
+        }
+        let showParameter = !canvas.isSelectingOCR && canvas.parameterIsEnabled
+        parameter.isHidden = !showParameter
+        parameterLabel.isHidden = !showParameter
         tools.selectedSegment = DrawingTool.allCases.firstIndex(of: canvas.tool)!
         let conceal = canvas.effectiveTool == .conceal
-        concealStyles.isHidden = !conceal
+        concealStyles.isHidden = canvas.isSelectingOCR || !conceal
         concealStyles.selectItem(at: ConcealStyle.allCases.firstIndex(of: canvas.concealStyle)!)
         parameter.minValue = conceal ? 2 : 1
         parameter.maxValue = conceal ? 80 : 32

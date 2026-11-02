@@ -21,6 +21,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         get { currentTool }
         set {
             if isSelectingOCR { cancelOCRSelection() }
+            parameterScroll.reset()
             currentTool = newValue; if newValue != .select { selectedID = nil }; refreshParameters()
         }
     }
@@ -68,7 +69,8 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     }
     var parameterValue: CGFloat { effectiveTool == .conceal ? effectStrength : lineWidth }
     var parameterIsEnabled: Bool { effectiveTool != .select && effectiveTool != .crop && !(effectiveTool == .conceal && concealStyle == .blackbox) }
-    private var scrollRemainder: CGFloat = 0
+    var colorIsEnabled: Bool { ![DrawingTool.select, .crop, .conceal].contains(effectiveTool) }
+    private var parameterScroll = ScrollSteps()
     private(set) var activeTextInput: NSTextField?
     private var textPosition: NSPoint = .zero
     private var textEditingID: UUID?
@@ -94,6 +96,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     }
     required init?(coder: NSCoder) { fatalError() }
     func load(_ document: AnnotationDocument) {
+        parameterScroll.reset()
         self.document = document; selectedID = nil; previous = []; future = []; invalidate()
     }
     private func refreshParameters() { needsDisplay = true; window?.invalidateCursorRects(for: self); onParametersChange?() }
@@ -115,6 +118,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         checkpoint(); document.objects[index] = next; invalidate()
     }
     func selectAnnotation(_ id: UUID?) {
+        parameterScroll.reset()
         selectedID = document.objects.contains { $0.id == id } ? id : nil
         if let object = selectedAnnotation {
             currentWidth = object.lineWidth; currentStrength = object.strength
@@ -142,13 +146,11 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         if effectiveTool == .conceal { effectStrength = min(80, max(2, value.rounded())) }
         else { lineWidth = min(32, max(1, value.rounded())) }
     }
-    func adjustParameter(by steps: CGFloat) { setParameter(parameterValue + steps * (effectiveTool == .conceal ? 2 : 1)) }
+    func adjustParameter(by steps: CGFloat) { setParameter(parameterValue + steps) }
     override func scrollWheel(with event: NSEvent) {
         guard !isSelectingOCR, parameterIsEnabled, activeTextInput == nil else { return }
-        if event.phase == .began { scrollRemainder = 0 }
-        scrollRemainder += event.scrollingDeltaY / (event.hasPreciseScrollingDeltas ? 8 : 1)
-        let steps = scrollRemainder.rounded(.towardZero)
-        if steps != 0 { scrollRemainder -= steps; adjustParameter(by: steps) }
+        let steps = parameterScroll.consume(event)
+        if steps != 0 { adjustParameter(by: CGFloat(steps)) }
     }
     var imageRect: NSRect {
         let available = bounds.insetBy(dx: contentInset, dy: contentInset)

@@ -59,6 +59,19 @@ enum ToolbarLayoutChecks {
                 }
             }
         }
+        func optionVisible(_ root: NSView, id: String) -> Bool {
+            func find(_ view: NSView) -> NSView? {
+                if view.identifier?.rawValue == id { return view }
+                return view.subviews.compactMap { find($0) }.first
+            }
+            guard let view = find(root) else { fatalError("Missing option: " + id) }
+            return !view.isHiddenOrHasHiddenAncestor
+        }
+        func inspectOptions(_ root: NSView, tool: DrawingTool, blackbox: Bool = false, active: Bool = true) {
+            layoutCheck(optionVisible(root, id: "redaction-style") == (active && tool == .conceal), "\(tool): redaction menu is contextual")
+            layoutCheck(optionVisible(root, id: "annotation-color") == (active && ![DrawingTool.select, .crop, .conceal].contains(tool)), "\(tool): color picker is contextual")
+            layoutCheck(optionVisible(root, id: "annotation-parameter") == (active && ![DrawingTool.select, .crop].contains(tool) && !blackbox), "\(tool): numeric parameter is contextual")
+        }
         for language in ["ko", "en", "ja", "zh-Hans"] {
             UserDefaults.standard.set(language, forKey: "appLanguage")
             for appearance in [NSAppearance.Name.aqua, .darkAqua] {
@@ -84,9 +97,36 @@ enum ToolbarLayoutChecks {
                 inspectControls(bar, context: context + "-redact")
                 try snapshot(bar, name: "redact-" + context)
                 let canvas = CanvasView(image: NSImage(size: NSSize(width: 640, height: 400)))
+                for (index, tool) in DrawingTool.allCases.filter({ $0 != .crop }).enumerated() {
+                    canvas.tool = tool
+                    bar.choose(index)
+                    bar.sync(with: canvas)
+                    bar.layoutSubtreeIfNeeded()
+                    inspectOptions(bar, tool: tool)
+                    inspectControls(bar, context: context + "-" + tool.rawValue)
+                }
+                let selectedShape = AnnotationObject(tool: .rectangle, points: [.zero, NSPoint(x: 20, y: 20)], color: AnnotationColor(.systemRed), lineWidth: 4, strength: 14, concealStyle: .mosaic)
+                canvas.addAnnotation(selectedShape)
+                canvas.tool = .select
+                canvas.selectAnnotation(selectedShape.id)
+                bar.choose(0)
+                bar.sync(with: canvas)
+                bar.layoutSubtreeIfNeeded()
+                inspectOptions(bar, tool: .rectangle)
+                bar.choose(-1)
+                bar.sync(with: canvas)
+                bar.layoutSubtreeIfNeeded()
+                inspectOptions(bar, tool: .select, active: false)
+                bar.choose(9)
+                canvas.tool = .conceal
+                canvas.concealStyle = .blackbox
+                bar.sync(with: canvas)
+                bar.layoutSubtreeIfNeeded()
+                inspectOptions(bar, tool: .conceal, blackbox: true)
                 canvas.beginOCRSelection { _ in }
                 bar.sync(with: canvas)
                 bar.layoutSubtreeIfNeeded()
+                inspectOptions(bar, tool: .select, active: false)
                 inspectControls(bar, context: context + "-ocr")
                 try snapshot(bar, name: "ocr-" + context)
                 let editor = EditorController(image: NSImage(size: NSSize(width: 640, height: 400)))
@@ -98,12 +138,14 @@ enum ToolbarLayoutChecks {
                     inspectControls(content, context: context + "-editor-900")
                     try snapshot(content, name: "editor-900-" + context)
                 }
-                editor.canvas.tool = .conceal
-                editor.canvas.onChange?()
-                editor.window?.contentView?.layoutSubtreeIfNeeded()
-                if let content = editor.window?.contentView {
-                    inspect(content, context: context + "-editor-redact")
-                    inspectControls(content, context: context + "-editor-redact")
+                for tool in DrawingTool.allCases {
+                    editor.canvas.tool = tool
+                    editor.canvas.onChange?()
+                    editor.window?.contentView?.layoutSubtreeIfNeeded()
+                    if let content = editor.window?.contentView {
+                        inspectOptions(content, tool: tool)
+                        inspectControls(content, context: context + "-editor-" + tool.rawValue)
+                    }
                 }
                 editor.window?.close()
                 window.close()

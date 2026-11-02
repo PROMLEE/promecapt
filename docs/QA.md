@@ -70,3 +70,11 @@ Settings → Capture → Automatically select newly drawn annotations defaults t
 - `scripts/ToolbarLayoutChecks.swift`, called by `test-local.sh`, creates actual AppKit views in windows that are never ordered onscreen. It checks alignment bounds, painted control bounds and pairwise intersections for Korean, English, Japanese and Simplified Chinese in Aqua and Dark Aqua, including long history/OCR status and GIF visibility changes.
 - The fixture renders 32 PNGs under `.build/toolbar-layout`. These are real offscreen view renders with synthetic blank editor content, not desktop screenshots or evidence of successful interaction. Inspected capture, OCR and minimum-width editor renders in both appearances. The full local checks pass.
 - Remaining acceptance: on an unlocked Mac, open a live capture; select every tool; hover descriptions; edit thickness; open color/style controls; copy/pin/cancel; repeat on a pinned image and in a resized editor. Confirm selected/disabled states, legibility and cursor behavior on the actual screen. Do not publish this change until this native interaction check is complete.
+
+### Contextual options and scroll input
+
+- Show redaction styles only for the redaction tool or a selected redaction annotation. Show color only for colored annotations. Show the numeric parameter only when it applies; black box has no strength input. Hide all three during OCR/region selection and when selection mode has no selected object.
+- Apply the same visibility policy in the capture/pin bar and standalone editor. Layout fixtures exercise every tool in all four languages and both appearances.
+- Discrete wheel events change annotation width or redaction strength by exactly one unit, irrespective of macOS acceleration. Precise trackpad motion accumulates 24 points per step; each packet changes at most one step. Momentum and zero/horizontal deltas do not edit values. Direction changes and gesture completion clear accumulated distance.
+- Pin zoom uses 3% per normalized step; Ctrl-wheel opacity uses two percentage points. Switching between the two resets the accumulator.
+- Automated checks cover accelerated wheel packets, reverse direction, zero input, small precise deltas, a large packet, momentum, gesture end, invalid values and parameter bounds. Physical mouse/trackpad feel remains pending an unlocked Mac.

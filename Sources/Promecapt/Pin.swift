@@ -296,6 +296,8 @@ final class PinController: NSWindowController, NSWindowDelegate {
 }
 
 final class PinView: NSView, NSDraggingSource {
+    private var scrollSteps = ScrollSteps()
+    private var adjustsOpacity = false
     weak var owner: PinController?
     override var acceptsFirstResponder: Bool { true }
     override var mouseDownCanMoveWindow: Bool { true }
@@ -345,8 +347,12 @@ final class PinView: NSView, NSDraggingSource {
         return false
     }
     override func scrollWheel(with event: NSEvent) {
-        if event.modifierFlags.contains(.control) { owner?.opacity(event.scrollingDeltaY > 0 ? 0.05 : -0.05) }
-        else { owner?.zoom(event.scrollingDeltaY > 0 ? 1.05 : 1 / 1.05) }
+        let opacity = event.modifierFlags.contains(.control)
+        if opacity != adjustsOpacity { scrollSteps.reset(); adjustsOpacity = opacity }
+        let steps = scrollSteps.consume(event)
+        guard steps != 0 else { return }
+        if opacity { owner?.opacity(CGFloat(steps) * 0.02) }
+        else { owner?.zoom(pow(1.03, CGFloat(steps))) }
     }
     @objc func copy(_ sender: Any?) { owner?.copyPin() }
     override func cancelOperation(_ sender: Any?) { owner?.closePin() }

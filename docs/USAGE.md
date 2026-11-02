@@ -11,13 +11,15 @@
 | Browse older / newer captures | `,` / `.` during capture |
 | Cancel capture / close a pin | `Esc` |
 | Open settings | Menu bar icon → Settings, or `⌘,` while the app is active |
-| Change stroke width / redaction strength | Scroll over the image, or use the numeric stepper |
+| Change stroke width / redaction strength | Scroll over the image (one unit per wheel step), or use the numeric stepper |
 | Move / zoom a pin | Drag / scroll |
 | Change pin opacity | `Ctrl` + scroll |
 | Edit a still-image pin in place | `Space`; use the selection tool to edit existing annotations |
 | Record a GIF | Menu bar → Record GIF region, or the capture toolbar's GIF button |
 
 Choose the **F1 / F3 / F4** preset or your own shortcuts in Settings → Shortcuts. In media-key mode, use `Fn+F1` or enable standard function keys in macOS. `Enter` confirms text; it does not finish a capture.
+
+Pending source changes after 1.1.2: annotation options appear only when they apply to the active tool or selected annotation. Wheel steps are normalized and trackpad momentum does not continue editing values. These changes are not in the current public release yet.
 
 Settings → General selects your language and Dock visibility. Menu bar operation works with the Dock icon hidden.
 

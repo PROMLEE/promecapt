@@ -46,6 +46,9 @@ final class AnnotationBar: NSView {
         for (index, tool) in Self.tools.enumerated() {
             top.addArrangedSubview(toolButton(icons[index], tool.tip, index: index))
         }
+        styles.identifier = .init("redaction-style")
+        colorWell.identifier = .init("annotation-color")
+        parameter.identifier = .init("annotation-parameter")
         styles.addItems(withTitles: ConcealStyle.allCases.map { L($0.rawValue) })
         styles.target = self; styles.action = #selector(styleChanged(_:))
         styles.setAccessibilityLabel(L("가리기 방식"))
@@ -202,8 +205,8 @@ final class AnnotationBar: NSView {
     func choose(_ index: Int) {
         for button in toolButtons { button.state = button.tag == index ? .on : .off }
         selectedTool = index < 0 ? nil : Self.tools[index]
-        styles.isEnabled = selectedTool == .conceal
-        parameter.isEnabled = selectedTool != nil
+        updateOptions(tool: selectedTool ?? .select, active: selectedTool != nil,
+                      style: ConcealStyle.allCases[max(0, styles.indexOfSelectedItem)])
         onTool?(selectedTool)
     }
     func sync(with canvas: CanvasView) {
@@ -219,12 +222,19 @@ final class AnnotationBar: NSView {
         } else if let previous = infoBeforeOCR { info.stringValue = previous; infoBeforeOCR = nil }
         let conceal = selectedTool != nil && canvas.effectiveTool == .conceal
         styles.isEnabled = conceal
+        updateOptions(tool: canvas.effectiveTool, active: selectedTool != nil && !canvas.isSelectingOCR, style: canvas.concealStyle)
         styles.selectItem(at: ConcealStyle.allCases.firstIndex(of: canvas.concealStyle)!)
         parameter.minValue = conceal ? 2 : 1
         parameter.maxValue = conceal ? 80 : 32
         parameter.doubleValue = Double(canvas.parameterValue)
         parameter.isEnabled = !canvas.isSelectingOCR && selectedTool != nil && canvas.parameterIsEnabled
         parameter.updateAccessibility(conceal ? L("가리기 세기") : L("주석 두께"))
+    }
+    private func updateOptions(tool: DrawingTool, active: Bool, style: ConcealStyle) {
+        styles.isHidden = !active || tool != .conceal
+        colorWell.isHidden = !active || [DrawingTool.select, .crop, .conceal].contains(tool)
+        parameter.isHidden = !active || [DrawingTool.select, .crop].contains(tool) || (tool == .conceal && style == .blackbox)
+        if colorWell.isHidden { colorWell.deactivate() }
     }
     @objc private func toolAction(_ sender: NSButton) { hideTip(); window?.makeFirstResponder(nil); choose(sender.tag) }
     @objc private func colorChanged(_ sender: NSColorWell) { onColor?(sender.color) }

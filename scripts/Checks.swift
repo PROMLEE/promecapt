@@ -195,6 +195,18 @@ import ImageIO
             check(Imaging.png(gentle) != Imaging.png(strong), "\(mosaic ? "mosaic" : "blur") strength changes output pixels")
             check(pixel(strong, 60, 20) == pixel(pattern, 60, 20), "strong effect preserves pixels outside selection")
         }
+        var wheel = ScrollSteps()
+        check(wheel.consume(delta: 10, precise: false) == 1, "accelerated wheel detent changes one step")
+        check(wheel.consume(delta: -20, precise: false) == -1, "accelerated reverse wheel detent changes one step")
+        check(wheel.consume(delta: 0, precise: false) == 0, "horizontal or zero scrolling changes nothing")
+        check(wheel.consume(delta: 8, precise: true, phase: .began) == 0, "trackpad tiny motion does not jump")
+        check(wheel.consume(delta: 8, precise: true) == 0 && wheel.consume(delta: 8, precise: true) == 1, "trackpad accumulates deliberate movement")
+        check(wheel.consume(delta: 120, precise: true) == 1, "large trackpad packet changes at most one step")
+        check(wheel.consume(delta: 100, precise: true, momentum: .changed) == 0, "momentum does not continue adjusting after release")
+        check(wheel.consume(delta: 23, precise: true) == 0 && wheel.consume(delta: -24, precise: true) == -1, "direction reversal discards the previous remainder")
+        check(wheel.consume(delta: 23, precise: true) == 0 && wheel.consume(delta: 0, precise: true, phase: .ended) == 0 && wheel.consume(delta: 1, precise: true) == 0, "gesture end resets accumulated distance")
+        wheel.reset()
+        check(wheel.consume(delta: .infinity, precise: true) == 0, "invalid scroll values cannot change settings")
         let adjustable = CanvasView(image: image)
         adjustable.tool = .rectangle
         adjustable.adjustParameter(by: 3)
@@ -203,7 +215,7 @@ import ImageIO
         check(adjustable.lineWidth == 1, "shape thickness cannot fall below one pixel")
         adjustable.tool = .conceal
         adjustable.adjustParameter(by: 3)
-        check(adjustable.effectStrength == 20 && adjustable.lineWidth == 1, "conceal strength is independent of line thickness")
+        check(adjustable.effectStrength == 17 && adjustable.lineWidth == 1, "conceal strength is independent of line thickness")
         adjustable.adjustParameter(by: 100)
         check(adjustable.effectStrength == 80, "conceal strength is bounded")
         adjustable.concealStyle = .blackbox

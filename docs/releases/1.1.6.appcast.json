@@ -6,7 +6,8 @@
       "Keep your chosen toolbar position when switching tools.",
       "Keep the whole toolbar below the menu bar and notch, within the display."
     ],
-    "link": "View full release notes"
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
   },
   "ko": {
     "heading": "1.1.6 업데이트 내용",
@@ -15,7 +16,8 @@
       "도구를 바꾸거나 옵션이 표시되어도 이동한 위치를 유지합니다.",
       "도구창 전체가 노치·메뉴 막대 아래와 화면 안에 머물도록 제한합니다."
     ],
-    "link": "전체 릴리스 노트 보기"
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
   },
   "ja": {
     "heading": "1.1.6 の更新内容",
@@ -24,7 +26,8 @@
       "ツールを切り替えても移動した位置を維持します。",
       "ツールバー全体をメニューバーとノッチの下、画面内に収めます。"
     ],
-    "link": "リリースノートを見る"
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
   },
   "zh-Hans": {
     "heading": "1.1.6 更新内容",
@@ -33,6 +36,7 @@
       "切换工具或显示选项时保留手动调整的位置。",
       "将整个工具栏限制在屏幕内及菜单栏、刘海下方。"
     ],
-    "link": "查看完整更新说明"
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
   }
 }

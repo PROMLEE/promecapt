@@ -30,6 +30,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
     var isEditingAnnotations: Bool { editCanvas != nil }
     private var editCanvas: CanvasView?
     private var editTools: NSPanel?
+    private var manualToolsOrigin: NSPoint?
 
     init(image: NSImage, id: UUID = UUID()) {
         self.id = id
@@ -155,6 +156,11 @@ final class PinController: NSWindowController, NSWindowDelegate {
         bar.onCancel = { [weak self] in self?.finishEditing(apply: false) }
         bar.onOCR = { [weak self] in self?.extractText() }
         bar.onSizeChange = { [weak self] in self?.positionTools() }
+        bar.onDrag = { [weak self, weak tools] delta in
+            guard let self, let tools else { return }
+            self.manualToolsOrigin = NSPoint(x: tools.frame.minX + delta.x, y: tools.frame.minY + delta.y)
+            self.positionTools()
+        }
         tools.contentView = bar
         editTools = tools
         window.addChildWindow(tools, ordered: .above)
@@ -187,6 +193,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
         editCanvas = nil
         if let tools = editTools { window?.removeChildWindow(tools); tools.close() }
         editTools = nil
+        manualToolsOrigin = nil
         window?.isMovableByWindowBackground = true
         window?.makeFirstResponder(imageView)
         if apply { setDocument(edited) }
@@ -199,6 +206,8 @@ final class PinController: NSWindowController, NSWindowDelegate {
         var origin = NSPoint(x: frame.midX - size.width / 2, y: frame.minY - size.height - 8)
         origin.x = max(visible.minX + 8, min(visible.maxX - size.width - 8, origin.x))
         if origin.y < visible.minY { origin.y = min(visible.maxY - size.height, frame.maxY + 10) }
+        origin = AnnotationBar.constrainedOrigin(manualToolsOrigin ?? origin, size: size, within: visible)
+        if manualToolsOrigin != nil { manualToolsOrigin = origin }
         tools.setFrameOrigin(origin)
     }
     @objc func closePin() { window?.close() }

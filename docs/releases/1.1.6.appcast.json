@@ -1,0 +1,38 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.6",
+    "changes": [
+      "Drag empty toolbar space to move capture and pin-edit tools.",
+      "Keep your chosen toolbar position when switching tools.",
+      "Keep the whole toolbar below the menu bar and notch, within the display."
+    ],
+    "link": "View full release notes"
+  },
+  "ko": {
+    "heading": "1.1.6 업데이트 내용",
+    "changes": [
+      "도구창의 빈 공간을 드래그해 캡처·고정 이미지 편집 도구창을 이동할 수 있습니다.",
+      "도구를 바꾸거나 옵션이 표시되어도 이동한 위치를 유지합니다.",
+      "도구창 전체가 노치·메뉴 막대 아래와 화면 안에 머물도록 제한합니다."
+    ],
+    "link": "전체 릴리스 노트 보기"
+  },
+  "ja": {
+    "heading": "1.1.6 の更新内容",
+    "changes": [
+      "ツールバーの空白をドラッグして、キャプチャや固定画像の編集ツールを移動できます。",
+      "ツールを切り替えても移動した位置を維持します。",
+      "ツールバー全体をメニューバーとノッチの下、画面内に収めます。"
+    ],
+    "link": "リリースノートを見る"
+  },
+  "zh-Hans": {
+    "heading": "1.1.6 更新内容",
+    "changes": [
+      "拖动工具栏空白处即可移动截图和固定图片编辑工具栏。",
+      "切换工具或显示选项时保留手动调整的位置。",
+      "将整个工具栏限制在屏幕内及菜单栏、刘海下方。"
+    ],
+    "link": "查看完整更新说明"
+  }
+}

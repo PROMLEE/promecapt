@@ -4,7 +4,7 @@
 
 Canonical index: https://raw.githubusercontent.com/PROMLEE/promecapt/main/llms.txt
 
-Current public release: 1.1.5. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.
+Current public release: 1.1.6. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.
 
 Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Manual and opt-in automatic updates use signed Sparkle feeds and archives. Version 1.0.0 requires one manual bootstrap installation. GIF frame editing is not implemented.
 
@@ -21,6 +21,7 @@ Processing is local. History includes full display snapshots. UI languages: Kore
 ## Capabilities and trust
 
 - [Feature matrix](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md): Supported features and their limits; UI language and OCR language are separate.
+- [1.1.6 release notes](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/releases/1.1.6.md): Drag toolbar backgrounds and keep tools below the menu bar and notch.
 - [1.1.5 release notes](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/releases/1.1.5.md): Keep drawing tools active, fix moving-toolbar help and tighten button spacing.
 - [Security](https://raw.githubusercontent.com/PROMLEE/promecapt/main/SECURITY.md): Local processing, permissions and reporting guidance.
 - [MIT license](https://raw.githubusercontent.com/PROMLEE/promecapt/main/LICENSE): Terms for personal and commercial use, modification and redistribution.

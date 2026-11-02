@@ -41,3 +41,5 @@ History stores the selected image **and the full display snapshot with its selec
 
 Your preferences and library remain on this Mac. GIF clipboard attachments are cached locally and older copies expire when new copies are made.
 
+
+Drag empty space in a capture or pin-edit toolbar to move it. The position is retained during that editing session, including tool changes, and kept inside the display’s visible area below the menu bar/notch.

@@ -236,6 +236,11 @@ final class CaptureView: NSView {
         addSubview(bar)
         bar.isHidden = true
         bar.onSizeChange = { [weak self] in self?.positionBar() }
+        bar.onDrag = { [weak self] delta in
+            guard let self else { return }
+            self.manualBarOrigin = NSPoint(x: self.bar.frame.minX + delta.x, y: self.bar.frame.minY + delta.y)
+            self.positionBar()
+        }
         bar.onTool = { [weak self] tool in
             guard let self else { return }
             self.canvas.flushText()
@@ -414,11 +419,16 @@ final class CaptureView: NSView {
         positionBar()
         subviews.forEach { $0.needsDisplay = true }
     }
+    private var manualBarOrigin: NSPoint?
     private func positionBar() {
         let size = bar.preferredSize
         var origin = NSPoint(x: selection.rect.maxX - size.width, y: selection.rect.minY - size.height - 8)
         if origin.y < 8 { origin.y = min(bounds.maxY - size.height - 8, selection.rect.maxY + 8) }
         origin.x = min(bounds.maxX - size.width - 8, max(8, origin.x))
+        let screen = surface.screen
+        let safe = screen.visibleFrame.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY).intersection(bounds)
+        origin = AnnotationBar.constrainedOrigin(manualBarOrigin ?? origin, size: size, within: safe)
+        if manualBarOrigin != nil { manualBarOrigin = origin }
         bar.frame = NSRect(origin: origin, size: size)
     }
     private func finish(_ destination: CaptureDestination) {

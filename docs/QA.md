@@ -94,3 +94,9 @@ New annotations are selected without assigning the `.select` tool. The selected 
 Local AppKit input checks exercise two consecutive rectangle strokes, immediate handle resizing, undo/redo and OCR cancellation. Shape and text selection preferences are covered by both the local checks and XCTest assertions. Tooltip checks hit-test actual controls after every contextual tool/width change in all four languages and both appearances. Help uses one live tracking area, resolves the current target when its delay expires and cancels stale work on layout/hover changes; native duplicate tooltips are suppressed while accessibility help remains available.
 
 Button spacing is 2pt, with explicit extra clearance around native popup and color-well bezels. Full physical capture/mouse interaction remains pending owner verification on an accessible Mac.
+
+## Movable toolbars — 1.1.6
+
+- Automated: background mouse down/drag/up reports movement and ends on release; top/right and bottom/left constraints on a display with negative coordinates.
+- Live owner Mac: capture toolbar moved by dragging its empty space, stopped below the menu bar when dragged to the top edge, retained its position when rectangle options expanded the bar.
+- Same installed development build: screen capture and accessibility both remained granted after quitting and reopening. This does not prove retention across an update.

@@ -5,6 +5,26 @@ enum ToolbarLayoutChecks {
     static func run() throws {
         _ = NSApplication.shared
         NSApp.setActivationPolicy(.prohibited)
+        let safeDisplay = NSRect(x: -1440, y: 40, width: 1440, height: 830)
+        let toolbarSize = NSSize(width: 450, height: 68)
+        let clamped = AnnotationBar.constrainedOrigin(NSPoint(x: 500, y: 1000), size: toolbarSize, within: safeDisplay)
+        Checks.check(safeDisplay.insetBy(dx: 8, dy: 8).contains(NSRect(origin: clamped, size: toolbarSize)), "dragged toolbar stays below notch and inside secondary display")
+        let low = AnnotationBar.constrainedOrigin(NSPoint(x: -3000, y: -100), size: toolbarSize, within: safeDisplay)
+        Checks.check(low == NSPoint(x: -1432, y: 48), "toolbar drag clamps left and bottom edges")
+        let dragWindow = NSWindow(contentRect: NSRect(x: 100, y: 100, width: 500, height: 150), styleMask: [.borderless], backing: .buffered, defer: false)
+        let dragBar = AnnotationBar(frame: NSRect(origin: .zero, size: AnnotationBar.preferredSize))
+        dragWindow.contentView = dragBar
+        var movement = NSPoint.zero
+        dragBar.onDrag = { movement.x += $0.x; movement.y += $0.y }
+        func dragEvent(_ type: NSEvent.EventType, _ x: CGFloat, _ y: CGFloat) -> NSEvent {
+            NSEvent.mouseEvent(with: type, location: NSPoint(x: x, y: y), modifierFlags: [], timestamp: 0,
+                               windowNumber: dragWindow.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+        }
+        dragBar.mouseDown(with: dragEvent(.leftMouseDown, 10, 10))
+        dragBar.mouseDragged(with: dragEvent(.leftMouseDragged, 35, 22))
+        dragBar.mouseUp(with: dragEvent(.leftMouseUp, 35, 22))
+        dragBar.mouseDragged(with: dragEvent(.leftMouseDragged, 70, 50))
+        Checks.check(movement == NSPoint(x: 25, y: 12), "toolbar background drag reports movement and stops on release")
         let savedLanguage = UserDefaults.standard.object(forKey: "appLanguage")
         defer { UserDefaults.standard.set(savedLanguage, forKey: "appLanguage") }
         let output = URL(fileURLWithPath: ".build/toolbar-layout", isDirectory: true)

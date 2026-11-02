@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.6
+
+- Drag empty toolbar space to reposition capture and pin-edit tools.
+- Keep the manually chosen position when switching tools or resizing contextual controls.
+- Constrain the entire toolbar to the display’s visible area, below the menu bar and notch.
+
 ## 1.1.5
 
 - Keep the drawing tool active when automatically selecting a newly drawn annotation. Adjust that object immediately, then draw again on empty space without reselecting the tool.

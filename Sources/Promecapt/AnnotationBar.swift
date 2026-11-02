@@ -1,6 +1,8 @@
 import AppKit
 
 final class AnnotationBar: NSView {
+    var onDrag: ((NSPoint) -> Void)?
+    private var dragPoint: NSPoint?
     var onSizeChange: (() -> Void)?
     private let top = NSStackView()
     private let bottom = NSStackView()
@@ -145,9 +147,25 @@ final class AnnotationBar: NSView {
         guard !isHidden, bounds.contains(convert(point, from: superview)) else { return nil }
         return super.hitTest(point) ?? self
     }
-    override func mouseDown(with event: NSEvent) {}
-    override func mouseDragged(with event: NSEvent) {}
-    override func mouseUp(with event: NSEvent) {}
+    override func mouseDown(with event: NSEvent) {
+        hideTip()
+        dragPoint = window?.convertPoint(toScreen: event.locationInWindow)
+    }
+    override func mouseDragged(with event: NSEvent) {
+        guard let previous = dragPoint, let window else { return }
+        let point = window.convertPoint(toScreen: event.locationInWindow)
+        dragPoint = point
+        hideTip()
+        onDrag?(NSPoint(x: point.x - previous.x, y: point.y - previous.y))
+    }
+    override func mouseUp(with event: NSEvent) { dragPoint = nil }
+
+    /// Keep the whole toolbar below the menu bar/notch and inside its display.
+    static func constrainedOrigin(_ origin: NSPoint, size: NSSize, within rect: NSRect) -> NSPoint {
+        let safe = rect.insetBy(dx: 8, dy: 8)
+        return NSPoint(x: max(safe.minX, min(origin.x, safe.maxX - size.width)),
+                       y: max(safe.minY, min(origin.y, safe.maxY - size.height)))
+    }
     override func scrollWheel(with event: NSEvent) {}
     @objc private func recordAction() { onRecord?() }
     required init?(coder: NSCoder) { fatalError() }

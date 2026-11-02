@@ -54,6 +54,8 @@ final class AnnotationBar: NSView {
         styles.controlSize = .small
         styles.font = .systemFont(ofSize: 12)
         top.addArrangedSubview(styles)
+        // macOS 13–15 popup/color-well bezels extend beyond their alignment rectangles.
+        top.setCustomSpacing(10, after: styles)
         let well = colorWell
         well.color = .systemRed
         well.target = self; well.action = #selector(colorChanged(_:))

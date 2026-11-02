@@ -1,0 +1,46 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.4",
+    "changes": [
+      "Icons fit inside taller native button bezels; enabled dark-mode symbols stay white.",
+      "Less vertical padding and no middle spacer. Toolbar width fits visible options.",
+      "The color panel now has an Apply button; Return finishes color selection.",
+      "The standalone editor uses the same annotation buttons."
+    ],
+    "notice": "Automated layout/input checks passed. Live capture clicks and physical mouse/trackpad feel still need user verification.",
+    "link": "View full release notes"
+  },
+  "ko": {
+    "heading": "1.1.4 업데이트 내용",
+    "changes": [
+      "버튼 안에 아이콘이 들어가도록 높이를 맞추고, 다크 모드 활성 아이콘을 흰색으로 표시합니다.",
+      "위아래·중간 빈 공간을 줄이고, 보이는 옵션에 맞춰 도구창 폭을 줄입니다.",
+      "색상창에 확인 버튼을 추가했습니다. Enter로도 색상 선택을 마칠 수 있습니다.",
+      "별도 편집창도 같은 아이콘 버튼을 사용합니다."
+    ],
+    "notice": "자동 배치·입력 검사는 통과했습니다. 실제 캡처 화면의 클릭과 물리 마우스·트랙패드 감도는 사용자 확인이 남아 있습니다.",
+    "link": "전체 릴리스 노트 보기"
+  },
+  "ja": {
+    "heading": "1.1.4 の更新内容",
+    "changes": [
+      "ボタン内にアイコンを収め、ダークモードの有効なアイコンを白く表示します。",
+      "上下と中央の余白を減らし、表示中の項目に合わせてツールバーの幅を調整します。",
+      "色パネルに適用ボタンを追加しました。Returnキーでも終了できます。",
+      "独立したエディタにも同じアイコンボタンを使用します。"
+    ],
+    "notice": "自動レイアウト・入力検査は完了しています。実際のキャプチャ操作とマウス・トラックパッドの感触はユーザーによる確認が必要です。",
+    "link": "リリースノートを見る"
+  },
+  "zh-Hans": {
+    "heading": "1.1.4 更新内容",
+    "changes": [
+      "图标完整显示在按钮内，深色模式下启用的图标保持白色。",
+      "减少上下和中间空白，工具栏宽度随可见选项调整。",
+      "颜色面板新增应用按钮，也可按Return结束颜色选择。",
+      "独立编辑器使用相同的图标按钮。"
+    ],
+    "notice": "自动布局和输入检查已通过。实际截图点击及鼠标、触控板手感仍需用户验证。",
+    "link": "查看完整更新说明"
+  }
+}

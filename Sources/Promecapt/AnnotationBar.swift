@@ -1,6 +1,9 @@
 import AppKit
 
 final class AnnotationBar: NSView {
+    var onSizeChange: (() -> Void)?
+    private let top = NSStackView()
+    private let bottom = NSStackView()
     var onTool: ((DrawingTool?) -> Void)?
     var onUndo: (() -> Void)?
     var onRedo: (() -> Void)?
@@ -8,7 +11,7 @@ final class AnnotationBar: NSView {
     var onSave: (() -> Void)?
     var onPin: (() -> Void)?
     var onCancel: (() -> Void)?
-    var onRecord: (() -> Void)? { didSet { recordButton?.isHidden = onRecord == nil } }
+    var onRecord: (() -> Void)? { didSet { recordButton?.isHidden = onRecord == nil; onSizeChange?() } }
     private var recordButton: NSButton?
     var onOCR: (() -> Void)?
     var onColor: ((NSColor) -> Void)?
@@ -26,7 +29,22 @@ final class AnnotationBar: NSView {
     private var tipAreas: [NSTrackingArea] = []
     private var pendingTip: DispatchWorkItem?
     private var tipWindow: NSPanel?
-    static let preferredSize = NSSize(width: 560, height: 76)
+    static let preferredSize = NSSize(width: 400, height: 68)
+    var preferredSize: NSSize {
+        func width(_ row: NSStackView) -> CGFloat {
+            let views = row.arrangedSubviews.filter { !$0.isHidden }
+            return views.reduce(CGFloat(0)) { total, view in
+                let value: CGFloat
+                if view === info { value = min(136, max(60, info.intrinsicContentSize.width)) }
+                else if view === styles { value = 86 }
+                else if view === colorWell { value = 36 }
+                else if view === parameter { value = 62 }
+                else { value = 28 }
+                return total + value
+            } + CGFloat(max(0, views.count - 1)) * 3
+        }
+        return NSSize(width: ceil(max(360, max(width(top), width(bottom)) + 12)), height: 68)
+    }
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -36,8 +54,7 @@ final class AnnotationBar: NSView {
         wantsLayer = true
         layer?.masksToBounds = true
         layer?.cornerRadius = 7
-        let top = NSStackView()
-        top.spacing = 4
+        top.spacing = 3
         top.alignment = .centerY
         top.detachesHiddenViews = true
         top.orientation = .horizontal
@@ -69,8 +86,7 @@ final class AnnotationBar: NSView {
         parameter.updateAccessibility(L("주석 두께"))
         top.addArrangedSubview(parameter)
         addSubview(top)
-        let bottom = NSStackView()
-        bottom.spacing = 4
+        bottom.spacing = 3
         bottom.alignment = .centerY
         bottom.detachesHiddenViews = true
         info.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
@@ -78,11 +94,9 @@ final class AnnotationBar: NSView {
         info.lineBreakMode = .byTruncatingTail
         info.maximumNumberOfLines = 1
         info.widthAnchor.constraint(greaterThanOrEqualToConstant: 0).isActive = true
+        info.widthAnchor.constraint(lessThanOrEqualToConstant: 136).isActive = true
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         bottom.addArrangedSubview(info)
-        let spacer = NSView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        bottom.addArrangedSubview(spacer)
         for (symbol, action, tip) in [("arrow.uturn.backward", #selector(undoAction), L("실행 취소 (⌘Z)")), ("arrow.uturn.forward", #selector(redoAction), L("다시 실행 (⌘⇧Z)")),
                                      ("text.viewfinder", #selector(ocrAction), L("OCR 영역 선택: 버튼을 누른 뒤 읽을 글자 범위만 드래그 · Esc 취소")),
                                      ("doc.on.doc", #selector(copyAction), L("주석을 포함한 이미지를 클립보드에 복사 (⌘C)")),
@@ -91,8 +105,8 @@ final class AnnotationBar: NSView {
                                      ("pin", #selector(pinAction), L("캡처를 화면에 고정하거나 고정 주석 편집 적용 (⌘Enter)")),
                                      ("xmark", #selector(cancelAction), L("캡처 또는 고정 주석 편집 취소"))] {
             let button = AnnotationButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: tip) ?? NSImage(), target: self, action: action)
-            button.bezelStyle = .texturedRounded
-            button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
+            button.bezelStyle = .regularSquare
+            button.imageScaling = .scaleNone
             button.setAccessibilityLabel(tip)
             button.widthAnchor.constraint(equalToConstant: 28).isActive = true
             button.heightAnchor.constraint(equalToConstant: 28).isActive = true
@@ -106,12 +120,12 @@ final class AnnotationBar: NSView {
         for row in [top, bottom] {
             row.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
-                row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-                row.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+                row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
+                row.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -6),
                 row.heightAnchor.constraint(equalToConstant: 28)])
         }
-        top.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
-        bottom.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8).isActive = true
+        top.topAnchor.constraint(equalTo: topAnchor, constant: 4).isActive = true
+        bottom.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4).isActive = true
         choose(-1)
     }
     override func draw(_ dirtyRect: NSRect) {
@@ -191,9 +205,9 @@ final class AnnotationBar: NSView {
     }
     private func toolButton(_ symbol: String, _ label: String, index: Int) -> NSButton {
         let button = AnnotationButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: label) ?? NSImage(), target: self, action: #selector(toolAction(_:)))
-        button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
+        button.imageScaling = .scaleNone
         button.tag = index
-        button.bezelStyle = .texturedRounded
+        button.bezelStyle = .regularSquare
         button.setButtonType(.pushOnPushOff)
         button.toolTip = label
         button.setAccessibilityLabel(index < 0 ? L("캡처 영역 이동 / 크기 조절") : L(Self.tools[index].rawValue))
@@ -208,6 +222,7 @@ final class AnnotationBar: NSView {
         updateOptions(tool: selectedTool ?? .select, active: selectedTool != nil,
                       style: ConcealStyle.allCases[max(0, styles.indexOfSelectedItem)])
         onTool?(selectedTool)
+        onSizeChange?()
     }
     func sync(with canvas: CanvasView) {
         colorWell.color = canvas.color
@@ -229,6 +244,8 @@ final class AnnotationBar: NSView {
         parameter.doubleValue = Double(canvas.parameterValue)
         parameter.isEnabled = !canvas.isSelectingOCR && selectedTool != nil && canvas.parameterIsEnabled
         parameter.updateAccessibility(conceal ? L("가리기 세기") : L("주석 두께"))
+        info.toolTip = info.stringValue
+        onSizeChange?()
     }
     private func updateOptions(tool: DrawingTool, active: Bool, style: ConcealStyle) {
         styles.isHidden = !active || tool != .conceal

@@ -30,11 +30,12 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     var onPin: ((AnnotationDocument) -> Void)?
     var onClose: ((EditorController) -> Void)?
     private let info = NSTextField(labelWithString: "")
-    private let tools = NSSegmentedControl()
+    private let tools = NSStackView()
+    private var toolButtons: [NSButton] = []
     private let concealStyles = NSPopUpButton()
     private let parameter = NumericStepper(frame: .zero)
     private let parameterLabel = NSTextField(labelWithString: L("두께 4"))
-    private let colorWell = NSColorWell()
+    private let colorWell = AnnotationColorWell()
     private var ocrButton: NSButton!
 
     init(image: NSImage) {
@@ -62,20 +63,21 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         background.contentView = root
         window.contentView = background
 
-        tools.segmentCount = DrawingTool.allCases.count
+        tools.orientation = .horizontal
+        tools.spacing = 3
         let symbols = ["cursorarrow", "pencil.tip", "highlighter", "rectangle", "circle", "line.diagonal", "arrow.up.right", "textformat", "1.circle", "square.grid.3x3.fill", "crop"]
-        tools.segmentStyle = .rounded
-        tools.trackingMode = .selectOne
         for (index, tool) in DrawingTool.allCases.enumerated() {
-            let icon = NSImage(systemSymbolName: symbols[index], accessibilityDescription: L(tool.rawValue))?
-                .withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
-            tools.setImage(icon, forSegment: index)
-            tools.setWidth(30, forSegment: index)
-            tools.setToolTip(tool.tip, forSegment: index)
+            let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[index], accessibilityDescription: L(tool.rawValue)) ?? NSImage(), target: self, action: #selector(selectTool(_:)))
+            button.tag = index
+            button.bezelStyle = .regularSquare
+            button.setButtonType(.pushOnPushOff)
+            button.setAccessibilityLabel(L(tool.rawValue))
+            button.toolTip = tool.tip
+            button.widthAnchor.constraint(equalToConstant: 28).isActive = true
+            button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+            toolButtons.append(button)
+            tools.addArrangedSubview(button)
         }
-        tools.selectedSegment = 0
-        tools.target = self
-        tools.action = #selector(selectTool)
         tools.toolTip = L("영역 도구는 이미지에서 드래그합니다. 텍스트는 클릭합니다.")
         concealStyles.identifier = .init("redaction-style")
         colorWell.identifier = .init("annotation-color")
@@ -139,7 +141,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         let symbols: [Selector: String] = [#selector(undoEdit): "arrow.uturn.backward", #selector(redoEdit): "arrow.uturn.forward", #selector(rotateImage): "rotate.left", #selector(flip): "arrow.left.and.right.righttriangle.left.righttriangle.right", #selector(copyOutput): "doc.on.doc", #selector(saveOutput): "square.and.arrow.down", #selector(pinOutput): "pin", #selector(ocr): "text.viewfinder"]
         let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[selector] ?? "ellipsis", accessibilityDescription: title) ?? NSImage(), target: self, action: selector)
         button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
-        button.bezelStyle = .texturedRounded
+        button.bezelStyle = .regularSquare
         button.controlSize = .small
         button.contentTintColor = .labelColor
         button.widthAnchor.constraint(equalToConstant: 30).isActive = true
@@ -159,7 +161,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         let showParameter = !canvas.isSelectingOCR && canvas.parameterIsEnabled
         parameter.isHidden = !showParameter
         parameterLabel.isHidden = !showParameter
-        tools.selectedSegment = DrawingTool.allCases.firstIndex(of: canvas.tool)!
+        for button in toolButtons { button.state = DrawingTool.allCases[button.tag] == canvas.tool ? .on : .off }
         let conceal = canvas.effectiveTool == .conceal
         concealStyles.isHidden = canvas.isSelectingOCR || !conceal
         concealStyles.selectItem(at: ConcealStyle.allCases.firstIndex(of: canvas.concealStyle)!)
@@ -174,9 +176,9 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         info.stringValue = L("{0} × {1} px  ·  {2}  ·  클릭 선택 · Delete 삭제 · 휠 조절", Int(canvas.image.size.width), Int(canvas.image.size.height), conceal ? canvas.concealStyle.rawValue : canvas.effectiveTool.rawValue)
     }
 
-    @objc private func selectTool() {
+    @objc private func selectTool(_ sender: NSButton) {
         window?.makeFirstResponder(nil)
-        canvas.tool = DrawingTool.allCases[tools.selectedSegment]
+        canvas.tool = DrawingTool.allCases[sender.tag]
         updateInfo()
         window?.makeFirstResponder(canvas)
     }

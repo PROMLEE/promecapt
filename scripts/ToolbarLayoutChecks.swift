@@ -83,12 +83,39 @@ enum ToolbarLayoutChecks {
                 let window = NSWindow(contentRect: bar.frame, styleMask: [.borderless], backing: .buffered, defer: false)
                 window.isReleasedWhenClosed = false
                 window.contentView = bar
+                bar.onSizeChange = { [weak window, weak bar] in
+                    if let bar { window?.setContentSize(bar.preferredSize) }
+                }
                 bar.info.stringValue = L("기록 {0}/{1} · , 이전 / . 다음", 100, 100)
+                window.setContentSize(bar.preferredSize)
                 window.contentView?.layoutSubtreeIfNeeded()
                 inspect(bar, context: context)
                 let rows = bar.subviews.compactMap { $0 as? NSStackView }
                 layoutCheck(rows.count == 2 && !rows[0].frame.intersects(rows[1].frame), "\(context): toolbar rows do not overlap")
                 inspectControls(bar, context: context)
+                layoutCheck(bar.frame.width < 440, "\(context): hidden options no longer leave a 560pt toolbar")
+                if appearance == .darkAqua,
+                   let pencil = rows.first?.arrangedSubviews.compactMap({ $0 as? AnnotationButton }).first(where: { $0.tag == 1 }),
+                   let bitmap = pencil.bitmapImageRepForCachingDisplay(in: pencil.bounds) {
+                    pencil.cacheDisplay(in: pencil.bounds, to: bitmap)
+                    var whitePixels = 0
+                    for y in (bitmap.pixelsHigh / 4)..<(bitmap.pixelsHigh * 3 / 4) {
+                        for x in (bitmap.pixelsWide / 4)..<(bitmap.pixelsWide * 3 / 4) {
+                            if let color = bitmap.colorAt(x: x, y: y)?.usingColorSpace(.sRGB),
+                               color.redComponent > 0.95 && color.greenComponent > 0.95 && color.blueComponent > 0.95 {
+                                whitePixels += 1
+                            }
+                        }
+                    }
+                    layoutCheck(whitePixels > 0, "\(context): inactive-window enabled icon actually renders white")
+                }
+                let confirm = AnnotationColorWell().confirmationAccessory()
+                confirm.appearance = NSAppearance(named: appearance)
+                confirm.layoutSubtreeIfNeeded()
+                let apply = confirm.subviews.compactMap { $0 as? NSButton }.first!
+                layoutCheck(apply.title == L("확인") && apply.keyEquivalent == "\r", "\(context): color picker has an explicit Apply action")
+                layoutCheck(confirm.bounds.contains(apply.frame), "\(context): color confirmation button fits its footer")
+                try snapshot(confirm, name: "color-footer-" + context)
                 try snapshot(bar, name: "capture-" + context)
                 // Hidden GIF and changing tool state must not disturb neighboring controls.
                 bar.onRecord = nil

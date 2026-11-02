@@ -235,6 +235,7 @@ final class CaptureView: NSView {
         addSubview(shade)
         addSubview(bar)
         bar.isHidden = true
+        bar.onSizeChange = { [weak self] in self?.positionBar() }
         bar.onTool = { [weak self] tool in
             guard let self else { return }
             self.canvas.flushText()
@@ -410,11 +411,15 @@ final class CaptureView: NSView {
         let pixel = selection.pixelRect(imageSize: canvas.image.size)
         bar.info.stringValue = "\(Int(pixel.width)) × \(Int(pixel.height)) px"
         bar.isHidden = !selection.isValid
-        var origin = NSPoint(x: selection.rect.maxX - AnnotationBar.preferredSize.width, y: selection.rect.minY - AnnotationBar.preferredSize.height - 12)
-        if origin.y < 10 { origin.y = min(bounds.maxY - AnnotationBar.preferredSize.height - 10, selection.rect.maxY + 12) }
-        origin.x = min(bounds.maxX - AnnotationBar.preferredSize.width - 10, max(10, origin.x))
-        bar.frame = NSRect(origin: origin, size: AnnotationBar.preferredSize)
+        positionBar()
         subviews.forEach { $0.needsDisplay = true }
+    }
+    private func positionBar() {
+        let size = bar.preferredSize
+        var origin = NSPoint(x: selection.rect.maxX - size.width, y: selection.rect.minY - size.height - 8)
+        if origin.y < 8 { origin.y = min(bounds.maxY - size.height - 8, selection.rect.maxY + 8) }
+        origin.x = min(bounds.maxX - size.width - 8, max(8, origin.x))
+        bar.frame = NSRect(origin: origin, size: size)
     }
     private func finish(_ destination: CaptureDestination) {
         guard selection.isValid else { return }

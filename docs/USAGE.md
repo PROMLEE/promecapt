@@ -21,6 +21,8 @@ Choose the **F1 / F3 / F4** preset or your own shortcuts in Settings → Shortcu
 
 From 1.1.3, annotation options appear only when they apply to the active tool or selected annotation. A wheel detent changes width or redaction strength by one unit; trackpad motion accumulates distance without momentum edits. Pin zoom changes by 3% and Ctrl-wheel opacity by two percentage points per normalized step.
 
+From 1.1.4, the annotation toolbar fits its visible controls. Dark-mode enabled icons stay white. In the color panel, choose a color and press **Apply** (or Return) to close the panel and resume editing.
+
 Settings → General selects your language and Dock visibility. Menu bar operation works with the Dock icon hidden.
 
 ## GIF recording

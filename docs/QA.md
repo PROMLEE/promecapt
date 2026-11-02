@@ -78,3 +78,11 @@ Settings → Capture → Automatically select newly drawn annotations defaults t
 - Discrete wheel events change annotation width or redaction strength by exactly one unit, irrespective of macOS acceleration. Precise trackpad motion accumulates 24 points per step; each packet changes at most one step. Momentum and zero/horizontal deltas do not edit values. Direction changes and gesture completion clear accumulated distance.
 - Pin zoom uses 3% per normalized step; Ctrl-wheel opacity uses two percentage points. Switching between the two resets the accumulator.
 - Automated checks cover accelerated wheel packets, reverse direction, zero input, small precise deltas, a large packet, momentum, gesture end, invalid values and parameter bounds. Physical mouse/trackpad feel remains pending an unlocked Mac.
+
+## Compact toolbar follow-up — 1.1.4
+
+Native toolbar bezels in 1.1.3 were shorter than the allocated button frame, while native inactive-window tint faded symbols. The follow-up uses flexible-height native bezels and a button-cell image renderer constrained to 14pt inside 28pt controls, with white enabled symbols in dark appearance. Native bezel drawing and interaction remain AppKit's responsibility.
+
+The bar is 68pt high, uses 4pt vertical padding and sizes its width to visible controls; the second-row expanding spacer is removed. Capture repositions the resized bar; pin editing resizes its tool panel. The standalone editor uses the same buttons.
+
+Offscreen AppKit checks cover four languages and both appearances, every contextual tool state, window resizing and control intersections. A bitmap assertion verifies an enabled symbol contains white pixels in a non-key dark window. Color-panel footer checks confirm a localized Apply button with Return activation and a fitting frame. The Apply action sends the color, closes/deactivates the well and returns focus; accessory/level/behavior are restored. Actual panel interaction remains pending because the Mac is inaccessible; the owner is testing successive published fixes.

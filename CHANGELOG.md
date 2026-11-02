@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.4
+
+- Fit annotation symbols inside flexible-height native button bezels and keep enabled dark-mode icons white even in non-key capture windows.
+- Reduce toolbar padding and remove its expanding spacer; size capture and pin-edit toolbars to visible controls.
+- Add an explicit Apply button to the native color panel and restore its previous accessory view on close.
+- Use the same icon buttons in the standalone editor.
+
 ## 1.1.3
 
 - Use native macOS annotation controls and semantic appearance colors; prevent toolbar overlap across macOS versions and translations.

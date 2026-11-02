@@ -2,6 +2,7 @@ import AppKit
 
 /// Keep the shared color panel above full-screen capture and pin-edit windows.
 final class AnnotationColorWell: NSColorWell {
+    private var originalAccessory: NSView?
     private var originalLevel: NSWindow.Level?
     private var originalBehavior: NSWindow.CollectionBehavior?
     private var originalHidesOnDeactivate = false
@@ -18,6 +19,7 @@ final class AnnotationColorWell: NSColorWell {
         guard let window else { return }
         let panel = NSColorPanel.shared
         if originalLevel == nil {
+            originalAccessory = panel.accessoryView
             originalLevel = panel.level
             originalBehavior = panel.collectionBehavior
             originalHidesOnDeactivate = panel.hidesOnDeactivate
@@ -30,10 +32,31 @@ final class AnnotationColorWell: NSColorWell {
         panel.level = NSWindow.Level(rawValue: window.level.rawValue + 2)
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.hidesOnDeactivate = false
+        panel.accessoryView = confirmationAccessory()
         if let closeObserver { NotificationCenter.default.removeObserver(closeObserver) }
         closeObserver = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { [weak self] _ in self?.deactivate() }
         panel.makeKeyAndOrderFront(nil)
         panel.orderFrontRegardless()
+    }
+    func confirmationAccessory() -> NSView {
+        let footer = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 42))
+        let apply = NSButton(title: L("확인"), target: self, action: #selector(confirmColor))
+        apply.identifier = .init("confirm-color")
+        apply.bezelStyle = .rounded
+        apply.keyEquivalent = "\r"
+        apply.translatesAutoresizingMaskIntoConstraints = false
+        footer.addSubview(apply)
+        NSLayoutConstraint.activate([
+            apply.trailingAnchor.constraint(equalTo: footer.trailingAnchor, constant: -12),
+            apply.centerYAnchor.constraint(equalTo: footer.centerYAnchor),
+            apply.widthAnchor.constraint(greaterThanOrEqualToConstant: 72)])
+        return footer
+    }
+    @objc private func confirmColor() {
+        let parent = owner
+        _ = sendAction(action, to: target)
+        deactivate()
+        parent?.makeKeyAndOrderFront(nil)
     }
     override func deactivate() {
         if let closeObserver { NotificationCenter.default.removeObserver(closeObserver) }
@@ -42,10 +65,12 @@ final class AnnotationColorWell: NSColorWell {
             let panel = NSColorPanel.shared
             owner?.removeChildWindow(panel)
             panel.orderOut(nil)
+            panel.accessoryView = originalAccessory
             panel.level = level
             if let originalBehavior { panel.collectionBehavior = originalBehavior }
             panel.hidesOnDeactivate = originalHidesOnDeactivate
         }
+        originalAccessory = nil
         originalLevel = nil; originalBehavior = nil; owner = nil
         super.deactivate()
     }

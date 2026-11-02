@@ -154,6 +154,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
         bar.onPin = { [weak self] in self?.finishEditing(apply: true) }
         bar.onCancel = { [weak self] in self?.finishEditing(apply: false) }
         bar.onOCR = { [weak self] in self?.extractText() }
+        bar.onSizeChange = { [weak self] in self?.positionTools() }
         tools.contentView = bar
         editTools = tools
         window.addChildWindow(tools, ordered: .above)
@@ -193,9 +194,11 @@ final class PinController: NSWindowController, NSWindowDelegate {
     private func positionTools() {
         guard let frame = window?.frame, let tools = editTools else { return }
         let visible = window?.screen?.visibleFrame ?? NSScreen.main!.visibleFrame
-        var origin = NSPoint(x: frame.midX - AnnotationBar.preferredSize.width / 2, y: frame.minY - AnnotationBar.preferredSize.height - 10)
-        origin.x = max(visible.minX + 8, min(visible.maxX - AnnotationBar.preferredSize.width - 8, origin.x))
-        if origin.y < visible.minY { origin.y = min(visible.maxY - AnnotationBar.preferredSize.height, frame.maxY + 10) }
+        let size = (tools.contentView as? AnnotationBar)?.preferredSize ?? AnnotationBar.preferredSize
+        tools.setContentSize(size)
+        var origin = NSPoint(x: frame.midX - size.width / 2, y: frame.minY - size.height - 8)
+        origin.x = max(visible.minX + 8, min(visible.maxX - size.width - 8, origin.x))
+        if origin.y < visible.minY { origin.y = min(visible.maxY - size.height, frame.maxY + 10) }
         tools.setFrameOrigin(origin)
     }
     @objc func closePin() { window?.close() }

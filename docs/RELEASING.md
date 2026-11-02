@@ -2,7 +2,7 @@
 
 ## Version and checks
 
-The first public version is **1.0.0**. Update `scripts/package.sh`, `CHANGELOG.md`, the four READMEs, and `docs/releases/VERSION.md` together. The executable, app bundle and download assets use **Promecapt**. Keep the app identifier and data format stable across releases; changes require a migration plan.
+The first public version is **1.0.0**. Update `scripts/package.sh`, `CHANGELOG.md`, the four READMEs, `docs/releases/VERSION.md` and the four-language `docs/releases/VERSION.appcast.json` together. The executable, app bundle and download assets use **Promecapt**. Keep the app identifier and data format stable across releases; changes require a migration plan.
 
 Run `bash scripts/test-local.sh`, `swift test` with full Xcode, and `bash scripts/package.sh`. Confirm the installed app and archive show the same version, all four UI languages load, both icons use the shared mark, and captures / existing pins still work. Do not include local captures, `.build`, `dist`, signing materials or research notes in the source repository.
 
@@ -43,3 +43,9 @@ From 1.1.0, Release CI signs architecture-specific archives and feeds using `SPA
 After packaging, run `bash scripts/package-dmg.sh`. It creates a Finder window with the app, an Applications link and a directional arrow. Python packaging tools are pinned in `scripts/dmg-requirements.txt` and installed only in `.build/dmg-venv`; the app has no new runtime dependencies. `APP_PATH=/path/to/Promecapt.app` packages an already signed app without rebuilding it. Version and CPU architecture come from that app.
 
 The script verifies the DMG checksum, mounts it read-only, checks the app signature and Applications link, and compares all app files with the input. Finder metadata must not be written onto the signed app. Release CI generates DMG and ZIP for both architectures. For notarized releases, staple the app before creating either container.
+
+## Update-window release notes
+
+`docs/releases/VERSION.appcast.json` provides concise English, Korean, Japanese and Simplified Chinese changes for the update window. `scripts/appcast_notes.py` renders self-contained light/dark HTML, embedded as localized descriptions in the signed appcast. GitHub Markdown release notes remain separate.
+
+Editing these JSON notes on main triggers Refresh signed update notes for the currently published release. It downloads and checks the existing archives, signs new feeds and replaces only `appcast-arm64.xml` and `appcast-x86_64.xml`. App archives and their checksums are never replaced. Future releases require their own notes JSON.

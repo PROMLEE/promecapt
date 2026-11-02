@@ -9,6 +9,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
 import plistlib
+from appcast_notes import render_notes
 
 ROOT = Path(__file__).resolve().parent.parent
 NS = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
@@ -49,7 +50,8 @@ ET.SubElement(item, 'pubDate').text = datetime.now(timezone.utc).strftime('%a, %
 ET.SubElement(item, f'{{{NS}}}version').text = args.version
 ET.SubElement(item, f'{{{NS}}}shortVersionString').text = args.version
 ET.SubElement(item, f'{{{NS}}}minimumSystemVersion').text = '13.0.0'
-ET.SubElement(item, 'description').text = f'Promecapt {args.version}. Release notes: https://github.com/PROMLEE/promecapt/releases/tag/v{args.version}'
+for language, html in render_notes(ROOT, args.version).items():
+    ET.SubElement(item, 'description', {'{http://www.w3.org/XML/1998/namespace}lang': language, f'{{{NS}}}format': 'html'}).text = html
 ET.SubElement(item, 'enclosure', {
     'url': f'https://github.com/PROMLEE/promecapt/releases/download/v{args.version}/{archive.name}',
     f'{{{NS}}}edSignature': signature, 'length': str(archive.stat().st_size), 'type': 'application/octet-stream'})

@@ -1,0 +1,54 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.1",
+    "changes": [
+      "Brighter annotation toolbar with clearer icons and text.",
+      "New annotations are selected for immediate editing. Turn this off in Settings → Capture for continuous drawing.",
+      "The color picker stays above the capture screen.",
+      "Click outside a shortcut recorder to cancel it.",
+      "Startup guidance for screen capture and Accessibility permissions.",
+      "ZIP apps offer installation in Applications. Startup pin restoration is off by default; saved pins are preserved."
+    ],
+    "notice": "After updating, macOS may ask you to allow screen capture and Accessibility again.",
+    "link": "View full release notes"
+  },
+  "ko": {
+    "heading": "1.1.1 업데이트 내용",
+    "changes": [
+      "도구창의 아이콘과 글자를 더 밝고 선명하게 개선했습니다.",
+      "그린 주석을 바로 선택해 수정할 수 있습니다. 연속 그리기는 설정 → 캡처에서 자동 선택을 끄세요.",
+      "색상 선택창이 캡처 화면 뒤에 가려지지 않도록 수정했습니다.",
+      "단축키 입력 중 다른 곳을 클릭하면 입력 대기를 취소합니다.",
+      "앱 시작 시 화면 캡처·손쉬운 사용 권한 설정을 안내합니다.",
+      "ZIP 앱의 응용 프로그램 폴더 설치를 안내합니다. 시작 시 고정 이미지 복원은 기본 꺼짐이며, 저장 자료는 보존합니다."
+    ],
+    "notice": "업데이트 후 macOS에서 화면 캡처·손쉬운 사용 권한을 다시 허용해야 할 수 있습니다.",
+    "link": "전체 릴리스 노트 보기"
+  },
+  "ja": {
+    "heading": "1.1.1の更新内容",
+    "changes": [
+      "ツールバーのアイコンと文字を明るく見やすくしました。",
+      "描画した注釈をすぐ選択して編集できます。連続描画には設定 → キャプチャで自動選択をオフにしてください。",
+      "カラーパネルがキャプチャ画面の背面に隠れないよう修正しました。",
+      "ショートカット入力中に別の場所をクリックすると入力をキャンセルします。",
+      "起動時に画面収録とアクセシビリティの権限設定を案内します。",
+      "ZIP版からアプリケーションフォルダへのインストールを案内します。起動時の固定画像の復元は既定でオフになり、保存データは維持されます。"
+    ],
+    "notice": "更新後、macOSで画面収録とアクセシビリティの権限を再度許可する必要がある場合があります。",
+    "link": "リリースノートをすべて表示"
+  },
+  "zh-Hans": {
+    "heading": "1.1.1 更新内容",
+    "changes": [
+      "提高工具栏图标和文字的亮度与清晰度。",
+      "新绘制的标注会立即选中，方便编辑。连续绘制时可在设置 → 截图中关闭自动选择。",
+      "修复颜色面板被截图界面遮挡的问题。",
+      "录制快捷键时，点击其他位置即可取消。",
+      "启动时引导设置屏幕录制和辅助功能权限。",
+      "ZIP 应用会提示安装到应用程序文件夹。默认关闭启动时恢复置顶图片，保留已保存的数据。"
+    ],
+    "notice": "更新后，macOS 可能需要您重新授予屏幕录制和辅助功能权限。",
+    "link": "查看完整发布说明"
+  }
+}

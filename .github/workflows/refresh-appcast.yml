@@ -1,0 +1,44 @@
+name: Refresh signed update notes
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/releases/*.appcast.json'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - run: swift package resolve
+      - name: Refresh only the current release feeds
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          version="$(cat .release-version)"
+          latest="$(gh release view --json tagName --jq .tagName)"
+          if [[ "$latest" != "v$version" ]]; then
+            echo "The new release is not published yet; Release will generate its feeds."
+            exit 0
+          fi
+          directory="$PWD/.build/appcast-refresh"
+          mkdir -p "$directory"
+          umask 077
+          key="$(mktemp "$RUNNER_TEMP/promecapt-feed-key.XXXXXX")"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$SPARKLE_ED_PRIVATE_KEY" > "$key"
+          for arch in arm64 x86_64; do
+            archive="Promecapt-$version-macos-$arch.zip"
+            gh release download "$latest" --pattern "$archive" --pattern "$archive.sha256" --dir "$directory"
+            expected="$(awk '{print $1}' "$directory/$archive.sha256")"
+            actual="$(shasum -a 256 "$directory/$archive" | awk '{print $1}')"
+            [[ "$actual" == "$expected" ]]
+            python3 scripts/generate-appcast.py --version "$version" --arch "$arch" --key-file "$key" --directory "$directory"
+          done
+          # App archives and their checksums are immutable. Only signed display metadata changes.
+          gh release upload "$latest" "$directory/appcast-arm64.xml" "$directory/appcast-x86_64.xml" --clobber

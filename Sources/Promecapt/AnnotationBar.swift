@@ -41,7 +41,7 @@ final class AnnotationBar: NSView {
                 else if view === parameter { value = 62 }
                 else { value = 28 }
                 return total + value
-            } + CGFloat(max(0, views.count - 1)) * 3
+            } + CGFloat(max(0, views.count - 1)) * 3 + (views.contains(where: { $0 === styles }) ? 6 : 0)
         }
         return NSSize(width: ceil(max(360, max(width(top), width(bottom)) + 12)), height: 68)
     }
@@ -63,6 +63,7 @@ final class AnnotationBar: NSView {
         for (index, tool) in Self.tools.enumerated() {
             top.addArrangedSubview(toolButton(icons[index], tool.tip, index: index))
         }
+        if let lastTool = toolButtons.last { top.setCustomSpacing(6, after: lastTool) }
         styles.identifier = .init("redaction-style")
         colorWell.identifier = .init("annotation-color")
         parameter.identifier = .init("annotation-parameter")

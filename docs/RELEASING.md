@@ -10,7 +10,7 @@ CI uses the standard `macos-15` arm64 and `macos-15-intel` runners documented in
 
 ## Create a release
 
-For an explicitly approved stable release, update `.release-version` on `main` in the same commit as its final notes and version changes. This narrowly scoped push trigger builds, tests and signs both architectures, then publishes the release as latest. Ordinary source commits do not trigger publishing. Manual dispatch and tag pushes retain the draft-review path below. Existing releases remain unchanged.
+For an explicitly approved stable release, update `.release-version` on `main` in the same commit as its final notes and version changes. This narrowly scoped push trigger builds, tests and signs both architectures, then publishes the release as latest. Ordinary source commits do not trigger publishing. After fixing a failed unpublished release, change `.release-attempt` (for example `1.1.4-2`) to retry the version in `.release-version`; already published versions are still skipped. Manual dispatch and tag pushes retain the draft-review path below. Existing releases remain unchanged.
 
 Use Actions → Release → Run workflow with the next version (for example `1.1.1`), or push its matching tag. Review both build results, download the archives, verify checksums and check the notes before publishing the draft. Ensure the uploaded package version matches its tag. Never replace an already published archive silently; increment the version for changes.
 

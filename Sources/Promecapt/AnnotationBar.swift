@@ -26,7 +26,11 @@ final class AnnotationBar: NSView {
     private static let tools = DrawingTool.allCases.filter { $0 != .crop }
     let info = NSTextField(labelWithString: L("드래그하여 영역 선택"))
     private var toolButtons: [NSButton] = []
-    private var tipAreas: [NSTrackingArea] = []
+    private var hoverArea: NSTrackingArea?
+    private weak var hoveredHelpView: NSView?
+    private var hoveredHelpText: String?
+    private var helpGeneration = 0
+    private var helpLabels: [ObjectIdentifier: String] = [:]
     private var pendingTip: DispatchWorkItem?
     private var tipWindow: NSPanel?
     static let preferredSize = NSSize(width: 400, height: 68)
@@ -41,9 +45,9 @@ final class AnnotationBar: NSView {
                 else if view === parameter { value = 62 }
                 else { value = 28 }
                 return total + value
-            } + CGFloat(max(0, views.count - 1)) * 3 + (views.contains(where: { $0 === styles }) ? 6 : 0)
+            } + CGFloat(max(0, views.count - 1)) * 2 + (views.contains(where: { $0 === styles }) ? 6 : 0)
         }
-        return NSSize(width: ceil(max(360, max(width(top), width(bottom)) + 12)), height: 68)
+        return NSSize(width: ceil(max(350, max(width(top), width(bottom)) + 12)), height: 68)
     }
 
     override init(frame frameRect: NSRect) {
@@ -54,7 +58,7 @@ final class AnnotationBar: NSView {
         wantsLayer = true
         layer?.masksToBounds = true
         layer?.cornerRadius = 7
-        top.spacing = 3
+        top.spacing = 2
         top.alignment = .centerY
         top.detachesHiddenViews = true
         top.orientation = .horizontal
@@ -83,11 +87,12 @@ final class AnnotationBar: NSView {
         well.toolTip = L("색상: 선택한 주석 또는 다음 주석의 색 변경")
         well.widthAnchor.constraint(equalToConstant: 30).isActive = true
         top.addArrangedSubview(well)
+        top.setCustomSpacing(4, after: well)
         parameter.target = self; parameter.action = #selector(widthChanged(_:))
         parameter.updateAccessibility(L("주석 두께"))
         top.addArrangedSubview(parameter)
         addSubview(top)
-        bottom.spacing = 3
+        bottom.spacing = 2
         bottom.alignment = .centerY
         bottom.detachesHiddenViews = true
         info.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
@@ -127,6 +132,7 @@ final class AnnotationBar: NSView {
         }
         top.topAnchor.constraint(equalTo: topAnchor, constant: 4).isActive = true
         bottom.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4).isActive = true
+        captureHelpLabels()
         choose(-1)
     }
     override func draw(_ dirtyRect: NSRect) {
@@ -147,29 +153,70 @@ final class AnnotationBar: NSView {
     required init?(coder: NSCoder) { fatalError() }
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
-        for area in tipAreas { removeTrackingArea(area) }
-        tipAreas = []
+        captureHelpLabels()
+        if let hoverArea { removeTrackingArea(hoverArea) }
+        let area = NSTrackingArea(rect: .zero, options: [.inVisibleRect, .mouseMoved, .mouseEnteredAndExited, .activeAlways], owner: self)
+        addTrackingArea(area); hoverArea = area
+        hideTip()
+    }
+    // Resolve the live hit target rather than storing rectangles that become stale
+    // whenever contextual controls hide, resize or move the toolbar.
+    private func captureHelpLabels() {
         func visit(_ view: NSView) {
-            if let tip = view.toolTip, !tip.isEmpty {
-                let rect = convert(view.bounds, from: view)
-                let area = NSTrackingArea(rect: rect, options: [.mouseEnteredAndExited,.activeAlways], owner: self,
-                                          userInfo: ["tip": tip, "rect": NSValue(rect: rect)])
-                addTrackingArea(area); tipAreas.append(area)
+            if let label = view.toolTip, !label.isEmpty {
+                helpLabels[ObjectIdentifier(view)] = label
+                view.setAccessibilityHelp(label)
+                // Only the capture-level help panel should show, not a second native tip.
+                view.toolTip = nil
             }
             for child in view.subviews { visit(child) }
         }
         for child in subviews { visit(child) }
     }
-    override func mouseEntered(with event: NSEvent) {
-        guard let tip = event.trackingArea?.userInfo?["tip"] as? String,
-              let rect = event.trackingArea?.userInfo?["rect"] as? NSValue else { return }
+    func helpText(for view: NSView) -> String? { helpLabels[ObjectIdentifier(view)] ?? view.toolTip }
+    func helpTarget(at point: NSPoint) -> NSView? {
+        guard bounds.contains(point), !isHidden else { return nil }
+        var view = super.hitTest(convert(point, to: superview))
+        while let candidate = view, candidate !== self {
+            if !candidate.isHiddenOrHasHiddenAncestor, let text = helpText(for: candidate), !text.isEmpty { return candidate }
+            view = candidate.superview
+        }
+        return nil
+    }
+    override func mouseEntered(with event: NSEvent) { trackHelp(at: convert(event.locationInWindow, from: nil)) }
+    override func mouseMoved(with event: NSEvent) { trackHelp(at: convert(event.locationInWindow, from: nil)) }
+    private func trackHelp(at point: NSPoint) {
+        guard let target = helpTarget(at: point), let text = helpText(for: target) else { hideTip(); return }
+        guard target !== hoveredHelpView || text != hoveredHelpText else { return }
         hideTip()
-        let task = DispatchWorkItem { [weak self] in self?.showTip(tip, at: rect.rectValue) }
+        hoveredHelpView = target; hoveredHelpText = text
+        let generation = helpGeneration
+        let task = DispatchWorkItem { [weak self, weak target] in
+            guard let self, let target, self.helpGeneration == generation,
+                  let window = self.window, NSEvent.pressedMouseButtons == 0, !target.isHiddenOrHasHiddenAncestor,
+                  self.helpTarget(at: self.convert(window.mouseLocationOutsideOfEventStream, from: nil)) === target,
+                  let currentText = self.helpText(for: target) else { return }
+            self.showTip(currentText, at: self.convert(target.bounds, from: target))
+        }
         pendingTip = task; DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: task)
     }
     override func mouseExited(with event: NSEvent) { hideTip() }
-    override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); hideTip() }
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        window?.acceptsMouseMovedEvents = true
+        hideTip()
+    }
+    override func setFrameSize(_ size: NSSize) {
+        if size != frame.size { hideTip() }
+        super.setFrameSize(size)
+    }
+    override func setFrameOrigin(_ origin: NSPoint) {
+        if origin != frame.origin { hideTip() }
+        super.setFrameOrigin(origin)
+    }
     private func hideTip() {
+        helpGeneration += 1
+        hoveredHelpView = nil; hoveredHelpText = nil
         pendingTip?.cancel(); pendingTip = nil
         if let tipWindow { tipWindow.parent?.removeChildWindow(tipWindow); tipWindow.close() }
         tipWindow = nil
@@ -246,6 +293,7 @@ final class AnnotationBar: NSView {
         parameter.isEnabled = !canvas.isSelectingOCR && selectedTool != nil && canvas.parameterIsEnabled
         parameter.updateAccessibility(conceal ? L("가리기 세기") : L("주석 두께"))
         info.toolTip = info.stringValue
+        captureHelpLabels()
         onSizeChange?()
     }
     private func updateOptions(tool: DrawingTool, active: Bool, style: ConcealStyle) {

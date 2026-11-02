@@ -130,7 +130,6 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         checkpoint()
         document.objects.append(object)
         if UserDefaults.standard.object(forKey: "autoSelectAnnotations") as? Bool ?? true {
-            currentTool = .select
             selectAnnotation(object.id)
         } else { selectedID = nil }
         invalidate()
@@ -218,12 +217,21 @@ final class CanvasView: NSView, NSTextFieldDelegate {
             guard ocrLimit.contains(p) else { return }
             points = [p]; needsDisplay = true; return
         }
-        if !event.modifierFlags.contains(.option), tool == .select || ([.text,.number].contains(tool) && event.clickCount >= 2) {
-            if let object = selectedAnnotation,
-               let handle = selectionGeometry(object).handle(at: p, tolerance: 8 / scale) {
-                startObjectDrag(object, at: p, handle: handle); return
+        if !event.modifierFlags.contains(.option) {
+            // The freshly drawn object can be adjusted without changing the drawing tool.
+            if let object = selectedAnnotation {
+                if let handle = selectionGeometry(object).handle(at: p, tolerance: 8 / scale) {
+                    startObjectDrag(object, at: p, handle: handle); return
+                }
+                if object.contains(p, tolerance: 6 / scale) {
+                    if [.text, .number].contains(object.tool) && event.clickCount >= 2 {
+                        beginText(at: object.bounds.origin, editing: object)
+                    } else { startObjectDrag(object, at: p, handle: nil) }
+                    return
+                }
             }
-            if let object = document.objects.reversed().first(where: { $0.contains(p, tolerance: 6 / scale) }) {
+            if tool == .select || ([DrawingTool.text, .number].contains(tool) && event.clickCount >= 2),
+               let object = document.objects.reversed().first(where: { $0.contains(p, tolerance: 6 / scale) }) {
                 selectAnnotation(object.id)
                 if [.text,.number].contains(object.tool) && event.clickCount >= 2 { beginText(at: object.bounds.origin, editing: object) }
                 else { startObjectDrag(object, at: p, handle: nil) }

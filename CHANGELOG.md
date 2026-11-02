@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.5
+
+- Keep the drawing tool active when automatically selecting a newly drawn annotation. Adjust that object immediately, then draw again on empty space without reselecting the tool.
+- Limit Space window-target switching to before capture selection; do not reset an active annotation tool.
+- Resolve toolbar help from the current hit target after resizing/hiding controls, cancel stale delayed help and avoid duplicate native tooltips.
+- Tighten button spacing while preserving native popup/color-well bezel clearance.
+
 ## 1.1.4
 
 - Fit annotation symbols inside flexible-height native button bezels and keep enabled dark-mode icons white even in non-key capture windows.

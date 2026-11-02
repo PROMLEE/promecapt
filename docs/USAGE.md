@@ -23,6 +23,8 @@ From 1.1.3, annotation options appear only when they apply to the active tool or
 
 From 1.1.4, the annotation toolbar fits its visible controls. Dark-mode enabled icons stay white. In the color panel, choose a color and press **Apply** (or Return) to close the panel and resume editing.
 
+From 1.1.5, automatic annotation selection leaves the drawing tool active: adjust the new object or drag on empty space to draw the next one. Choose the selection arrow explicitly to work with any older annotation. Space switches window targeting only before a capture region is selected.
+
 Settings → General selects your language and Dock visibility. Menu bar operation works with the Dock icon hidden.
 
 ## GIF recording

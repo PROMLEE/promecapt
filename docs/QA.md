@@ -61,7 +61,7 @@ The 1.1.1–1.1.2 bar used a custom dark palette. Its sRGB checks tested color c
 
 ### Automatic annotation selection
 
-Settings → Capture → Automatically select newly drawn annotations defaults to on. Verify shape / arrow / conceal / numbered badge creation switches to selection and exposes handles, Enter-confirmed text becomes selected, immediate move / resize / style editing works, and disabling the option preserves continuous drawing. Automated checks cover default-on, selected object editing, text confirmation and option-off behavior. Native mouse / handle validation remains pending Mac unlock.
+Settings → Capture → Automatically select newly drawn annotations defaults to on. Verify shape / arrow / conceal / numbered badge creation exposes handles while preserving the drawing tool, Enter-confirmed text becomes selected, immediate move / resize / style editing works, and disabling the option preserves continuous drawing. Automated checks cover default-on, selected object editing, text confirmation and option-off behavior. Native mouse / handle validation remains pending Mac unlock.
 
 ## Native toolbar update — 1.1.3
 
@@ -86,3 +86,11 @@ Native toolbar bezels in 1.1.3 were shorter than the allocated button frame, whi
 The bar is 68pt high, uses 4pt vertical padding and sizes its width to visible controls; the second-row expanding spacer is removed. Capture repositions the resized bar; pin editing resizes its tool panel. The standalone editor uses the same buttons.
 
 Offscreen AppKit checks cover four languages and both appearances, every contextual tool state, window resizing and control intersections. A bitmap assertion verifies an enabled symbol contains white pixels in a non-key dark window. Color-panel footer checks confirm a localized Apply button with Return activation and a fitting frame. The Apply action sends the color, closes/deactivates the well and returns focus; accessory/level/behavior are restored. Actual panel interaction remains pending because the Mac is inaccessible; the owner is testing successive published fixes.
+
+## Drawing-tool continuity and live help — 1.1.5
+
+New annotations are selected without assigning the `.select` tool. The selected object's handles/body can be adjusted, while a new background stroke continues with the retained tool. Explicit selection mode still permits selecting older objects. Undo/redo and OCR cancellation retain the tool. Space target switching is restricted to before region selection.
+
+Local AppKit input checks exercise two consecutive rectangle strokes, immediate handle resizing, undo/redo and OCR cancellation. Shape and text selection preferences are covered by both the local checks and XCTest assertions. Tooltip checks hit-test actual controls after every contextual tool/width change in all four languages and both appearances. Help uses one live tracking area, resolves the current target when its delay expires and cancels stale work on layout/hover changes; native duplicate tooltips are suppressed while accessibility help remains available.
+
+Button spacing is 2pt, with explicit extra clearance around native popup and color-well bezels. Full physical capture/mouse interaction remains pending owner verification on an accessible Mac.

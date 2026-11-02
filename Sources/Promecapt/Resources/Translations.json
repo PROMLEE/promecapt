@@ -253,8 +253,6 @@
     "영역 선택 후 8개 핸들로 크기를 조절합니다. 테두리 안쪽을 드래그하면 영역이 이동합니다. 도구 막대에서 펜·도형·화살표·텍스트·모자이크를 선택하면 그 자리에서 주석을 작성할 수 있습니다.": "Resize a selection using its eight handles, or drag inside to move it. Choose pen, shapes, arrows, text or redaction from the toolbar to annotate in place.",
     "이미지와 OCR은 이 Mac에서 처리합니다. 기록 이동 시 바깥 화면을 복원하도록 선택 이미지와 당시 화면 전체·선택 위치를 이 Mac에 함께 보관합니다. 기록 지우기는 이 배경도 함께 지웁니다.": "Images and OCR are processed on this Mac. History stores the selected image, the full display snapshot and selection position locally. Clearing history also removes these backgrounds.",
     "창 자동 감지는 화면 캡처 권한으로 작동합니다. 버튼·입력칸 등 내부 요소 감지는 손쉬운 사용 권한이 필요하며, 앱이 제공하는 접근성 정보에 따라 감지 범위가 다릅니다. Tab으로 상위 영역을 선택합니다.": "Window detection uses Screen Recording permission. Detecting buttons and text fields requires Accessibility; support depends on the app's accessibility tree. Tab selects a parent region.",
-    "사각형: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절": "Rectangle: drag to draw repeatedly · use Select to edit · scroll for width",
-    "타원: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절": "Ellipse: drag to draw repeatedly · use Select to edit · scroll for width",
     "선: 시작점에서 끝점으로 드래그 · 휠로 두께 조절": "Line: drag start to end · scroll for width",
     "화살표: 시작점에서 끝점으로 드래그 · 휠로 두께 조절": "Arrow: drag start to end · scroll for width",
     "드래그: 이동 · 가장자리: 크기 조절 · 휠: 확대/축소\nCtrl+휠: 투명도 · Space: 같은 창에서 주석 편집\n1/2: 회전 · 3/4: 반전 · 0: 원본 크기\n더블 클릭: 숨기기 · Shift+더블 클릭: 썸네일\n클릭 통과는 메뉴 막대 Promecapt에서 일괄 해제할 수 있습니다.": "Drag: move · edges: resize · scroll: zoom\nCtrl+scroll: opacity · Space: annotate in place\n1/2: rotate · 3/4: flip · 0: actual size\nDouble-click: hide · Shift+double-click: thumbnail\nDisable click-through from the Promecapt menu bar menu.",
@@ -295,7 +293,9 @@
     "캡처를 시작하기 전에 권한을 허용하세요": "Allow permissions before capturing",
     "아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다.": "Use the buttons below to allow Promecapt in macOS. Permission status refreshes automatically.",
     "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "Accessibility enables app-element detection and global shortcuts. Turn on Promecapt in System Settings. If the app is missing or an old build permission remains, use Show App in Finder below to locate the installed app.",
-    "그린 주석을 자동으로 선택": "Automatically select newly drawn annotations"
+    "그린 주석을 자동으로 선택": "Automatically select newly drawn annotations",
+    "사각형: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절": "Rectangle: drag to keep drawing · adjust selected annotation directly · wheel changes width",
+    "타원: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절": "Ellipse: drag to keep drawing · adjust selected annotation directly · wheel changes width"
   },
   "ja": {
     "언어": "言語",
@@ -551,8 +551,6 @@
     "영역 선택 후 8개 핸들로 크기를 조절합니다. 테두리 안쪽을 드래그하면 영역이 이동합니다. 도구 막대에서 펜·도형·화살표·텍스트·모자이크를 선택하면 그 자리에서 주석을 작성할 수 있습니다.": "8つのハンドルでサイズ変更、範囲内のドラッグで移動できます。ツールバーからペン・図形・矢印・テキスト・隠すを選び、その場で注釈を描けます。",
     "이미지와 OCR은 이 Mac에서 처리합니다. 기록 이동 시 바깥 화면을 복원하도록 선택 이미지와 당시 화면 전체·선택 위치를 이 Mac에 함께 보관합니다. 기록 지우기는 이 배경도 함께 지웁니다.": "画像とOCRはこのMacで処理します。履歴には選択画像・当時の画面全体・選択位置をローカル保存します。履歴の消去で背景も削除します。",
     "창 자동 감지는 화면 캡처 권한으로 작동합니다. 버튼·입력칸 등 내부 요소 감지는 손쉬운 사용 권한이 필요하며, 앱이 제공하는 접근성 정보에 따라 감지 범위가 다릅니다. Tab으로 상위 영역을 선택합니다.": "ウィンドウ検出には画面収録の権限を使います。ボタンや入力欄にはアクセシビリティ権限が必要です。検出範囲は各アプリの対応によります。Tabで親の範囲を選択します。",
-    "사각형: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절": "四角形：ドラッグで続けて描画・選択ツールで編集・ホイールで太さ調整",
-    "타원: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절": "楕円：ドラッグで続けて描画・選択ツールで編集・ホイールで太さ調整",
     "선: 시작점에서 끝점으로 드래그 · 휠로 두께 조절": "線：始点から終点へドラッグ・ホイールで太さ調整",
     "화살표: 시작점에서 끝점으로 드래그 · 휠로 두께 조절": "矢印：始点から終点へドラッグ・ホイールで太さ調整",
     "드래그: 이동 · 가장자리: 크기 조절 · 휠: 확대/축소\nCtrl+휠: 투명도 · Space: 같은 창에서 주석 편집\n1/2: 회전 · 3/4: 반전 · 0: 원본 크기\n더블 클릭: 숨기기 · Shift+더블 클릭: 썸네일\n클릭 통과는 메뉴 막대 Promecapt에서 일괄 해제할 수 있습니다.": "ドラッグ：移動・端：サイズ変更・ホイール：拡大縮小\nCtrl+ホイール：透明度・Space：その場で注釈編集\n1/2：回転・3/4：反転・0：元のサイズ\nダブルクリック：非表示・Shift+ダブルクリック：縮小表示\nクリック透過はPromecaptメニューで一括解除できます。",
@@ -593,7 +591,9 @@
     "캡처를 시작하기 전에 권한을 허용하세요": "キャプチャ前に権限を許可してください",
     "아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다.": "下のボタンからmacOSでPromecaptを許可してください。権限の状態は自動更新されます。",
     "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "アクセシビリティはアプリ内の要素検出とグローバルショートカットに使います。システム設定でPromecaptをオンにしてください。表示されない場合や古いビルドの権限が残っている場合は、下のボタンからインストール済みアプリを表示できます。",
-    "그린 주석을 자동으로 선택": "描画した注釈を自動選択"
+    "그린 주석을 자동으로 선택": "描画した注釈を自動選択",
+    "사각형: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절": "四角形: ドラッグして描画を続ける · 選択中の注釈は直接編集 · ホイールで太さを調整",
+    "타원: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절": "楕円: ドラッグして描画を続ける · 選択中の注釈は直接編集 · ホイールで太さを調整"
   },
   "zh-Hans": {
     "언어": "语言",
@@ -849,8 +849,6 @@
     "영역 선택 후 8개 핸들로 크기를 조절합니다. 테두리 안쪽을 드래그하면 영역이 이동합니다. 도구 막대에서 펜·도형·화살표·텍스트·모자이크를 선택하면 그 자리에서 주석을 작성할 수 있습니다.": "使用八个控制点调整选区大小，拖动内部可移动区域。在工具栏选择画笔、图形、箭头、文字或遮挡，即可原位标注。",
     "이미지와 OCR은 이 Mac에서 처리합니다. 기록 이동 시 바깥 화면을 복원하도록 선택 이미지와 당시 화면 전체·선택 위치를 이 Mac에 함께 보관합니다. 기록 지우기는 이 배경도 함께 지웁니다.": "图片和 OCR 均在本机处理。历史会在本机保存选区图片、当时的完整屏幕及选区位置；清空历史时会一并删除背景。",
     "창 자동 감지는 화면 캡처 권한으로 작동합니다. 버튼·입력칸 등 내부 요소 감지는 손쉬운 사용 권한이 필요하며, 앱이 제공하는 접근성 정보에 따라 감지 범위가 다릅니다. Tab으로 상위 영역을 선택합니다.": "窗口识别使用屏幕录制权限；按钮、输入框等元素识别需要辅助功能权限，范围取决于应用提供的辅助功能信息。按 Tab 选择上级区域。",
-    "사각형: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절": "矩形：拖动连续绘制，使用选择工具编辑，滚轮调节粗细",
-    "타원: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절": "椭圆：拖动连续绘制，使用选择工具编辑，滚轮调节粗细",
     "선: 시작점에서 끝점으로 드래그 · 휠로 두께 조절": "直线：从起点拖至终点，滚轮调节粗细",
     "화살표: 시작점에서 끝점으로 드래그 · 휠로 두께 조절": "箭头：从起点拖至终点，滚轮调节粗细",
     "드래그: 이동 · 가장자리: 크기 조절 · 휠: 확대/축소\nCtrl+휠: 투명도 · Space: 같은 창에서 주석 편집\n1/2: 회전 · 3/4: 반전 · 0: 원본 크기\n더블 클릭: 숨기기 · Shift+더블 클릭: 썸네일\n클릭 통과는 메뉴 막대 Promecapt에서 일괄 해제할 수 있습니다.": "拖动：移动 · 边缘：缩放 · 滚轮：缩放\nCtrl+滚轮：透明度 · Space：原位编辑标注\n1/2：旋转 · 3/4：翻转 · 0：原始大小\n双击：隐藏 · Shift+双击：缩略图\n可在菜单栏 Promecapt 中取消全部鼠标穿透。",
@@ -891,6 +889,8 @@
     "캡처를 시작하기 전에 권한을 허용하세요": "请在截图前授予权限",
     "아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다.": "请使用下方按钮在 macOS 中允许 Promecapt。权限状态会自动更新。",
     "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "辅助功能用于识别应用控件和全局快捷键。请在系统设置中打开 Promecapt 开关。如果应用未列出或仍保留旧版本权限，可使用下方按钮在 Finder 中显示已安装的应用。",
-    "그린 주석을 자동으로 선택": "自动选中新绘制的标注"
+    "그린 주석을 자동으로 선택": "自动选中新绘制的标注",
+    "사각형: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절": "矩形：拖动可连续绘制 · 直接调整所选注释 · 滚轮调整粗细",
+    "타원: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절": "椭圆：拖动可连续绘制 · 直接调整所选注释 · 滚轮调整粗细"
   }
 }

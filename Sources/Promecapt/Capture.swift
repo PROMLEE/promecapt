@@ -459,7 +459,8 @@ final class CaptureView: NSView {
             hoveredWindow = targets[targetIndex].rect
             updateTargetLabel()
         case 49:
-            bar.choose(-1); windowMode.toggle(); lastProbe = nil
+            guard !selection.isValid else { return true }
+            windowMode.toggle(); lastProbe = nil
             if let window { updateTarget(at: convert(window.mouseLocationOutsideOfEventStream, from: nil), force: true) }
             changed()
         case 35: finish(.pin)

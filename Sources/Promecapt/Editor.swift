@@ -9,8 +9,8 @@ enum DrawingTool: String, CaseIterable, Codable {
         case .select: return L("주석 선택: 그린 주석 클릭 → 이동·핸들 크기 조절·Delete 삭제")
         case .pencil: return L("펜: 자유롭게 그리기 · 휠로 두께 조절")
         case .marker: return L("형광펜: 반투명 강조선 · 휠로 두께 조절")
-        case .rectangle: return L("사각형: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절")
-        case .ellipse: return L("타원: 드래그하여 계속 그리기 · 수정은 화살표 선택 도구에서 · 휠로 두께 조절")
+        case .rectangle: return L("사각형: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절")
+        case .ellipse: return L("타원: 드래그하여 계속 그리기 · 선택된 주석은 바로 수정 · 휠로 두께 조절")
         case .line: return L("선: 시작점에서 끝점으로 드래그 · 휠로 두께 조절")
         case .arrow: return L("화살표: 시작점에서 끝점으로 드래그 · 휠로 두께 조절")
         case .text: return L("텍스트: 원하는 위치 클릭 → 입력 → Enter 또는 확인 · 기존 글씨는 더블 클릭해 수정")
@@ -64,7 +64,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         window.contentView = background
 
         tools.orientation = .horizontal
-        tools.spacing = 3
+        tools.spacing = 2
         let symbols = ["cursorarrow", "pencil.tip", "highlighter", "rectangle", "circle", "line.diagonal", "arrow.up.right", "textformat", "1.circle", "square.grid.3x3.fill", "crop"]
         for (index, tool) in DrawingTool.allCases.enumerated() {
             let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[index], accessibilityDescription: L(tool.rawValue)) ?? NSImage(), target: self, action: #selector(selectTool(_:)))

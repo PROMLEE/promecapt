@@ -48,10 +48,11 @@ final class AnnotationTests: XCTestCase {
         UserDefaults.standard.set(true, forKey: "autoSelectAnnotations")
         defer { UserDefaults.standard.set(saved, forKey: "autoSelectAnnotations") }
         let source = fixture(), canvas = CanvasView(image: fixture()), object = rectangle()
+        canvas.tool = .rectangle
         canvas.addAnnotation(object)
         let original = Imaging.png(canvas.image)
         XCTAssertEqual(canvas.selectedID, object.id)
-        XCTAssertEqual(canvas.tool, .select)
+        XCTAssertEqual(canvas.tool, .rectangle)
         canvas.tool = .select; canvas.selectAnnotation(object.id)
         XCTAssertEqual(canvas.tool, .select)
         XCTAssertEqual(canvas.selectedID, object.id)

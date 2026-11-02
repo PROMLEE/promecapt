@@ -73,6 +73,18 @@ enum ToolbarLayoutChecks {
             layoutCheck(optionVisible(root, id: "annotation-color") == (active && ![DrawingTool.select, .crop, .conceal].contains(tool)), "\(tool): color picker is contextual")
             layoutCheck(optionVisible(root, id: "annotation-parameter") == (active && ![DrawingTool.select, .crop].contains(tool) && !blackbox), "\(tool): numeric parameter is contextual")
         }
+        func inspectHelp(_ bar: AnnotationBar, context: String) {
+            func visit(_ view: NSView) {
+                guard !view.isHiddenOrHasHiddenAncestor else { return }
+                if bar.helpText(for: view) != nil {
+                    let point = bar.convert(NSPoint(x: view.bounds.midX, y: view.bounds.midY), from: view)
+                    layoutCheck(bar.helpTarget(at: point) === view, "\(context): tooltip follows the live control after layout changes")
+                    layoutCheck(view.toolTip == nil, "\(context): only one tooltip system owns the control")
+                }
+                for child in view.subviews { visit(child) }
+            }
+            for child in bar.subviews { visit(child) }
+        }
         for language in ["ko", "en", "ja", "zh-Hans"] {
             UserDefaults.standard.set(language, forKey: "appLanguage")
             for appearance in [NSAppearance.Name.aqua, .darkAqua] {
@@ -131,6 +143,7 @@ enum ToolbarLayoutChecks {
                     bar.sync(with: canvas)
                     bar.layoutSubtreeIfNeeded()
                     inspectOptions(bar, tool: tool)
+                    inspectHelp(bar, context: context + tool.rawValue)
                     inspectControls(bar, context: context + "-" + tool.rawValue)
                 }
                 let selectedShape = AnnotationObject(tool: .rectangle, points: [.zero, NSPoint(x: 20, y: 20)], color: AnnotationColor(.systemRed), lineWidth: 4, strength: 14, concealStyle: .mosaic)

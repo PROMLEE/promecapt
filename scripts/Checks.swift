@@ -291,7 +291,28 @@ import ImageIO
         let autoSelected = CanvasView(image: pattern)
         autoSelected.tool = .rectangle
         autoSelected.addAnnotation(shape)
-        check(autoSelected.selectedID == shape.id && autoSelected.tool == .select, "new annotations default to selection mode with editable handles")
+        check(autoSelected.selectedID == shape.id && autoSelected.tool == .rectangle, "new annotations expose editable handles without replacing the drawing tool")
+        let continuous = CanvasView(image: NSImage(size: NSSize(width: 100, height: 100)))
+        continuous.frame = NSRect(x: 0, y: 0, width: 100, height: 100)
+        continuous.contentInset = 0; continuous.tool = .rectangle
+        func mouse(_ type: NSEvent.EventType, _ point: NSPoint) -> NSEvent {
+            NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+        }
+        func stroke(_ start: NSPoint, _ end: NSPoint) {
+            continuous.mouseDown(with: mouse(.leftMouseDown, start))
+            continuous.mouseDragged(with: mouse(.leftMouseDragged, end))
+            continuous.mouseUp(with: mouse(.leftMouseUp, end))
+        }
+        stroke(NSPoint(x: 10, y: 10), NSPoint(x: 30, y: 30))
+        check(continuous.document.objects.count == 1 && continuous.selectedID != nil && continuous.tool == .rectangle, "first stroke selects only its object and keeps rectangle active")
+        stroke(NSPoint(x: 55, y: 55), NSPoint(x: 75, y: 75))
+        check(continuous.document.objects.count == 2 && continuous.tool == .rectangle, "second background stroke draws another rectangle without reselecting the tool")
+        stroke(NSPoint(x: 75, y: 75), NSPoint(x: 85, y: 85))
+        check(continuous.document.objects.count == 2 && continuous.selectedAnnotation?.bounds.maxX == 85 && continuous.tool == .rectangle, "freshly selected handles remain editable without replacing the drawing tool")
+        continuous.undoEdit(); continuous.redoEdit()
+        check(continuous.tool == .rectangle, "undo and redo preserve the chosen drawing tool")
+        continuous.beginOCRSelection { _ in }; continuous.cancelOCRSelection()
+        check(continuous.tool == .rectangle, "OCR completion/cancel preserves the drawing tool")
         autoSelected.moveSelection(dx: 3, dy: 2)
         check(autoSelected.selectedAnnotation?.bounds.origin == NSPoint(x: 13, y: 7), "auto-selected shape can be adjusted immediately")
         autoSelected.color = .systemBlue
@@ -299,7 +320,7 @@ import ImageIO
         let autoText = CanvasView(image: pattern)
         autoText.tool = .text; autoText.beginText(at: NSPoint(x: 5, y: 5))
         autoText.activeTextInput?.stringValue = "Auto select"; autoText.flushText()
-        check(autoText.selectedAnnotation?.tool == .text && autoText.tool == .select, "confirmed text follows automatic selection preference")
+        check(autoText.selectedAnnotation?.tool == .text && autoText.tool == .text, "confirmed text is selected while the text tool remains active")
         UserDefaults.standard.set(false, forKey: "autoSelectAnnotations")
         autoSelected.tool = .rectangle
         let following = AnnotationObject(tool: .rectangle, points: [NSPoint(x: 1, y: 1), NSPoint(x: 8, y: 8)], color: AnnotationColor(.systemRed), lineWidth: 4, strength: 14, concealStyle: .mosaic)

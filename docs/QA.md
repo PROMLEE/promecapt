@@ -54,3 +54,7 @@ The Mac is locked and its owner is away. Release compilation, localization valid
 - Shortcut: begin recording; click blank settings space, another control, another tab and another app. Confirm the prompt disappears and global hotkeys are restored.
 - Fresh preferences: startup pin restoration is unchecked. An existing explicit opt-in remains enabled.
 - Missing permissions: startup guide appears; request buttons open macOS permission flows for this installed app. Status updates after grant, hotkeys re-register, Done becomes available, and Later closes the guide. Existing stale ad-hoc entries may still require manual refresh.
+
+### Toolbar contrast
+
+The capture / pin annotation bar uses an opaque dark surface and explicit foreground, disabled, border and selection colors. Automated sRGB contrast checks cover the palette. Native visual verification on light / dark captured backgrounds, selected tools, disabled controls, long translations and Retina displays is still pending Mac unlock.

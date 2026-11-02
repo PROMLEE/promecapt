@@ -4,6 +4,7 @@
 
 - Offer installation into Applications when a ZIP app starts outside an Applications folder.
 - Keep the annotation color panel above capture windows and close it with its editor.
+- Use an opaque dark toolbar with bright semibold icons / labels, visible button borders and a clear selected-tool highlight.
 - Cancel shortcut recording when clicking outside the recorder.
 - Guide missing Screen Recording and Accessibility permissions on launch, with request buttons and live status.
 - Default startup pin restoration to off; preserve explicit user preferences.

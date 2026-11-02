@@ -1,6 +1,6 @@
 import AppKit
 
-final class AnnotationBar: NSVisualEffectView {
+final class AnnotationBar: NSView {
     var onTool: ((DrawingTool?) -> Void)?
     var onUndo: (() -> Void)?
     var onRedo: (() -> Void)?
@@ -33,14 +33,13 @@ final class AnnotationBar: NSVisualEffectView {
         setAccessibilityElement(true)
         setAccessibilityRole(.group)
         setAccessibilityLabel(L("주석 도구 막대"))
-        material = .hudWindow
-        blendingMode = .withinWindow
-        state = .active
         appearance = NSAppearance(named: .darkAqua)
         wantsLayer = true
+        layer?.backgroundColor = AnnotationPalette.background.cgColor
+        layer?.masksToBounds = true
         layer?.cornerRadius = 7
         layer?.borderWidth = 1
-        layer?.borderColor = NSColor.white.withAlphaComponent(0.2).cgColor
+        layer?.borderColor = AnnotationPalette.border.cgColor
         let top = NSStackView()
         top.spacing = 2
         top.orientation = .horizontal
@@ -55,6 +54,8 @@ final class AnnotationBar: NSVisualEffectView {
         styles.toolTip = L("가리기 방식: 모자이크·블러·블랙박스")
         styles.widthAnchor.constraint(equalToConstant: 78).isActive = true
         styles.controlSize = .small
+        styles.font = .systemFont(ofSize: 12, weight: .semibold)
+        styles.contentTintColor = AnnotationPalette.foreground
         top.addArrangedSubview(styles)
         let well = colorWell
         well.color = .systemRed
@@ -68,7 +69,7 @@ final class AnnotationBar: NSVisualEffectView {
         addSubview(top)
         let bottom = NSStackView()
         bottom.spacing = 3
-        info.font = .monospacedSystemFont(ofSize: 11, weight: .medium)
+        info.font = .monospacedSystemFont(ofSize: 12, weight: .semibold)
         info.textColor = .white
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         bottom.addArrangedSubview(info)
@@ -82,7 +83,7 @@ final class AnnotationBar: NSVisualEffectView {
                                      (L("저장"), #selector(saveAction), L("주석을 포함한 이미지 저장 (⌘S)")),
                                      (L("고정"), #selector(pinAction), L("캡처를 화면에 고정하거나 고정 주석 편집 적용 (⌘Enter)")),
                                      (L("닫기"), #selector(cancelAction), L("캡처 또는 고정 주석 편집 취소"))] {
-            let button = NSButton(title: title, target: self, action: action)
+            let button = AnnotationButton(title: title, target: self, action: action)
             button.bezelStyle = .rounded
             button.controlSize = .small
             button.toolTip = tip
@@ -153,10 +154,11 @@ final class AnnotationBar: NSVisualEffectView {
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
         // Native help windows can sit behind a screen-saver-level capture overlay.
         panel.level = NSWindow.Level(rawValue: window.level.rawValue + 2)
-        let background = NSVisualEffectView(frame: NSRect(origin: .zero, size: size))
-        background.material = .hudWindow; background.state = .active
+        let background = NSView(frame: NSRect(origin: .zero, size: size))
         background.appearance = NSAppearance(named: .darkAqua)
         background.wantsLayer = true; background.layer?.cornerRadius = 6
+        background.layer?.backgroundColor = AnnotationPalette.background.cgColor
+        background.layer?.borderWidth = 1; background.layer?.borderColor = AnnotationPalette.border.cgColor
         let label = NSTextField(wrappingLabelWithString: text)
         label.font = font; label.textColor = .white
         label.frame = NSRect(x: 10, y: 8, width: size.width - 20, height: size.height - 16)
@@ -168,7 +170,7 @@ final class AnnotationBar: NSVisualEffectView {
         tipWindow = panel; window.addChildWindow(panel, ordered: .above); panel.orderFrontRegardless()
     }
     private func toolButton(_ symbol: String, _ label: String, index: Int) -> NSButton {
-        let button = NSButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: label) ?? NSImage(), target: self, action: #selector(toolAction(_:)))
+        let button = AnnotationButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: label) ?? NSImage(), target: self, action: #selector(toolAction(_:)))
         button.tag = index
         button.bezelStyle = .texturedRounded
         button.setButtonType(.pushOnPushOff)

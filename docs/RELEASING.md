@@ -18,19 +18,19 @@ A manual workflow dispatch can create the first draft and tag from `main`; no lo
 
 ## Current signing status
 
-No Developer ID identity is configured. The initial packages use ad-hoc signatures and are **not notarized**. Disclose this in the README and release notes. This does not offer Apple's verified-developer installation experience. Do not tell users to disable Gatekeeper globally, reset unrelated permissions or edit the TCC database.
+No Developer ID identity is configured. Official packages from 1.1.2 use the persistent self-signed certificate pinned in `updates/code-signing-sha1.txt` and are **not notarized**. Release CI imports `MACOS_SIGNING_P12` and `MACOS_SIGNING_PASSWORD` into a temporary keychain; missing secrets or a mismatched identity fail the job. Never regenerate this identity for routine releases. See [code-signing maintenance](CODE_SIGNING.md). Local and pull-request CI builds remain ad-hoc signed. Disclose this in the README and release notes. This does not offer Apple's verified-developer installation experience. Do not tell users to disable Gatekeeper globally, reset unrelated permissions or edit the TCC database.
 
 Developer ID packaging, when an identity is available:
 
 ```sh
-SIGNING_IDENTITY='Developer ID Application: NAME (TEAMID)' VERSION=1.1.0 bash scripts/package.sh
+SIGNING_MODE=developer-id SIGNING_IDENTITY='Developer ID Application: NAME (TEAMID)' VERSION=1.1.0 bash scripts/package.sh
 xcrun notarytool submit dist/Promecapt-1.1.0-macos-arm64.zip --keychain-profile promecapt-notary --wait
 xcrun stapler staple dist/Promecapt.app
 codesign --verify --strict dist/Promecapt.app
 spctl --assess --type execute --verbose dist/Promecapt.app
 ```
 
-Configure the notarization profile in the owner's Keychain first; do not commit credentials. After stapling, rebuild the ZIP and checksum, then verify the final downloaded archive. Repeat for each architecture. Certificate import and notarization are not implemented by the current workflows.
+Configure the notarization profile in the owner's Keychain first; do not commit credentials. After stapling, rebuild the ZIP and checksum, then verify the final downloaded archive. Repeat for each architecture. Persistent self-signed certificate import is implemented; Apple notarization is not.
 
 ## Permission refresh and updates
 

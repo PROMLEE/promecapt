@@ -23,9 +23,11 @@ GitHub Actions secret `SPARKLE_ED_PRIVATE_KEY`에 서명용 개인 키가 필요
 
 Sparkle은 feed와 업데이트 파일의 Ed25519 서명을 검증합니다. 서명 오류·네트워크 장애 시 현재 앱을 교체하지 않습니다. CPU별 feed를 사용하며 낮은 버전으로 자동 다운그레이드하지 않습니다. 설치 전에 고정 이미지·주석·그룹을 저장하고, 저장 실패 시 앱 종료를 취소합니다.
 
-Apple Developer ID 서명·공증은 업데이트 서명과 별개이며 현재 배포본은 ad-hoc입니다. 첫 설치의 macOS 실행 확인과 교체 후 화면 캡처·손쉬운 사용 재연결이 필요할 수 있습니다. DMG를 이용해 Applications에 설치하세요.
+Apple Developer ID 서명·공증은 업데이트 서명과 별개이며 1.1.2부터는 고정 자체 서명 인증서를 재사용합니다. 이전 임시 서명에서 전환할 때 권한을 한 번 재등록해야 할 수 있습니다. 이후 같은 인증서와 번들 ID로 서명 신원을 유지합니다. Apple 공증은 아니므로 첫 실행 허용은 별도입니다. DMG를 이용해 Applications에 설치하세요.
 
-개발자용: ad-hoc 빌드는 upstream 서명된 Sparkle 프레임워크를 로드하기 위해 이 앱의 Library Validation 예외 entitlement만 사용하며 Hardened Runtime은 유지합니다. Developer ID 빌드에서는 내부 구성부터 같은 identity로 서명하고 해당 예외를 적용하지 않습니다. 시스템 Gatekeeper 설정은 바꾸지 않습니다.
+고정 인증서는 GitHub Actions secrets `MACOS_SIGNING_P12`와 `MACOS_SIGNING_PASSWORD`로 가져옵니다. 인증서가 추적된 공개 지문과 일치하지 않으면 배포에 실패합니다. [서명 관리](CODE_SIGNING.md).
+
+개발자용: ad-hoc 및 자체 서명 빌드는 upstream 서명된 Sparkle 프레임워크를 로드하기 위해 같은 인증서로 서명한 앱·내부 구성요소의 Library Validation 예외 entitlement를 사용하며 Hardened Runtime은 유지합니다. Developer ID 빌드에서는 내부 구성부터 같은 identity로 서명하고 해당 예외를 적용하지 않습니다. 시스템 Gatekeeper 설정은 바꾸지 않습니다.
 
 ## 검증
 

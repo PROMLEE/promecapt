@@ -18,7 +18,7 @@ SECTIONS = {
     ],
     'Capabilities and trust': [
         ('docs/FEATURES.md', 'Feature matrix', 'Supported features and their limits; UI language and OCR language are separate.'),
-        ('docs/releases/1.1.1.md', '1.1.1 release notes', 'Annotation selection, toolbar contrast, installation and permission setup.'),
+        ('docs/releases/1.1.2.md', '1.1.2 release notes', 'Persistent code signing, compact settings help and menu cleanup.'),
         ('SECURITY.md', 'Security', 'Local processing, permissions and reporting guidance.'),
         ('LICENSE', 'MIT license', 'Terms for personal and commercial use, modification and redistribution.'),
     ],
@@ -50,7 +50,7 @@ def raw_links(text, source):
 
 def generated():
     parts = ['# Promecapt', '', '> An MIT-licensed, open-source alternative to proprietary macOS screenshot tools: capture, editable annotations, floating image / GIF pins, region OCR and GIF recording.', '',
-             'Current release: 1.1.1. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Downloaded packages are ad-hoc signed, not Developer ID signed or notarized. Managed Mac policies still apply.', '',
+             'Current release: 1.1.2. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.', '',
              'Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Manual and opt-in automatic updates use signed Sparkle feeds and archives. Version 1.0.0 requires one manual bootstrap installation. GIF frame editing is not implemented.', '']
     for heading, links in SECTIONS.items():
         parts += ['## ' + heading, '']

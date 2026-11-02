@@ -121,7 +121,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         appItem.submenu = appMenu
         add(L("정보"), #selector(showAbout), to: appMenu)
         add(L("업데이트 확인…"), #selector(checkForUpdates), to: appMenu)
-        add(L("설정 열기"), #selector(showDashboard), to: appMenu)
         add(L("메뉴 막대 아이콘 복구"), #selector(restoreStatusIcon), to: appMenu)
         let settings = add(L("설정…"), #selector(showSettings), to: appMenu)
         settings.keyEquivalent = ","
@@ -209,7 +208,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         let historyItem = menu.addItem(withTitle: L("캡처 기록 ({0})", library.entries.count), action: nil, keyEquivalent: "")
         historyItem.submenu = history
         menu.addItem(.separator())
-        add(L("Promecapt 설정"), #selector(showDashboard))
         add(L("설정…"), #selector(showSettings))
         add(L("사용 방법…"), #selector(showWelcome))
         add(L("업데이트 확인…"), #selector(checkForUpdates)).isEnabled = updates.canCheck
@@ -420,7 +418,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         }
     }
 
-    @objc private func showWelcome() { showDashboard() }
+    @objc private func showWelcome() {
+        NSWorkspace.shared.open(URL(string: "https://github.com/PROMLEE/promecapt/blob/main/docs/USAGE.md")!)
+    }
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool { item.action == #selector(checkForUpdates) ? updates.canCheck : true }
     @objc private func checkForUpdates() { updates.check() }

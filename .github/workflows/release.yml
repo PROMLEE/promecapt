@@ -9,7 +9,7 @@ on:
       version:
         description: 'Release version (without v)'
         required: true
-        default: '1.1.1'
+        default: '1.1.2'
 permissions:
   contents: read
 jobs:
@@ -62,7 +62,9 @@ jobs:
       - name: Package
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
-        run: bash scripts/package.sh
+          MACOS_SIGNING_P12: ${{ secrets.MACOS_SIGNING_P12 }}
+          MACOS_SIGNING_PASSWORD: ${{ secrets.MACOS_SIGNING_PASSWORD }}
+        run: python3 scripts/with-release-signing.py
       - name: Build drag-to-install DMG
         run: bash scripts/package-dmg.sh
       - name: Sign update archive and feed

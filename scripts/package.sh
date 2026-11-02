@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="${VERSION:-1.1.1}"
+VERSION="${VERSION:-1.1.2}"
 ARCH="${ARCH:-$(uname -m)}"
 case "$VERSION" in *[!0-9A-Za-z.-]*) echo "Invalid VERSION" >&2; exit 1;; esac
 case "$ARCH" in arm64|x86_64) ;; *) echo "ARCH must be arm64 or x86_64" >&2; exit 1;; esac
@@ -71,18 +71,39 @@ if [[ "${UPDATE_TESTING:-0}" == 1 ]]; then
   /usr/libexec/PlistBuddy -c 'Add :NSAppTransportSecurity dict' "$APP/Contents/Info.plist"
   /usr/libexec/PlistBuddy -c 'Add :NSAppTransportSecurity:NSAllowsLocalNetworking bool true' "$APP/Contents/Info.plist"
 fi
-# Supply a Developer ID identity for distribution. Otherwise this is a local ad-hoc build.
-if [[ "${SIGNING_IDENTITY:--}" == - ]]; then
-  # Ad-hoc apps have no Developer Team shared with the upstream signed framework.
-  # Limit the local-build Library Validation exception to this app; retain Hardened Runtime.
-  codesign --force --options runtime --entitlements scripts/adhoc-entitlements.plist --sign - "$APP"
-else
+# Self-signed release builds must use the pinned, persistent production identity.
+SIGNING_MODE="${SIGNING_MODE:-adhoc}"
+sign_args=(--force --options runtime)
+case "$SIGNING_MODE" in
+  self-signed)
+    expected="$(tr -d '\r\n' < updates/code-signing-sha1.txt)"
+    [[ "${SIGNING_IDENTITY:-}" == "$expected" ]] || { echo 'Production signing identity does not match the pinned certificate' >&2; exit 1; }
+    [[ -n "${SIGNING_KEYCHAIN:-}" ]] || { echo 'SIGNING_KEYCHAIN is required' >&2; exit 1; }
+    sign_args+=(--keychain "$SIGNING_KEYCHAIN" --entitlements scripts/adhoc-entitlements.plist)
+    ;;
+  developer-id)
+    [[ -n "${SIGNING_IDENTITY:-}" && "$SIGNING_IDENTITY" != - ]] || exit 1
+    ;;
+  adhoc)
+    SIGNING_IDENTITY=-
+    sign_args+=(--entitlements scripts/adhoc-entitlements.plist)
+    ;;
+  *) echo 'Unknown SIGNING_MODE' >&2; exit 1 ;;
+esac
+if [[ "$SIGNING_MODE" != adhoc ]]; then
   framework="$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
   for component in "$framework"/XPCServices/*.xpc "$framework/Autoupdate" "$framework/Updater.app"; do
-    codesign --force --options runtime --sign "$SIGNING_IDENTITY" "$component"
+    codesign "${sign_args[@]}" --sign "$SIGNING_IDENTITY" "$component"
   done
-  codesign --force --options runtime --sign "$SIGNING_IDENTITY" "$APP/Contents/Frameworks/Sparkle.framework"
-  codesign --force --options runtime --sign "$SIGNING_IDENTITY" "$APP"
+  codesign "${sign_args[@]}" --sign "$SIGNING_IDENTITY" "$APP/Contents/Frameworks/Sparkle.framework"
+fi
+codesign "${sign_args[@]}" --sign "$SIGNING_IDENTITY" "$APP"
+if [[ "$SIGNING_MODE" == self-signed ]]; then
+  # Check the actual embedded leaf certificate, not merely the requested identity.
+  codesign --display --extract-certificates="$STAGING/cert-" "$APP"
+  actual="$(/usr/bin/openssl x509 -inform DER -in "$STAGING/cert-0" -noout -fingerprint -sha1 | cut -d= -f2 | tr -d ':')"
+  [[ "$actual" == "$expected" ]] || { echo 'Embedded signing certificate mismatch' >&2; exit 1; }
+  codesign --verify -R="identifier \"$BUNDLE_ID\" and certificate leaf = H\"$expected\"" "$APP"
 fi
 codesign --verify --deep --strict "$APP"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "dist/Promecapt-$VERSION-macos-$ARCH.zip"

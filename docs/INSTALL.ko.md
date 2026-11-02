@@ -70,7 +70,7 @@ Apple 메뉴  → **이 Mac에 관하여**에서 칩/프로세서를 확인�
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.1-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.2-macos-arm64.dmg.sha256
 ```
 
 `OK`면 일치합니다. `FAILED`면 설치하지 말고 공식 페이지에서 다시 받으세요. `No such file`이면 파일명·폴더를 확인하세요. Sparkle를 통한 앱 내 업데이트는 서명을 자동 검증하므로 사용자가 해시를 직접 비교하지 않습니다.
@@ -89,7 +89,7 @@ xcode-select --install
 
 ```sh
 swift --version
-git clone --branch v1.1.1 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.2 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -101,4 +101,4 @@ Sparkle 의존성을 자동으로 다운로드합니다. 패키징에는 전체 
 
 ## 업데이트
 
-1.1.0부터 **설정 → 정보 → 업데이트 확인** 또는 선택적 자동 다운로드·설치·재실행을 사용할 수 있습니다. 1.0.0 사용자는 새 배포본을 한 번 직접 설치해야 합니다. 현재 공개된 ad-hoc 서명 배포본은 업데이트 후 캡처·손쉬운 사용 권한 재연결이 필요할 수 있습니다. 자체 서명 인증서 실험은 아직 공개 배포에 적용하지 않았습니다.
+1.1.0부터 **설정 → 정보 → 업데이트 확인** 또는 선택적 자동 다운로드·설치·재실행을 사용할 수 있습니다. 1.0.0 사용자는 새 배포본을 한 번 직접 설치해야 합니다. 1.1.2부터 공식 배포본은 고정된 자체 서명 인증서를 재사용합니다. 기존 임시 서명에서 전환하는 첫 업데이트는 캡처·손쉬운 사용 권한 재등록이 한 번 필요할 수 있으며, 이후에는 같은 서명 신원을 유지합니다. Apple 공증은 아니므로 ‘그래도 열기’가 필요할 수 있습니다. [서명 안내](CODE_SIGNING.md).

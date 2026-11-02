@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2
+
+- Reuse a pinned production code-signing certificate across releases to retain app identity. The first transition from ad-hoc signing may require permission refresh.
+- Remove duplicate Settings entries and open the usage guide from Help.
+- Move settings explanations into item-specific question-mark help popovers, with one sentence per line.
+
 ## 1.1.1
 
 - Add an enabled-by-default option to select new annotations immediately for moving, resizing and style changes; disable it for continuous drawing.

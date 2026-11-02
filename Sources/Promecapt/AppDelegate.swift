@@ -24,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if InstallLocation.offerInstallation() { return }
-        UserDefaults.standard.register(defaults: ["restorePins": false, "historyLimit": 50, "hotkeyProfile": 1, "captureDelay": 0, "autoCopy": true, "showDock": true, "showDashboard": true, "pinShadow": true])
+        UserDefaults.standard.register(defaults: ["autoSelectAnnotations": true, "restorePins": false, "historyLimit": 50, "hotkeyProfile": 1, "captureDelay": 0, "autoCopy": true, "showDock": true, "showDashboard": true, "pinShadow": true])
         do {
             #if DEBUG
             if Bundle.main.bundleIdentifier == "com.promlee.promecapt.update-test" {

@@ -123,7 +123,13 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         refreshParameters()
     }
     func addAnnotation(_ object: AnnotationObject) {
-        checkpoint(); document.objects.append(object); selectedID = nil; invalidate()
+        checkpoint()
+        document.objects.append(object)
+        if UserDefaults.standard.object(forKey: "autoSelectAnnotations") as? Bool ?? true {
+            currentTool = .select
+            selectAnnotation(object.id)
+        } else { selectedID = nil }
+        invalidate()
     }
     func deleteSelection() {
         guard selectedAnnotation != nil else { return }

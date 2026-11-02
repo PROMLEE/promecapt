@@ -58,3 +58,7 @@ The Mac is locked and its owner is away. Release compilation, localization valid
 ### Toolbar contrast
 
 The capture / pin annotation bar uses an opaque dark surface and explicit foreground, disabled, border and selection colors. Automated sRGB contrast checks cover the palette. Native visual verification on light / dark captured backgrounds, selected tools, disabled controls, long translations and Retina displays is still pending Mac unlock.
+
+### Automatic annotation selection
+
+Settings → Capture → Automatically select newly drawn annotations defaults to on. Verify shape / arrow / conceal / numbered badge creation switches to selection and exposes handles, Enter-confirmed text becomes selected, immediate move / resize / style editing works, and disabling the option preserves continuous drawing. Automated checks cover default-on, selected object editing, text confirmation and option-off behavior. Native mouse / handle validation remains pending Mac unlock.

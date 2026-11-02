@@ -2,6 +2,8 @@
 
 ## 1.1.1 (unreleased)
 
+- Add an enabled-by-default option to select new annotations immediately for moving, resizing and style changes; disable it for continuous drawing.
+
 - Offer installation into Applications when a ZIP app starts outside an Applications folder.
 - Keep the annotation color panel above capture windows and close it with its editor.
 - Use an opaque dark toolbar with bright semibold icons / labels, visible button borders and a clear selected-tool highlight.

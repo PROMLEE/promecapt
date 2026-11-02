@@ -294,7 +294,8 @@
     "앱 위치 열기": "Show App in Finder",
     "캡처를 시작하기 전에 권한을 허용하세요": "Allow permissions before capturing",
     "아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다.": "Use the buttons below to allow Promecapt in macOS. Permission status refreshes automatically.",
-    "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "Accessibility enables app-element detection and global shortcuts. Turn on Promecapt in System Settings. If the app is missing or an old build permission remains, use Show App in Finder below to locate the installed app."
+    "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "Accessibility enables app-element detection and global shortcuts. Turn on Promecapt in System Settings. If the app is missing or an old build permission remains, use Show App in Finder below to locate the installed app.",
+    "그린 주석을 자동으로 선택": "Automatically select newly drawn annotations"
   },
   "ja": {
     "언어": "言語",
@@ -591,7 +592,8 @@
     "앱 위치 열기": "Finderでアプリを表示",
     "캡처를 시작하기 전에 권한을 허용하세요": "キャプチャ前に権限を許可してください",
     "아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다.": "下のボタンからmacOSでPromecaptを許可してください。権限の状態は自動更新されます。",
-    "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "アクセシビリティはアプリ内の要素検出とグローバルショートカットに使います。システム設定でPromecaptをオンにしてください。表示されない場合や古いビルドの権限が残っている場合は、下のボタンからインストール済みアプリを表示できます。"
+    "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "アクセシビリティはアプリ内の要素検出とグローバルショートカットに使います。システム設定でPromecaptをオンにしてください。表示されない場合や古いビルドの権限が残っている場合は、下のボタンからインストール済みアプリを表示できます。",
+    "그린 주석을 자동으로 선택": "描画した注釈を自動選択"
   },
   "zh-Hans": {
     "언어": "语言",
@@ -888,6 +890,7 @@
     "앱 위치 열기": "在 Finder 中显示应用",
     "캡처를 시작하기 전에 권한을 허용하세요": "请在截图前授予权限",
     "아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다.": "请使用下方按钮在 macOS 中允许 Promecapt。权限状态会自动更新。",
-    "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "辅助功能用于识别应用控件和全局快捷键。请在系统设置中打开 Promecapt 开关。如果应用未列出或仍保留旧版本权限，可使用下方按钮在 Finder 中显示已安装的应用。"
+    "손쉬운 사용은 앱의 버튼·입력칸 감지와 전역 단축키에 사용합니다. 설정 목록에서 Promecapt 스위치를 켜 주세요. 앱이 목록에 없거나 이전 빌드 권한이 남아 있으면 아래 ‘앱 위치 열기’로 설치된 앱을 찾을 수 있습니다.": "辅助功能用于识别应用控件和全局快捷键。请在系统设置中打开 Promecapt 开关。如果应用未列出或仍保留旧版本权限，可使用下方按钮在 Finder 中显示已安装的应用。",
+    "그린 주석을 자동으로 선택": "自动选中新绘制的标注"
   }
 }

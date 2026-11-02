@@ -36,6 +36,9 @@ import ImageIO
         check(contrast(AnnotationPalette.foreground, AnnotationPalette.selected) >= 4.5, "selected tool labels retain readable contrast")
         check(contrast(AnnotationPalette.disabled, AnnotationPalette.control) >= 4.5, "disabled toolbar labels remain readable")
         check(contrast(AnnotationPalette.border, AnnotationPalette.control) >= 3, "toolbar button boundaries are visible")
+        let savedAutoSelect = UserDefaults.standard.object(forKey: "autoSelectAnnotations")
+        UserDefaults.standard.set(false, forKey: "autoSelectAnnotations")
+        defer { UserDefaults.standard.set(savedAutoSelect, forKey: "autoSelectAnnotations") }
         let savedLanguage = UserDefaults.standard.object(forKey: "appLanguage")
         UserDefaults.standard.set("en", forKey: "appLanguage")
         check(L("캡처") == "Capture" && L("기록 {0}/{1} · , 이전 / . 다음", 1, 3).contains("1/3"), "English UI and interpolation load from catalog")
@@ -288,6 +291,24 @@ import ImageIO
         let reloadedBadges = CanvasView(image: pattern); reloadedBadges.load(AnnotationDocument(base: pattern, objects: badgeObjects))
         check(reloadedBadges.nextNumber == 3 && Imaging.png(reloadedBadges.image) == Imaging.png(badges.image), "number badges preserve appearance and next number after reload")
         check(badges.selectedID == nil, "consecutive number badges do not enter automatic resize mode")
+        UserDefaults.standard.removeObject(forKey: "autoSelectAnnotations")
+        let autoSelected = CanvasView(image: pattern)
+        autoSelected.tool = .rectangle
+        autoSelected.addAnnotation(shape)
+        check(autoSelected.selectedID == shape.id && autoSelected.tool == .select, "new annotations default to selection mode with editable handles")
+        autoSelected.moveSelection(dx: 3, dy: 2)
+        check(autoSelected.selectedAnnotation?.bounds.origin == NSPoint(x: 13, y: 7), "auto-selected shape can be adjusted immediately")
+        autoSelected.color = .systemBlue
+        check(autoSelected.selectedAnnotation?.color == AnnotationColor(.systemBlue), "auto-selected shape accepts immediate style edits")
+        let autoText = CanvasView(image: pattern)
+        autoText.tool = .text; autoText.beginText(at: NSPoint(x: 5, y: 5))
+        autoText.activeTextInput?.stringValue = "Auto select"; autoText.flushText()
+        check(autoText.selectedAnnotation?.tool == .text && autoText.tool == .select, "confirmed text follows automatic selection preference")
+        UserDefaults.standard.set(false, forKey: "autoSelectAnnotations")
+        autoSelected.tool = .rectangle
+        let following = AnnotationObject(tool: .rectangle, points: [NSPoint(x: 1, y: 1), NSPoint(x: 8, y: 8)], color: AnnotationColor(.systemRed), lineWidth: 4, strength: 14, concealStyle: .mosaic)
+        autoSelected.addAnnotation(following)
+        check(autoSelected.selectedID == nil && autoSelected.tool == .rectangle, "turning automatic selection off preserves continuous drawing")
         let ocrCanvas = CanvasView(image: image)
         ocrCanvas.tool = .rectangle
         var ocrSize = NSSize.zero

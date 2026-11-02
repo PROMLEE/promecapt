@@ -153,6 +153,7 @@ final class PreferencesController: NSWindowController {
         capture.addArrangedSubview(toggle(L("캡처 결과를 클립보드에 자동 복사"), key: "autoCopy", fallback: true))
         capture.addArrangedSubview(toggle(L("마지막 캡처 영역 기억"), key: "rememberRegion", fallback: false))
         capture.addArrangedSubview(toggle(L("캡처 전 창·앱 요소 자동 감지"), key: "autoDetectTargets", fallback: true))
+        capture.addArrangedSubview(toggle(L("그린 주석을 자동으로 선택"), key: "autoSelectAnnotations", fallback: true))
         refreshPermissionStatus()
         capture.addArrangedSubview(accessibilityLabel)
         let elementPermission = NSButton(title: L("앱 내부 요소 감지 권한 설정…"), target: nil, action: nil)

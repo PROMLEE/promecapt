@@ -3,6 +3,9 @@ import ApplicationServices
 import ServiceManagement
 
 final class PreferencesController: NSWindowController {
+    var onShowPermissions: (() -> Void)?
+    private let accessibilityLabel = NSTextField(labelWithString: "")
+    private var permissionObserver: NSObjectProtocol?
     var onLanguageChange: (() -> Void)?
     var onSetProfile: ((Int) -> String?)?
     var onSetShortcut: ((HotkeyAction, Shortcut?) -> String?)?
@@ -56,6 +59,9 @@ final class PreferencesController: NSWindowController {
         }
         general.addArrangedSubview(NSStackView(views: [NSTextField(labelWithString: L("언어")), languages]))
         general.addArrangedSubview(note(L("메뉴와 새 창에 바로 적용됩니다. 열려 있는 편집창은 다시 열어 주세요.")))
+        let permissions = NSButton(title: L("권한 설정…"), target: nil, action: nil)
+        bind(permissions) { [weak self] _ in self?.onShowPermissions?() }
+        general.addArrangedSubview(permissions)
         general.addArrangedSubview(heading(L("시작 및 표시")))
         general.addArrangedSubview(toggle(L("Dock에 Promecapt 표시"), key: "showDock", fallback: true) { [weak self] enabled in
             self?.onSetDockVisibility?(enabled)
@@ -147,13 +153,11 @@ final class PreferencesController: NSWindowController {
         capture.addArrangedSubview(toggle(L("캡처 결과를 클립보드에 자동 복사"), key: "autoCopy", fallback: true))
         capture.addArrangedSubview(toggle(L("마지막 캡처 영역 기억"), key: "rememberRegion", fallback: false))
         capture.addArrangedSubview(toggle(L("캡처 전 창·앱 요소 자동 감지"), key: "autoDetectTargets", fallback: true))
-        capture.addArrangedSubview(note(L("손쉬운 사용 권한: {0}", CaptureTargetDetector.canReadElements ? L("허용됨") : L("허용 필요"))))
+        refreshPermissionStatus()
+        capture.addArrangedSubview(accessibilityLabel)
         let elementPermission = NSButton(title: L("앱 내부 요소 감지 권한 설정…"), target: nil, action: nil)
-        bind(elementPermission) { _ in
-            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-            _ = AXIsProcessTrustedWithOptions(options)
-            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
-        }
+        bind(elementPermission) { [weak self] _ in self?.onShowPermissions?() }
+        permissionObserver = NotificationCenter.default.addObserver(forName: PermissionSetupController.changed, object: nil, queue: .main) { [weak self] _ in self?.refreshPermissionStatus() }
         capture.addArrangedSubview(elementPermission)
         capture.addArrangedSubview(note(L("창 자동 감지는 화면 캡처 권한으로 작동합니다. 버튼·입력칸 등 내부 요소 감지는 손쉬운 사용 권한이 필요하며, 앱이 제공하는 접근성 정보에 따라 감지 범위가 다릅니다. Tab으로 상위 영역을 선택합니다.")))
         capture.addArrangedSubview(note(L("영역 선택 후 8개 핸들로 크기를 조절합니다. 테두리 안쪽을 드래그하면 영역이 이동합니다. 도구 막대에서 펜·도형·화살표·텍스트·모자이크를 선택하면 그 자리에서 주석을 작성할 수 있습니다.")))
@@ -178,7 +182,7 @@ final class PreferencesController: NSWindowController {
 
         let pins = page(L("고정"), tabs: tabs)
         pins.addArrangedSubview(heading(L("고정 이미지")))
-        pins.addArrangedSubview(toggle(L("앱 시작 시 고정 이미지 복원"), key: "restorePins", fallback: true))
+        pins.addArrangedSubview(toggle(L("앱 시작 시 고정 이미지 복원"), key: "restorePins", fallback: false))
         pins.addArrangedSubview(toggle(L("고정 이미지 그림자 표시"), key: "pinShadow", fallback: true))
         pins.addArrangedSubview(note(L("드래그: 이동 · 가장자리: 크기 조절 · 휠: 확대/축소\nCtrl+휠: 투명도 · Space: 같은 창에서 주석 편집\n1/2: 회전 · 3/4: 반전 · 0: 원본 크기\n더블 클릭: 숨기기 · Shift+더블 클릭: 썸네일\n클릭 통과는 메뉴 막대 Promecapt에서 일괄 해제할 수 있습니다.")))
 
@@ -233,7 +237,8 @@ final class PreferencesController: NSWindowController {
         refreshUpdates()
     }
     required init?(coder: NSCoder) { fatalError() }
-    func show() { refreshUpdates(); NSApp.activate(ignoringOtherApps: true); window?.makeKeyAndOrderFront(nil) }
+    private func refreshPermissionStatus() { accessibilityLabel.stringValue = L("손쉬운 사용 권한: {0}", CaptureTargetDetector.canReadElements ? L("허용됨") : L("허용 필요")) }
+    func show() { refreshPermissionStatus(); refreshUpdates(); NSApp.activate(ignoringOtherApps: true); window?.makeKeyAndOrderFront(nil) }
     func showAbout() { if let aboutTab { tabView?.selectTabViewItem(aboutTab) }; show() }
     private func refreshUpdates() {
         automaticButton.state = updates.automatic ? .on : .off
@@ -243,7 +248,7 @@ final class PreferencesController: NSWindowController {
         lastCheckLabel.stringValue = L("마지막 확인: {0}", updates.lastChecked.map { DateFormatter.localizedString(from: $0, dateStyle: .short, timeStyle: .short) } ?? L("확인한 적 없음"))
         updateStatus.stringValue = updates.status
     }
-    deinit { if let updateObserver { NotificationCenter.default.removeObserver(updateObserver) } }
+    deinit { if let permissionObserver { NotificationCenter.default.removeObserver(permissionObserver) }; if let updateObserver { NotificationCenter.default.removeObserver(updateObserver) } }
     private func refreshRecorders() {
         let bindings = ShortcutPreferences.bindings()
         for (action, recorder) in recorders { recorder.shortcut = bindings[action] }

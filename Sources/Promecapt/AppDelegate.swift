@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
     private let menu = NSMenu()
     private var library: Library!
     private var pins: [PinController] = []
+    private var deferredPinRecords: [PinRecord] = []
     private var editors: [EditorController] = []
     private var hotkeys: Hotkeys!
     private var captureProcess: Process?
@@ -19,9 +20,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
     private var gifResults: [GIFResultController] = []
     private var hidden = false
     private var terminating = false
+    private var permissionSetup: PermissionSetupController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        UserDefaults.standard.register(defaults: ["restorePins": true, "historyLimit": 50, "hotkeyProfile": 1, "captureDelay": 0, "autoCopy": true, "showDock": true, "showDashboard": true, "pinShadow": true])
+        if InstallLocation.offerInstallation() { return }
+        UserDefaults.standard.register(defaults: ["restorePins": false, "historyLimit": 50, "hotkeyProfile": 1, "captureDelay": 0, "autoCopy": true, "showDock": true, "showDashboard": true, "pinShadow": true])
         do {
             #if DEBUG
             if Bundle.main.bundleIdentifier == "com.promlee.promecapt.update-test" {
@@ -57,6 +60,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
                 }
             } catch { showError(L("고정 이미지 복원 실패: {0}", error.localizedDescription)) }
         }
+        if !UserDefaults.standard.bool(forKey: "restorePins") {
+            do { deferredPinRecords = try library.pinRecords() }
+            catch { showError(L("고정 이미지 복원 실패: {0}", error.localizedDescription)) }
+        }
         rebuildMenu()
         updates.isBusy = { [weak self] in
             guard let self else { return true }
@@ -70,12 +77,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         updates.saveBeforeInstall = { [weak self] in
             guard let self else { return }
             self.persistTask?.cancel()
-            try self.library.savePins(self.pins)
+            try self.library.savePins(self.pins, keeping: self.deferredPinRecords)
         }
         updates.start()
+        let setup = PermissionSetupController()
+        setup.onChange = { [weak self] in
+            guard !ShortcutRecorder.isRecordingShortcut else { return }
+            self?.registerHotkeys()
+        }
+        permissionSetup = setup
+        DispatchQueue.main.async { [weak self] in self?.permissionSetup?.showIfNeeded() }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        guard library != nil else { return false }
         keepStatusIconVisible()
         if !flag && !capturePending && captureSession == nil && gifRecorder == nil { showSettings() }
         return true
@@ -139,7 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         captureSession?.close()
         captureProcess?.terminate()
         persistTask?.cancel()
-        do { try library?.savePins(pins) }
+        do { try library?.savePins(pins, keeping: deferredPinRecords) }
         catch { terminating = false; showError(L("고정 이미지 저장 실패: {0}", error.localizedDescription)); return .terminateCancel }
         return .terminateNow
     }
@@ -199,6 +214,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         add(L("사용 방법…"), #selector(showWelcome))
         add(L("업데이트 확인…"), #selector(checkForUpdates)).isEnabled = updates.canCheck
         add(L("정보"), #selector(showAbout))
+        add(L("권한 설정…"), #selector(showPermissions))
         add(L("종료"), #selector(quit))
     }
 
@@ -347,7 +363,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         persistTask?.cancel()
         let task = DispatchWorkItem { [weak self] in
             guard let self else { return }
-            do { try self.library.savePins(self.pins) }
+            do { try self.library.savePins(self.pins, keeping: self.deferredPinRecords) }
             catch { showError(L("고정 이미지 저장 실패: {0}", error.localizedDescription)) }
         }
         persistTask = task
@@ -408,11 +424,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool { item.action == #selector(checkForUpdates) ? updates.canCheck : true }
     @objc private func checkForUpdates() { updates.check() }
+    @objc private func showPermissions() { permissionSetup?.show() }
     @objc private func showAbout() { showSettings(); preferences?.showAbout() }
 
     @objc func showSettings() {
         if preferences == nil {
             let controller = PreferencesController(updates: updates)
+            controller.onShowPermissions = { [weak self] in self?.showPermissions() }
             controller.onLanguageChange = { [weak self] in
                 guard let self else { return }
                 self.preferences?.close(); self.preferences = nil

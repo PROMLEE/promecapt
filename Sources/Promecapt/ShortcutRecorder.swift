@@ -19,7 +19,17 @@ final class ShortcutRecorder: NSButton {
         updateTitle()
         NotificationCenter.default.addObserver(self, selector: #selector(focusLost(_:)), name: NSWindow.didResignKeyNotification, object: nil)
     }
-    deinit { NotificationCenter.default.removeObserver(self) }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        if recording { Self.isRecordingShortcut = false; onRecording?(false) }
+    }
+    static func cancelIfClickedOutside(_ event: NSEvent) {
+        guard [.leftMouseDown, .rightMouseDown, .otherMouseDown].contains(event.type),
+              let recorder = activeRecorder else { return }
+        if event.window !== recorder.window || !recorder.bounds.contains(recorder.convert(event.locationInWindow, from: nil)) {
+            recorder.endRecording()
+        }
+    }
     @objc private func focusLost(_ notification: Notification) {
         if recording, let source = notification.object as? NSWindow, source === window { endRecording() }
     }

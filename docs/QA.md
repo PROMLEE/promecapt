@@ -44,3 +44,13 @@ Ad-hoc rebuilt binaries can lose their existing macOS permission association. Re
 - Ejected the disk and launched `/Applications/Promecapt.app`. macOS blocked the unnotarized app; Done → Privacy & Security → Open Anyway → Open Anyway allowed this app to run. No global security settings or quarantine attributes were changed.
 - The installed app reported 1.1.0 / revision 324a5fe, fetched the public update feed and reported up to date.
 - Capture was denied despite the existing Screen Recording switch being on after replacing the local build. After user authentication, removed only the existing Promecapt entry, added `/Applications/Promecapt.app` and relaunched. Region capture then displayed its selection / annotation overlay successfully; Escape returned to Settings.
+
+## Pending 1.1.1 UI acceptance
+
+The Mac is locked and its owner is away. Release compilation, localization validation and the local regression checks are available; native UI acceptance is not complete. Do not label these behaviors as visually verified or publish a release until checked:
+
+- ZIP fixture: installation offer, Run Here, Applications copy/relaunch, existing-app handling and no repeated prompt after installation.
+- Capture: open the color well, change a shape color, confirm the panel remains above capture on each display, then close capture and confirm panel cleanup. Repeat in pinned-image editing.
+- Shortcut: begin recording; click blank settings space, another control, another tab and another app. Confirm the prompt disappears and global hotkeys are restored.
+- Fresh preferences: startup pin restoration is unchecked. An existing explicit opt-in remains enabled.
+- Missing permissions: startup guide appears; request buttons open macOS permission flows for this installed app. Status updates after grant, hotkeys re-register, Done becomes available, and Later closes the guide. Existing stale ad-hoc entries may still require manual refresh.

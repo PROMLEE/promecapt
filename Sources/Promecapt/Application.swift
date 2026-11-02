@@ -3,6 +3,7 @@ import AppKit
 @objc(PromecaptApplication)
 final class PromecaptApplication: NSApplication {
     override func sendEvent(_ event: NSEvent) {
+        ShortcutRecorder.cancelIfClickedOutside(event)
         if ShortcutRecorder.activeRecorder?.record(event) == true { return }
         // Carbon handles keys while another app is active. App-directed key events also
         // need the same behavior while one of our windows is active (including AX input).

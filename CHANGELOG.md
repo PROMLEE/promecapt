@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 (unreleased)
+
+- Offer installation into Applications when a ZIP app starts outside an Applications folder.
+- Keep the annotation color panel above capture windows and close it with its editor.
+- Cancel shortcut recording when clicking outside the recorder.
+- Guide missing Screen Recording and Accessibility permissions on launch, with request buttons and live status.
+- Default startup pin restoration to off; preserve explicit user preferences.
+
 ## 1.1.0
 
 - Add manual update checks and opt-in automatic download, installation and relaunch through Sparkle.

@@ -84,8 +84,8 @@ final class Library {
         return try? Data(contentsOf: root.appendingPathComponent("pins/\(record.id.uuidString).gif"))
     }
 
-    func savePins(_ pins: [PinController]) throws {
-        let records = try pins.map { pin -> PinRecord in
+    func savePins(_ pins: [PinController], keeping deferred: [PinRecord] = []) throws {
+        let currentRecords = try pins.map { pin -> PinRecord in
             guard let data = Imaging.png(pin.image) else { throw CocoaError(.fileWriteUnknown) }
             try data.write(to: root.appendingPathComponent("pins/\(pin.id.uuidString).png"), options: .atomic)
             if let document = pin.annotationDocument {
@@ -97,6 +97,8 @@ final class Library {
             return PinRecord(id: pin.id, x: frame.minX, y: frame.minY, width: frame.width,
                 height: frame.height, opacity: pin.window!.alphaValue, group: pin.group, annotations: pin.annotationDocument?.objects, animated: pin.gifData == nil ? nil : true)
         }
+        let currentIDs = Set(currentRecords.map(\.id))
+        let records = currentRecords + deferred.filter { !currentIDs.contains($0.id) }
         try JSONEncoder().encode(records).write(to: root.appendingPathComponent("pins.json"), options: .atomic)
         let live = Set(records.flatMap { ["\($0.id.uuidString).png"] + ($0.annotations == nil ? [] : ["\($0.id.uuidString)-base.png"]) + ($0.animated == true ? ["\($0.id.uuidString).gif"] : []) })
         for file in try manager.contentsOfDirectory(at: root.appendingPathComponent("pins"), includingPropertiesForKeys: nil) {
@@ -110,10 +112,14 @@ final class Library {
         return AnnotationDocument(base: Imaging.normalized(base), objects: annotations)
     }
 
-    func restorePins() throws -> [(PinRecord, NSImage)] {
+    func pinRecords() throws -> [PinRecord] {
         let url = root.appendingPathComponent("pins.json")
         guard manager.fileExists(atPath: url.path) else { return [] }
-        return try JSONDecoder().decode([PinRecord].self, from: Data(contentsOf: url)).compactMap { record in
+        return try JSONDecoder().decode([PinRecord].self, from: Data(contentsOf: url))
+    }
+
+    func restorePins() throws -> [(PinRecord, NSImage)] {
+        return try pinRecords().compactMap { record in
             guard let image = NSImage(contentsOf: root.appendingPathComponent("pins/\(record.id.uuidString).png")) else { return nil }
             return (record, Imaging.normalized(image))
         }

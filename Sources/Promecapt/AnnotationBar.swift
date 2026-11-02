@@ -16,7 +16,7 @@ final class AnnotationBar: NSVisualEffectView {
     var onConcealStyle: ((ConcealStyle) -> Void)?
     private let styles = NSPopUpButton()
     private let parameter = NumericStepper(frame: .zero, compact: true)
-    private let colorWell = NSColorWell(frame: NSRect(x: 0, y: 0, width: 30, height: 26))
+    private let colorWell = AnnotationColorWell(frame: NSRect(x: 0, y: 0, width: 30, height: 26))
     private var selectedTool: DrawingTool?
     private var ocrButton: NSButton?
     private var infoBeforeOCR: String?

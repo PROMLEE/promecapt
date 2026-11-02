@@ -11,7 +11,7 @@ enum ToolbarLayoutChecks {
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         var failures: [String] = []
         func layoutCheck(_ condition: @autoclosure () -> Bool, _ description: String) {
-            if condition() { Checks.check(true, description) }
+            if condition() { Checks.count += 1 }
             else {
                 failures.append(description)
                 FileHandle.standardError.write(Data(("LAYOUT FAIL: " + description + "\n").utf8))

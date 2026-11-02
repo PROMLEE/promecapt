@@ -1,0 +1,46 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.3",
+    "changes": [
+      "Native macOS annotation controls; fixes for overlapping buttons and translated layouts.",
+      "Color, width and redaction options appear only for applicable tools or selected annotations.",
+      "One width/strength unit per wheel step; smoother trackpad handling without momentum edits.",
+      "Finer pin zoom (3%) and opacity (2 percentage points). Same signing certificate as 1.1.2."
+    ],
+    "notice": "Automated layout/input checks passed. Live capture clicks and physical mouse/trackpad feel still need user verification.",
+    "link": "View full release notes"
+  },
+  "ko": {
+    "heading": "1.1.3 업데이트 내용",
+    "changes": [
+      "도구창을 macOS 기본 컨트롤로 바꾸고 버튼 겹침을 수정했습니다.",
+      "선택한 도구·주석에 필요한 색상·두께·가리기 옵션만 표시합니다.",
+      "휠 한 칸은 두께·세기 ±1로 조절하고 트랙패드 관성 입력은 무시합니다.",
+      "고정 이미지 크기 3%·투명도 2%p 단위 조절. 1.1.2와 같은 인증서로 서명합니다."
+    ],
+    "notice": "자동 배치·입력 검사는 통과했습니다. 실제 캡처 화면의 클릭과 물리 마우스·트랙패드 감도는 사용자 확인이 남아 있습니다.",
+    "link": "전체 릴리스 노트 보기"
+  },
+  "ja": {
+    "heading": "1.1.3 の更新内容",
+    "changes": [
+      "注釈ツールを macOS 標準コントロールに変更し、ボタンの重なりを修正しました。",
+      "色・太さ・ぼかし方式は、該当するツールや選択中の注釈でのみ表示します。",
+      "ホイール1段で太さ・強度を1ずつ調整し、トラックパッドの慣性入力を無視します。",
+      "固定画像の拡大縮小は3%、不透明度は2ポイント単位。1.1.2と同じ署名証明書を使用します。"
+    ],
+    "notice": "自動レイアウト・入力検査は完了しています。実際のキャプチャ操作とマウス・トラックパッドの感触はユーザーによる確認が必要です。",
+    "link": "リリースノートを見る"
+  },
+  "zh-Hans": {
+    "heading": "1.1.3 更新内容",
+    "changes": [
+      "注释工具改用 macOS 原生控件，修复按钮重叠。",
+      "仅为适用的工具或所选注释显示颜色、粗细和遮挡选项。",
+      "滚轮每格调整1单位粗细或强度，并忽略触控板惯性输入。",
+      "固定图像缩放每步3%，透明度每步2个百分点。沿用1.1.2的签名证书。"
+    ],
+    "notice": "自动布局和输入检查已通过。实际截图点击及鼠标、触控板手感仍需用户验证。",
+    "link": "查看完整更新说明"
+  }
+}

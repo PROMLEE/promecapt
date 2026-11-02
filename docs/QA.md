@@ -63,13 +63,13 @@ The 1.1.1–1.1.2 bar used a custom dark palette. Its sRGB checks tested color c
 
 Settings → Capture → Automatically select newly drawn annotations defaults to on. Verify shape / arrow / conceal / numbered badge creation switches to selection and exposes handles, Enter-confirmed text becomes selected, immediate move / resize / style editing works, and disabling the option preserves continuous drawing. Automated checks cover default-on, selected object editing, text confirmation and option-off behavior. Native mouse / handle validation remains pending Mac unlock.
 
-## Pending native-toolbar fix after 1.1.2
+## Native toolbar update — 1.1.3
 
 - Capture and pin-edit controls use native AppKit button bezels and SF Symbols, semantic foreground/background colors and explicit 28pt button allocation. The two rows have separate heights and spacing; numeric entry fits the row.
 - The standalone editor uses icon-only native segments and action buttons, so translated titles do not stretch or overlap at the 900pt minimum content width. Tooltips and accessibility names retain localized descriptions.
 - `scripts/ToolbarLayoutChecks.swift`, called by `test-local.sh`, creates actual AppKit views in windows that are never ordered onscreen. It checks alignment bounds, painted control bounds and pairwise intersections for Korean, English, Japanese and Simplified Chinese in Aqua and Dark Aqua, including long history/OCR status and GIF visibility changes.
 - The fixture renders 32 PNGs under `.build/toolbar-layout`. These are real offscreen view renders with synthetic blank editor content, not desktop screenshots or evidence of successful interaction. Inspected capture, OCR and minimum-width editor renders in both appearances. The full local checks pass.
-- Remaining acceptance: on an unlocked Mac, open a live capture; select every tool; hover descriptions; edit thickness; open color/style controls; copy/pin/cancel; repeat on a pinned image and in a resized editor. Confirm selected/disabled states, legibility and cursor behavior on the actual screen. Do not publish this change until this native interaction check is complete.
+- Remaining acceptance: on an unlocked Mac, open a live capture; select every tool; hover descriptions; edit thickness; open color/style controls; copy/pin/cancel; repeat on a pinned image and in a resized editor. Confirm selected/disabled states, legibility and cursor behavior on the actual screen. Native interaction remains pending because the owner cannot access the locked Mac. The owner explicitly requested publishing 1.1.3 to install and verify these changes personally; release notes disclose that remaining check.
 
 ### Contextual options and scroll input
 

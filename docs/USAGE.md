@@ -19,7 +19,7 @@
 
 Choose the **F1 / F3 / F4** preset or your own shortcuts in Settings → Shortcuts. In media-key mode, use `Fn+F1` or enable standard function keys in macOS. `Enter` confirms text; it does not finish a capture.
 
-Pending source changes after 1.1.2: annotation options appear only when they apply to the active tool or selected annotation. Wheel steps are normalized and trackpad momentum does not continue editing values. These changes are not in the current public release yet.
+From 1.1.3, annotation options appear only when they apply to the active tool or selected annotation. A wheel detent changes width or redaction strength by one unit; trackpad motion accumulates distance without momentum edits. Pin zoom changes by 3% and Ctrl-wheel opacity by two percentage points per normalized step.
 
 Settings → General selects your language and Dock visibility. Menu bar operation works with the Dock icon hidden.
 

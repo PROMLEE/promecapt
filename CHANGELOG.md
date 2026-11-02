@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3
+
+- Use native macOS annotation controls and semantic appearance colors; prevent toolbar overlap across macOS versions and translations.
+- Show color, width and redaction options only for applicable tools or selected annotations.
+- Normalize accelerated wheel input to one width/strength unit per step; accumulate precise trackpad motion and ignore momentum.
+- Use finer pin zoom (3%) and opacity (two percentage points) per normalized step.
+- Reuse the same production signing certificate as 1.1.2.
+
 ## 1.1.2
 
 - Reuse a pinned production code-signing certificate across releases to retain app identity. The first transition from ad-hoc signing may require permission refresh.

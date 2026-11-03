@@ -3,7 +3,7 @@ import AppKit
 /// Compact integer entry with native vertical increment/decrement arrows.
 final class NumericStepper: NSControl, NSTextFieldDelegate {
     private let field = NSTextField(string: "4")
-    private let stepper = NSStepper()
+    private let stepper = ToolbarNativeStepper()
     private var value: Double = 4
     private var controlsEnabled = true
     var minValue: Double = 1 { didSet { doubleValue = value } }
@@ -38,7 +38,7 @@ final class NumericStepper: NSControl, NSTextFieldDelegate {
             field.leadingAnchor.constraint(equalTo: leadingAnchor), field.centerYAnchor.constraint(equalTo: centerYAnchor),
             field.heightAnchor.constraint(equalToConstant: 24), field.trailingAnchor.constraint(equalTo: stepper.leadingAnchor, constant: -3),
             stepper.trailingAnchor.constraint(equalTo: trailingAnchor), stepper.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stepper.widthAnchor.constraint(equalToConstant: 16)
+            stepper.widthAnchor.constraint(equalToConstant: 20)
         ])
         widthAnchor.constraint(equalToConstant: compact ? 62 : 76).isActive = true
         heightAnchor.constraint(equalToConstant: 28).isActive = true
@@ -79,4 +79,8 @@ final class NumericStepper: NSControl, NSTextFieldDelegate {
         }
         return false
     }
+}
+
+private final class ToolbarNativeStepper: NSStepper {
+    override var alignmentRectInsets: NSEdgeInsets { NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) }
 }

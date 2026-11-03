@@ -2,6 +2,7 @@ import AppKit
 
 /// Keep the shared color panel above full-screen capture and pin-edit windows.
 final class AnnotationColorWell: NSColorWell {
+    override var alignmentRectInsets: NSEdgeInsets { NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) }
     private var originalAccessory: NSView?
     private var originalLevel: NSWindow.Level?
     private var originalBehavior: NSWindow.CollectionBehavior?

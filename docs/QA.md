@@ -115,3 +115,5 @@ Button spacing is 2pt, with explicit extra clearance around native popup and col
 - Sample the rendered shortcut-card background alpha rather than checking only a configured color.
 
 Live Mac checks for this build confirmed: translucent shortcut-card background, hiding the pencil button via Settings → Tools, opening the hidden pencil from All tools, and changing the capture rectangle from 500 × 300 to 640 × 480 through the width/height fields. The test-only pencil visibility change was restored. Separate-editor rendering passed offscreen checks; live file-chooser navigation was blocked by the computer-use tool in the nested Go to Folder sheet.
+
+The one-row toolbar normalizes NSColorWell/NSStepper alignment bounds so native controls do not extend into adjacent controls on macOS 15. Stepper arrows retain a 20pt frame.

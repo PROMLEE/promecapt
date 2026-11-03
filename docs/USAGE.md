@@ -66,3 +66,7 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 - Capture and pin-edit toolbars keep buttons on the first row. Color, width and conceal options appear on a second row only when applicable. Without options, the toolbar stays one row. The image editor follows the same shared order and contextual-options layout; its crop/rotate/flip actions follow the shared tools.
 - Editable capture dimensions appear on the second row only while Capture region adjustment is selected. Digit and unit drawing areas are vertically centered.
 - Settings → Tools → Remember last capture tool is off by default. When enabled, each new capture starts with the tool last explicitly chosen in capture, including region adjustment. Automatic selection, editor/pin tool changes and capture startup do not overwrite it.
+
+## OCR copy — 1.1.10
+
+In the OCR result window, Command-C copies selected text, or all text when nothing is selected, and closes the window after a successful copy. Copy all also closes the window. An empty result leaves the clipboard unchanged.

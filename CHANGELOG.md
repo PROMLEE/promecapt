@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.10
+
+- Copy OCR text with Command-C and close the result window after a successful copy. Copy selected text, or all text when nothing is selected; the Copy all button also closes the window.
+- Keep GIF recording controls on the recording display, including monitors with negative or vertically arranged coordinates.
+
 ## 1.1.9
 
 - Reorder toolbar buttons in Settings → Tools by dragging rows or using Move up / Move down.

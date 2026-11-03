@@ -125,3 +125,8 @@ The one-row toolbar normalizes NSColorWell/NSStepper alignment bounds so native 
 - Instantiate successive capture views with synthetic images: restore a remembered rectangle, explicitly select pencil, restore pencil in the next capture, and ensure a default capture with remembering disabled does not overwrite that choice.
 
 Live Mac validation for the adaptive-toolbar build: the Move down button reordered region/select, dragging the region row restored the original order, region adjustment exposed dimensions, selection with no annotation collapsed to one row, rectangle exposed only color/width in the second row, and a fresh capture restored rectangle while Remember last capture tool was enabled. Temporary order changes were reversed and the remember option was restored to its original off state. The old nested file chooser was closed by gracefully terminating only the test Promecapt process through Activity Monitor before installing the development build.
+
+## OCR copy and GIF controls — 1.1.10
+
+- Check Command-C with selected text, no selection and edited OCR results; successful copy closes the result window. Empty results must preserve the clipboard.
+- Start GIF recording on left/right/above/below external displays and near display edges. The stop window must remain inside that display’s visible area without stealing focus. Live multi-monitor verification is pending; synthetic coordinate cases are covered by local checks.

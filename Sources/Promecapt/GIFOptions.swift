@@ -43,3 +43,15 @@ final class GIFRecordingRegion: NSView {
                                                  .backgroundColor: NSColor.black.withAlphaComponent(0.7)])
     }
 }
+
+/// Global AppKit coordinates; never fall back to the main display for recording controls.
+enum GIFControlPlacement {
+    static func frame(near region: NSRect, visibleFrame: NSRect, size: NSSize) -> NSRect {
+        let bounds = visibleFrame.insetBy(dx: 10, dy: 10)
+        let width = min(size.width, bounds.width), height = min(size.height, bounds.height)
+        let below = region.minY - height - 10
+        let preferredY = below >= bounds.minY ? below : region.maxY + 10
+        return NSRect(x: min(max(region.minX, bounds.minX), bounds.maxX - width),
+                      y: min(max(preferredY, bounds.minY), bounds.maxY - height), width: width, height: height)
+    }
+}

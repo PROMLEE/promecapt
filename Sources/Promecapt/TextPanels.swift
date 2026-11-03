@@ -24,6 +24,18 @@ final class AnnotationTextPanel: NSPanel, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) { onCancel?() }
 }
 
+/// Intercept before NSTextView/menu copy handling so copying also dismisses the result.
+final class OCRResultWindow: NSWindow {
+    var onCopy: (() -> Bool)?
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+           event.charactersIgnoringModifiers?.lowercased() == "c" {
+            return onCopy?() ?? false
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+}
+
 final class OCRResultController: NSWindowController, NSWindowDelegate {
     static var hasOpenResults: Bool { !openControllers.isEmpty }
     private static var openControllers: [ObjectIdentifier: OCRResultController] = [:]
@@ -39,9 +51,10 @@ final class OCRResultController: NSWindowController, NSWindowDelegate {
         Imaging.recognize(image) { [weak controller] result in controller?.complete(result) }
     }
     init(parent: NSWindow?) {
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 570, height: 380),
+        let window = OCRResultWindow(contentRect: NSRect(x: 0, y: 0, width: 570, height: 380),
                               styleMask: [.titled,.closable,.resizable], backing: .buffered, defer: false)
         super.init(window: window)
+        window.onCopy = { [weak self] in self?.copyResult(selectionOnly: true) ?? false }
         window.title = L("Promecapt · 텍스트 추출 (OCR)")
         window.isReleasedWhenClosed = false; window.delegate = self
         window.minSize = NSSize(width: 420, height: 260)
@@ -81,7 +94,17 @@ final class OCRResultController: NSWindowController, NSWindowDelegate {
         case .failure(let error): status.stringValue = L("인식 실패: {0}", error.localizedDescription)
         }
     }
-    @objc private func copyText() { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(output.string, forType: .string) }
+    @discardableResult
+    func copyResult(selectionOnly: Bool, to pasteboard: NSPasteboard = .general) -> Bool {
+        let range = output.selectedRange()
+        let text = selectionOnly && range.length > 0 ? (output.string as NSString).substring(with: range) : output.string
+        guard !text.isEmpty else { return false }
+        pasteboard.clearContents()
+        guard pasteboard.setString(text, forType: .string) else { return false }
+        close()
+        return true
+    }
+    @objc private func copyText() { copyResult(selectionOnly: false) }
     @objc private func closeResult() { close() }
     func windowWillClose(_ notification: Notification) { Self.openControllers.removeValue(forKey: ObjectIdentifier(self)) }
 }

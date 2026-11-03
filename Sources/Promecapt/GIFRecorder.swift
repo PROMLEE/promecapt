@@ -119,7 +119,7 @@ final class GIFRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
         regionPanel.contentView = GIFRecordingRegion(frame: NSRect(origin: .zero, size: screen.frame.size),
             region: rect.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY))
         regionPanel.orderFrontRegardless(); self.regionPanel = regionPanel
-        let panel = NSPanel(contentRect: NSRect(x: max(screen.frame.minX + 10, min(rect.minX, screen.frame.maxX - 350)), y: max(screen.frame.minY + 10, rect.minY - 70), width: 340, height: 56), styleMask: [.titled], backing: .buffered, defer: false)
+        let panel = NSPanel(contentRect: NSRect(x: max(screen.frame.minX + 10, min(rect.minX, screen.frame.maxX - 350)), y: max(screen.frame.minY + 10, rect.minY - 70), width: 340, height: 56), styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false, screen: screen)
         panel.title = L("Promecapt GIF · {0}fps · 최대 {1}초", options.frameRate, options.duration)
         panel.isReleasedWhenClosed = false; panel.hidesOnDeactivate = false; panel.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
@@ -127,6 +127,10 @@ final class GIFRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
         let stop = NSButton(title: L("정지"), target: self, action: #selector(stopRecording))
         stop.frame = NSRect(x: 255, y: 12, width: 75, height: 30)
         panel.contentView?.addSubview(label); panel.contentView?.addSubview(stop)
+        // Explicit global frame avoids relying on AppKit's initial display placement.
+        let frame = GIFControlPlacement.frame(near: rect, visibleFrame: screen.visibleFrame, size: panel.frame.size)
+        panel.setFrame(frame, display: false)
+        panel.setFrameOrigin(frame.origin)
         panel.orderFrontRegardless(); self.panel = panel
     }
     @objc private func stopRecording() { stop() }

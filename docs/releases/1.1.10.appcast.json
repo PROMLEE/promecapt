@@ -1,0 +1,38 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.10",
+    "changes": [
+      "Copy OCR text with Command-C and close the result window after a successful copy. Copy selected text, or all text when nothing is selected; the Copy all button also closes the window.",
+      "Keep GIF recording controls on the recording display, including monitors with negative or vertically arranged coordinates."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.10 업데이트 내용",
+    "changes": [
+      "OCR 결과에서 ⌘C로 선택한 텍스트를, 선택이 없으면 전체를 복사한 뒤 창을 닫습니다. 전체 복사 버튼도 복사 후 닫힙니다.",
+      "GIF 녹화 정지창을 녹화 영역이 있는 모니터 안에 배치하도록 수정했습니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.10 の更新内容",
+    "changes": [
+      "OCR結果でCommand-Cを押すと選択テキストを、選択がなければ全文をコピーしてウィンドウを閉じます。全コピーもコピー後に閉じます。",
+      "GIF録画の停止ウィンドウを録画領域と同じディスプレイ内に配置します。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.10 更新内容",
+    "changes": [
+      "OCR结果中按Command-C复制选中文本，未选择时复制全部，复制成功后关闭窗口。“全部复制”按钮也会关闭窗口。",
+      "将GIF录制停止窗口放在录制区域所在的显示器内。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

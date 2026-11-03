@@ -105,6 +105,30 @@ import ImageIO
             var area = CaptureSelection(bounds: NSRect(origin: .zero,size: screen.frame.size)); area.rect = state.1
             check(state.0.cropped(to: area.pixelRect(imageSize: state.0.base.size)).base.size == large.size, "history larger than the screen retains original export resolution")
         }
+        for display in [NSRect(x: -1920, y: 0, width: 1920, height: 1055),
+                        NSRect(x: 0, y: 1100, width: 1600, height: 875),
+                        NSRect(x: 1440, y: -900, width: 1280, height: 875)] {
+            for region in [display.insetBy(dx: 1, dy: 1), NSRect(x: display.maxX - 80, y: display.minY + 5, width: 60, height: 40)] {
+                let frame = GIFControlPlacement.frame(near: region, visibleFrame: display, size: NSSize(width: 340, height: 80))
+                check(display.contains(frame), "GIF controls stay on the recording display including negative and vertical screen origins")
+            }
+        }
+        let ocrClipboard = NSPasteboard.withUniqueName()
+        defer { ocrClipboard.releaseGlobally() }
+        let ocrResult = OCRResultController(parent: nil)
+        let ocrScroll = ocrResult.window!.contentView!.subviews.compactMap { $0 as? NSScrollView }.first!
+        let ocrText = ocrScroll.documentView as! NSTextView
+        ocrText.string = "가나다 OCR"
+        ocrText.setSelectedRange(NSRange(location: 1, length: 2))
+        check(ocrResult.copyResult(selectionOnly: true, to: ocrClipboard) && ocrClipboard.string(forType: .string) == "나다", "OCR copy respects the selected Unicode text")
+        check(ocrResult.copyResult(selectionOnly: false, to: ocrClipboard) && ocrClipboard.string(forType: .string) == "가나다 OCR", "OCR whole-copy ignores the text selection")
+        ocrText.string = ""
+        check(!ocrResult.copyResult(selectionOnly: true, to: ocrClipboard) && ocrClipboard.string(forType: .string) == "가나다 OCR", "empty OCR does not replace clipboard contents")
+        let copyEvent = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: .command, timestamp: 0, windowNumber: 0, context: nil, characters: "c", charactersIgnoringModifiers: "c", isARepeat: false, keyCode: 8)!
+        var copyCalls = 0
+        let ocrWindow = ocrResult.window as! OCRResultWindow
+        ocrWindow.onCopy = { copyCalls += 1; return true }
+        check(ocrWindow.performKeyEquivalent(with: copyEvent) && copyCalls == 1, "OCR window handles Command C before the text view copy action")
         let overlay = GIFRecordingRegion(frame: NSRect(x: 0,y: 0,width: 160,height: 100), region: NSRect(x: 20,y: 20,width: 80,height: 40))
         let overlaid = Imaging.render(size: NSSize(width: 160,height: 100)) {
             NSColor.green.setFill(); NSRect(x: 0,y: 0,width: 160,height: 100).fill()

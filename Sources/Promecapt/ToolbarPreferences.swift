@@ -7,6 +7,20 @@ enum ToolbarItem: String, CaseIterable {
     static let changed = Notification.Name("PromecaptToolbarChanged")
     static let key = "captureToolbarHiddenItems"
     static let defaultHidden: Set<String> = ["undo", "redo", "close"]
+    static let orderKey = "captureToolbarOrder"
+    static func normalizedOrder(_ values: [String]) -> [Self] {
+        var result: [Self] = []
+        for value in values { if let item = Self(rawValue: value), !result.contains(item) { result.append(item) } }
+        return result + allCases.filter { !result.contains($0) }
+    }
+    static var order: [Self] { normalizedOrder(UserDefaults.standard.stringArray(forKey: orderKey) ?? []) }
+    static func move(_ item: Self, to index: Int) {
+        var items = order
+        items.removeAll { $0 == item }
+        items.insert(item, at: max(0, min(items.count, index)))
+        UserDefaults.standard.set(items.map(\.rawValue), forKey: orderKey)
+        NotificationCenter.default.post(name: changed, object: nil)
+    }
     static var hidden: Set<String> {
         guard let saved = UserDefaults.standard.stringArray(forKey: key) else { return defaultHidden }
         return Set(saved)
@@ -43,6 +57,22 @@ enum ToolbarItem: String, CaseIterable {
     }
     static func reset() {
         UserDefaults.standard.removeObject(forKey: key)
+        UserDefaults.standard.removeObject(forKey: orderKey)
         NotificationCenter.default.post(name: changed, object: nil)
+    }
+}
+
+enum CaptureToolPreferences {
+    static let enabledKey = "rememberCaptureTool"
+    static let lastKey = "lastCaptureDrawingTool"
+    private static let tools = DrawingTool.allCases.filter { $0 != .crop }
+    static var initialIndex: Int {
+        guard UserDefaults.standard.bool(forKey: enabledKey),
+              let raw = UserDefaults.standard.string(forKey: lastKey),
+              let index = tools.firstIndex(where: { $0.rawValue == raw }) else { return -1 }
+        return index
+    }
+    static func remember(_ tool: DrawingTool?) {
+        UserDefaults.standard.set(tool?.rawValue ?? "region", forKey: lastKey)
     }
 }

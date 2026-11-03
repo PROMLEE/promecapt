@@ -117,3 +117,11 @@ Button spacing is 2pt, with explicit extra clearance around native popup and col
 Live Mac checks for this build confirmed: translucent shortcut-card background, hiding the pencil button via Settings → Tools, opening the hidden pencil from All tools, and changing the capture rectangle from 500 × 300 to 640 × 480 through the width/height fields. The test-only pencil visibility change was restored. Separate-editor rendering passed offscreen checks; live file-chooser navigation was blocked by the computer-use tool in the nested Go to Folder sheet.
 
 The one-row toolbar normalizes NSColorWell/NSStepper alignment bounds so native controls do not extend into adjacent controls on macOS 15. Stepper arrows retain a 20pt frame.
+
+## Reorderable tools and contextual second row — 1.1.9
+
+- Verify saved order sanitization, immediate reordering of existing controls, hidden-action availability and native ordering-view layouts in four languages and both appearances.
+- Compare rendered digit/unit vertical centers, not only control frames. Verify dimensions appear only in region mode, annotation options on a second row and automatic collapse for selection without an annotation.
+- Instantiate successive capture views with synthetic images: restore a remembered rectangle, explicitly select pencil, restore pencil in the next capture, and ensure a default capture with remembering disabled does not overwrite that choice.
+
+Live Mac validation for the adaptive-toolbar build: the Move down button reordered region/select, dragging the region row restored the original order, region adjustment exposed dimensions, selection with no annotation collapsed to one row, rectangle exposed only color/width in the second row, and a fresh capture restored rectangle while Remember last capture tool was enabled. Temporary order changes were reversed and the remember option was restored to its original off state. The old nested file chooser was closed by gracefully terminating only the test Promecapt process through Activity Monitor before installing the development build.

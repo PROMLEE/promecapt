@@ -59,3 +59,10 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 - Enter capture width and height in pixels, then press Return or leave the field. The selection keeps its upper-left corner when possible and moves only to fit the display. Invalid input is restored; oversized input is clamped.
 - Settings → Tools controls which buttons appear, immediately and across restarts. Undo, redo and close are hidden by default. All tools (…) keeps hidden actions reachable, including when every optional button is hidden. The separate image editor also follows shared tool visibility preferences; its crop/rotate/flip controls remain available.
 - The shortcut reference has a translucent background with full-opacity text. H collapses/expands it.
+
+## Tool order and adaptive options — 1.1.9
+
+- Settings → Tools lists buttons in toolbar order. Drag a row or select it and use Move up / Move down. Checkboxes control visibility; Restore default tools resets both order and visibility.
+- Capture and pin-edit toolbars keep buttons on the first row. Color, width and conceal options appear on a second row only when applicable. Without options, the toolbar stays one row. The image editor follows the same shared order and contextual-options layout; its crop/rotate/flip actions follow the shared tools.
+- Editable capture dimensions appear on the second row only while Capture region adjustment is selected. Digit and unit drawing areas are vertically centered.
+- Settings → Tools → Remember last capture tool is off by default. When enabled, each new capture starts with the tool last explicitly chosen in capture, including region adjustment. Automatic selection, editor/pin tool changes and capture startup do not overwrite it.

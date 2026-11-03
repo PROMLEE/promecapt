@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.9
+
+- Reorder toolbar buttons in Settings → Tools by dragging rows or using Move up / Move down.
+- Vertically center capture dimensions and show them only in region-adjustment mode.
+- Keep tool buttons on the first row; show color, width and conceal settings on a second row only when needed.
+- Add Remember last capture tool (off by default) to start the next capture with the last explicitly chosen tool.
+
 ## 1.1.8
 
 - Use one adjacent, borderless toolbar row with monochrome selection indicators.

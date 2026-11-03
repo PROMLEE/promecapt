@@ -1,0 +1,46 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.9",
+    "changes": [
+      "Reorder toolbar buttons in Settings → Tools by dragging rows or using Move up / Move down.",
+      "Vertically center capture dimensions and show them only in region-adjustment mode.",
+      "Keep tool buttons on the first row; show color, width and conceal settings on a second row only when needed.",
+      "Add Remember last capture tool (off by default) to start the next capture with the last explicitly chosen tool."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.9 업데이트 내용",
+    "changes": [
+      "설정 → 도구에서 행을 드래그하거나 위로·아래로 버튼으로 도구 순서를 바꿀 수 있습니다.",
+      "캡처 크기 입력의 상하 정렬을 맞추고 영역 조절 도구에서만 표시합니다.",
+      "도구 버튼은 첫 줄에 두고 색상·두께·가리기 옵션은 필요할 때만 두 번째 줄에 표시합니다.",
+      "마지막 캡처 도구 기억 옵션을 추가했습니다. 켜면 다음 캡처에서도 마지막으로 직접 고른 도구를 사용합니다. 기본값은 꺼짐입니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.9 の更新内容",
+    "changes": [
+      "設定 → ツールで行をドラッグするか上へ・下へでボタンを並べ替えられます。",
+      "キャプチャサイズ入力を上下中央に揃え、領域調整ツール選択時のみ表示します。",
+      "ツールボタンは1行目に置き、色・太さ・ぼかし設定は必要な場合のみ2行目に表示します。",
+      "最後のキャプチャツールを記憶する設定を追加しました。既定はオフで、有効にすると最後に手動で選んだツールで次のキャプチャを開始します。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.9 更新内容",
+    "changes": [
+      "在设置 → 工具中拖动行，或使用上移、下移按钮调整工具顺序。",
+      "截图尺寸输入垂直居中，并仅在选择区域调整工具时显示。",
+      "工具按钮保留在第一行，颜色、粗细和遮挡选项仅在需要时显示在第二行。",
+      "新增记住上次截图工具选项，默认关闭。开启后，下次截图使用最后手动选择的工具。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

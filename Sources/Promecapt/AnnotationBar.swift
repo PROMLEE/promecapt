@@ -5,14 +5,16 @@ final class AnnotationBar: NSView {
     private var dragPoint: NSPoint?
     var onSizeChange: (() -> Void)?
     private let top = NSStackView()
+    private let options = NSStackView()
     private var itemButtons: [ToolbarItem: NSButton] = [:]
     private var preferenceObserver: NSObjectProtocol?
     let captureSize = CaptureSizeControl(frame: .zero)
     var onCaptureSize: ((NSSize) -> Void)? { didSet {
-        captureSize.isHidden = onCaptureSize == nil
         info.isHidden = onCaptureSize != nil
+        updateRegionSizeVisibility()
         onSizeChange?()
     } }
+    var onUserToolSelection: ((DrawingTool?) -> Void)?
     private let more = AnnotationButton()
 
     var onTool: ((DrawingTool?) -> Void)?
@@ -47,21 +49,31 @@ final class AnnotationBar: NSView {
     private var tipWindow: NSPanel?
     static let preferredSize = NSSize(width: 620, height: 36)
     var preferredSize: NSSize {
-        let width = top.arrangedSubviews.filter { !$0.isHidden }.reduce(CGFloat(0)) { total, view in
-            if view === captureSize { return total + 128 }
-            if view === info { return total + min(136, max(60, info.intrinsicContentSize.width)) }
-            if view === styles { return total + 78 }
-            if view === colorWell { return total + 30 }
-            if view === parameter { return total + 62 }
-            return total + 28
+        func width(_ row: NSStackView) -> CGFloat {
+            row.arrangedSubviews.filter { !$0.isHidden }.reduce(CGFloat(0)) { total, view in
+                if view === captureSize { return total + 128 }
+                if view === info { return total + min(136, max(60, info.intrinsicContentSize.width)) }
+                if view === styles { return total + 78 }
+                if view === colorWell { return total + 30 }
+                if view === parameter { return total + 62 }
+                return total + 28
+            }
         }
-        return NSSize(width: ceil(width + 8), height: 36)
+        return NSSize(width: ceil(max(width(top), width(options)) + 8), height: options.isHidden ? 36 : 66)
     }
+    private func updateRegionSizeVisibility(selectingOCR: Bool = false) {
+        captureSize.isHidden = onCaptureSize == nil || selectedTool != nil || selectingOCR
+        options.isHidden = options.arrangedSubviews.allSatisfy(\.isHidden)
+    }
+
     func setCaptureSize(_ size: NSSize) { captureSize.update(size) }
     func applyVisibility() {
         for (item, button) in itemButtons {
             button.isHidden = !item.isVisible || (item == .record && onRecord == nil)
         }
+        for view in top.arrangedSubviews { top.removeArrangedSubview(view); view.removeFromSuperview() }
+        for item in ToolbarItem.order { if let button = itemButtons[item] { top.addArrangedSubview(button) } }
+        top.addArrangedSubview(info); top.addArrangedSubview(more)
         hideTip(); onSizeChange?()
     }
     deinit { if let preferenceObserver { NotificationCenter.default.removeObserver(preferenceObserver) } }
@@ -95,7 +107,7 @@ final class AnnotationBar: NSView {
         styles.controlSize = .small
         styles.isBordered = false
         styles.font = .systemFont(ofSize: 12)
-        top.addArrangedSubview(styles)
+        options.addArrangedSubview(styles)
 
         let well = colorWell
         well.color = .systemRed
@@ -103,11 +115,11 @@ final class AnnotationBar: NSView {
         well.target = self; well.action = #selector(colorChanged(_:))
         well.toolTip = L("색상: 선택한 주석 또는 다음 주석의 색 변경")
         well.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        top.addArrangedSubview(well)
+        options.addArrangedSubview(well)
 
         parameter.target = self; parameter.action = #selector(widthChanged(_:))
         parameter.updateAccessibility(L("주석 두께"))
-        top.addArrangedSubview(parameter)
+        options.addArrangedSubview(parameter)
         addSubview(top)
         info.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
         info.textColor = .labelColor
@@ -118,7 +130,7 @@ final class AnnotationBar: NSView {
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         captureSize.isHidden = true
         captureSize.onCommit = { [weak self] size in self?.onCaptureSize?(size) }
-        top.addArrangedSubview(captureSize)
+        options.addArrangedSubview(captureSize)
         top.addArrangedSubview(info)
         for (symbol, action, tip) in [("arrow.uturn.backward", #selector(undoAction), L("실행 취소 (⌘Z)")), ("arrow.uturn.forward", #selector(redoAction), L("다시 실행 (⌘⇧Z)")),
                                      ("text.viewfinder", #selector(ocrAction), L("OCR: 캡처 전체 읽기 · ⌥클릭 부분 영역 지정 · O 전체 / Shift+O 부분")),
@@ -165,12 +177,17 @@ final class AnnotationBar: NSView {
         more.widthAnchor.constraint(equalToConstant: 28).isActive = true
         more.heightAnchor.constraint(equalToConstant: 28).isActive = true
         top.addArrangedSubview(more)
-        top.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            top.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            top.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -4),
-            top.heightAnchor.constraint(equalToConstant: 28),
-            top.centerYAnchor.constraint(equalTo: centerYAnchor)])
+        options.orientation = .horizontal; options.spacing = 0; options.alignment = .centerY
+        options.detachesHiddenViews = true; addSubview(options)
+        for row in [top, options] {
+            row.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+                row.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -4),
+                row.heightAnchor.constraint(equalToConstant: 28)])
+        }
+        top.topAnchor.constraint(equalTo: topAnchor, constant: 4).isActive = true
+        options.topAnchor.constraint(equalTo: top.bottomAnchor, constant: 2).isActive = true
         preferenceObserver = NotificationCenter.default.addObserver(forName: ToolbarItem.changed, object: nil, queue: .main) { [weak self] _ in self?.applyVisibility() }
         applyVisibility()
         captureHelpLabels()
@@ -330,11 +347,10 @@ final class AnnotationBar: NSView {
     @objc private func showAllTools() {
         hideTip()
         let menu = NSMenu()
-        for (index, item) in ToolbarItem.allCases.enumerated() {
-            if item == .undo { menu.addItem(.separator()) }
+        for item in ToolbarItem.order {
             if item == .record && onRecord == nil { continue }
             let entry = NSMenuItem(title: item.title, action: #selector(menuTool(_:)), keyEquivalent: "")
-            entry.target = self; entry.tag = index
+            entry.target = self; entry.tag = ToolbarItem.allCases.firstIndex(of: item)!
             if let button = itemButtons[item] { entry.state = button.state }
             menu.addItem(entry)
         }
@@ -342,7 +358,7 @@ final class AnnotationBar: NSView {
     }
     @objc private func menuTool(_ sender: NSMenuItem) {
         let item = ToolbarItem.allCases[sender.tag]
-        if sender.tag < 11 { choose(sender.tag - 1); return }
+        if sender.tag < 11 { choose(sender.tag - 1); onUserToolSelection?(selectedTool); return }
         switch item {
         case .undo: undoAction()
         case .redo: redoAction()
@@ -383,6 +399,7 @@ final class AnnotationBar: NSView {
         parameter.doubleValue = Double(canvas.parameterValue)
         parameter.isEnabled = !canvas.isSelectingOCR && selectedTool != nil && canvas.parameterIsEnabled
         parameter.updateAccessibility(conceal ? L("가리기 세기") : L("주석 두께"))
+        updateRegionSizeVisibility(selectingOCR: canvas.isSelectingOCR)
         info.toolTip = info.stringValue
         captureHelpLabels()
         onSizeChange?()
@@ -392,8 +409,9 @@ final class AnnotationBar: NSView {
         colorWell.isHidden = !active || [DrawingTool.select, .crop, .conceal].contains(tool)
         parameter.isHidden = !active || [DrawingTool.select, .crop].contains(tool) || (tool == .conceal && style == .blackbox)
         if colorWell.isHidden { colorWell.deactivate() }
+        updateRegionSizeVisibility()
     }
-    @objc private func toolAction(_ sender: NSButton) { hideTip(); window?.makeFirstResponder(nil); choose(sender.tag) }
+    @objc private func toolAction(_ sender: NSButton) { hideTip(); window?.makeFirstResponder(nil); choose(sender.tag); onUserToolSelection?(selectedTool) }
     @objc private func colorChanged(_ sender: NSColorWell) { onColor?(sender.color) }
     @objc private func widthChanged(_ sender: NumericStepper) { onParameter?(CGFloat(sender.doubleValue)) }
     @objc private func styleChanged(_ sender: NSPopUpButton) { onConcealStyle?(ConcealStyle.allCases[sender.indexOfSelectedItem]) }

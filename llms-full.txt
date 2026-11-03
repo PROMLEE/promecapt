@@ -70,7 +70,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.9 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -162,7 +162,7 @@ Download the matching `.dmg.sha256` file too. In Terminal, run the following, ch
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.8-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.9-macos-arm64.dmg.sha256
 ```
 
 `OK` means a match. For `FAILED`, do not install; download again from official Releases. For `No such file`, check the filename and folder. In-app Sparkle updates verify their signatures automatically, with no manual hash comparison.
@@ -181,7 +181,7 @@ Finish Apple’s installer, then run:
 
 ```sh
 swift --version
-git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.9 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -262,12 +262,19 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 - Settings → Tools controls which buttons appear, immediately and across restarts. Undo, redo and close are hidden by default. All tools (…) keeps hidden actions reachable, including when every optional button is hidden. The separate image editor also follows shared tool visibility preferences; its crop/rotate/flip controls remain available.
 - The shortcut reference has a translucent background with full-opacity text. H collapses/expands it.
 
+## Tool order and adaptive options — 1.1.9
+
+- Settings → Tools lists buttons in toolbar order. Drag a row or select it and use Move up / Move down. Checkboxes control visibility; Restore default tools resets both order and visibility.
+- Capture and pin-edit toolbars keep buttons on the first row. Color, width and conceal options appear on a second row only when applicable. Without options, the toolbar stays one row. The image editor follows the same shared order and contextual-options layout; its crop/rotate/flip actions follow the shared tools.
+- Editable capture dimensions appear on the second row only while Capture region adjustment is selected. Digit and unit drawing areas are vertically centered.
+- Settings → Tools → Remember last capture tool is off by default. When enabled, each new capture starts with the tool last explicitly chosen in capture, including region adjustment. Automatic selection, editor/pin tool changes and capture startup do not overwrite it.
+
 
 ---
 
 Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md
 
-# Feature status — Promecapt 1.1.8
+# Feature status — Promecapt 1.1.9
 
 | Area | Included | Limits |
 | --- | --- | --- |

@@ -72,5 +72,19 @@ final class ToolbarPopUpButton: NSPopUpButton {
 }
 
 final class ToolbarTextField: NSTextField {
+    override class var cellClass: AnyClass? {
+        get { CenteredToolbarTextCell.self }
+        set {}
+    }
     override var alignmentRectInsets: NSEdgeInsets { NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) }
+}
+
+private final class CenteredToolbarTextCell: NSTextFieldCell {
+    override func drawingRect(forBounds rect: NSRect) -> NSRect {
+        var result = super.drawingRect(forBounds: rect)
+        let height = min(rect.height, super.cellSize(forBounds: rect).height)
+        result.origin.y = rect.minY + (rect.height - height) / 2
+        result.size.height = height
+        return result
+    }
 }

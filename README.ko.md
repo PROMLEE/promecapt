@@ -61,7 +61,7 @@ UI: 한국어 · English · 日本語 · 简体中文. [기능 제한](docs/FEAT
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.9 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

@@ -35,6 +35,9 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     private let concealStyles = ToolbarPopUpButton()
     private var configurableButtons: [ToolbarItem: NSButton] = [:]
     private var toolbarObserver: NSObjectProtocol?
+    private var mainToolbar: NSStackView?
+    private var toolOptionsRow: NSStackView?
+    private var fixedEditorTools: [NSButton] = []
     private let parameter = NumericStepper(frame: .zero, compact: true)
     private let parameterLabel = NSTextField(labelWithString: L("두께 4"))
     private let colorWell = AnnotationColorWell()
@@ -56,6 +59,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         let root = NSStackView()
         root.orientation = .vertical
         root.spacing = 0
+        root.detachesHiddenViews = true
         root.alignment = .leading
         let background = NSBox()
         background.boxType = .custom
@@ -110,10 +114,21 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         let pin = button(L("화면 고정"), #selector(pinOutput), "⌘↩")
         ocrButton = button(L("텍스트 추출 (OCR)"), #selector(ocr))
         configurableButtons.merge([.undo: undo, .redo: redo, .copy: copy, .save: save, .pin: pin, .ocr: ocrButton!]) { _, new in new }
-        let toolRow = row([tools, concealStyles, color, parameter, undo, redo,
-            button(L("회전"), #selector(rotateImage)), button(L("좌우 반전"), #selector(flip)), ocrButton, copy, save, pin, button(L("모든 도구"), #selector(showTools))])
+        let rotate = button(L("회전"), #selector(rotateImage))
+        let flipButton = button(L("좌우 반전"), #selector(flip))
+        fixedEditorTools = [toolButtons.last!, rotate, flipButton, button(L("모든 도구"), #selector(showTools))]
+        for button in toolButtons { tools.removeArrangedSubview(button); button.removeFromSuperview() }
+        let toolRow = row([])
+        mainToolbar = toolRow
         toolRow.detachesHiddenViews = true
         root.addArrangedSubview(toolRow)
+        let optionsRow = row([concealStyles, color, parameter])
+        optionsRow.detachesHiddenViews = true
+        optionsRow.edgeInsets = NSEdgeInsets(top: 0, left: 4, bottom: 4, right: 4)
+        toolOptionsRow = optionsRow
+        root.addArrangedSubview(optionsRow)
+        optionsRow.widthAnchor.constraint(lessThanOrEqualTo: root.widthAnchor).isActive = true
+        optionsRow.setHuggingPriority(.required, for: .horizontal)
         toolbarObserver = NotificationCenter.default.addObserver(forName: ToolbarItem.changed, object: nil, queue: .main) { [weak self] _ in self?.applyToolbarPreferences() }
         applyToolbarPreferences()
         canvas.translatesAutoresizingMaskIntoConstraints = false
@@ -156,6 +171,10 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     }
     private func applyToolbarPreferences() {
         for (item, button) in configurableButtons { button.isHidden = !item.isVisible }
+        guard let mainToolbar else { return }
+        for view in mainToolbar.arrangedSubviews { mainToolbar.removeArrangedSubview(view); view.removeFromSuperview() }
+        for item in ToolbarItem.order { if let button = configurableButtons[item] { mainToolbar.addArrangedSubview(button) } }
+        for button in fixedEditorTools { mainToolbar.addArrangedSubview(button) }
     }
     deinit { if let toolbarObserver { NotificationCenter.default.removeObserver(toolbarObserver) } }
     required init?(coder: NSCoder) { fatalError() }
@@ -211,6 +230,7 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         parameter.isEnabled = canvas.parameterIsEnabled
         parameter.updateAccessibility(conceal ? L("가리기 세기") : L("주석 두께"))
         parameterLabel.stringValue = conceal ? L("세기") : L("두께")
+        toolOptionsRow?.isHidden = [concealStyles, colorWell, parameter].allSatisfy(\.isHidden)
         info.lineBreakMode = .byTruncatingTail
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         info.stringValue = L("{0} × {1} px  ·  {2}  ·  클릭 선택 · Delete 삭제 · 휠 조절", Int(canvas.image.size.width), Int(canvas.image.size.height), conceal ? canvas.concealStyle.rawValue : canvas.effectiveTool.rawValue)

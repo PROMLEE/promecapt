@@ -31,6 +31,16 @@ enum ToolbarLayoutChecks {
         ocrButton.performClick(nil)
         Checks.check(fullOCRCalls == 1 && ocrButton.state == .off, "whole OCR action does not leave the region-selection button latched")
         let savedTools = UserDefaults.standard.object(forKey: ToolbarItem.key)
+        let savedOrder = UserDefaults.standard.object(forKey: ToolbarItem.orderKey)
+        let savedRemember = UserDefaults.standard.object(forKey: CaptureToolPreferences.enabledKey)
+        let savedLastTool = UserDefaults.standard.object(forKey: CaptureToolPreferences.lastKey)
+        defer {
+            UserDefaults.standard.set(savedOrder, forKey: ToolbarItem.orderKey)
+            UserDefaults.standard.set(savedRemember, forKey: CaptureToolPreferences.enabledKey)
+            UserDefaults.standard.set(savedLastTool, forKey: CaptureToolPreferences.lastKey)
+        }
+        let normalized = ToolbarItem.normalizedOrder(["pencil", "pencil", "invalid", "region"])
+        Checks.check(normalized.count == ToolbarItem.allCases.count && normalized[0] == .pencil && Set(normalized).count == normalized.count, "saved toolbar order removes duplicates and appends missing tools")
         let preferenceBar = AnnotationBar(frame: .zero)
         let preferenceRow = preferenceBar.subviews.compactMap { $0 as? NSStackView }.first!
         let rectangleButton = preferenceRow.arrangedSubviews.first { $0.identifier?.rawValue == "toolbar-rectangle" }!
@@ -43,8 +53,36 @@ enum ToolbarLayoutChecks {
         UserDefaults.standard.set(ToolbarItem.allCases.map(\.rawValue), forKey: ToolbarItem.key)
         preferenceBar.applyVisibility()
         Checks.check(preferenceRow.arrangedSubviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }.count == 1, "all-hidden configuration always retains the All tools menu")
+        ToolbarItem.move(.pin, to: 0)
+        Checks.check(preferenceRow.arrangedSubviews.first?.identifier?.rawValue == "toolbar-pin", "reordering preferences immediately rearranges existing toolbar buttons")
+        ToolbarItem.move(.pin, to: ToolbarItem.allCases.count - 1)
+        Checks.check(ToolbarItem.order.last == .pin, "toolbar items move in both directions and persist their order")
+        UserDefaults.standard.set(savedOrder, forKey: ToolbarItem.orderKey)
         UserDefaults.standard.set(savedTools, forKey: ToolbarItem.key)
         NotificationCenter.default.post(name: ToolbarItem.changed, object: nil)
+        CaptureToolPreferences.remember(.rectangle)
+        UserDefaults.standard.set(false, forKey: CaptureToolPreferences.enabledKey)
+        Checks.check(CaptureToolPreferences.initialIndex == -1, "remembering is opt-in and disabled captures start in region mode")
+        UserDefaults.standard.set(true, forKey: CaptureToolPreferences.enabledKey)
+        Checks.check(CaptureToolPreferences.initialIndex == 3, "remember enabled restores the explicitly chosen drawing tool")
+        if let screen = NSScreen.main {
+            let surface = CaptureSurface(screen: screen, image: NSImage(size: screen.frame.size))
+            let restored = CaptureView(surface: surface)
+            Checks.check(restored.canvas.tool == .rectangle && restored.bar.captureSize.isHidden, "new capture applies remembered tool without exposing region dimensions")
+            let row = restored.bar.subviews.compactMap { $0 as? NSStackView }.first!
+            let pencil = row.arrangedSubviews.compactMap { $0 as? NSButton }.first { $0.identifier?.rawValue == "toolbar-pencil" }!
+            pencil.performClick(nil)
+            let next = CaptureView(surface: surface)
+            Checks.check(next.canvas.tool == .pencil && CaptureToolPreferences.initialIndex == 1, "explicit toolbar selection becomes the next capture default")
+            UserDefaults.standard.set(false, forKey: CaptureToolPreferences.enabledKey)
+            _ = CaptureView(surface: surface)
+            Checks.check(UserDefaults.standard.string(forKey: CaptureToolPreferences.lastKey) == DrawingTool.pencil.rawValue, "starting a default capture never overwrites the user's remembered drawing tool")
+            UserDefaults.standard.set(true, forKey: CaptureToolPreferences.enabledKey)
+        }
+        CaptureToolPreferences.remember(nil)
+        Checks.check(CaptureToolPreferences.initialIndex == -1, "explicitly choosing region adjustment is remembered too")
+        UserDefaults.standard.set("invalid", forKey: CaptureToolPreferences.lastKey)
+        Checks.check(CaptureToolPreferences.initialIndex == -1, "invalid remembered tool safely falls back to region adjustment")
         let dimensions = CaptureSizeControl(frame: .zero)
         dimensions.update(NSSize(width: 800, height: 600))
         dimensions.onCommit = { [weak dimensions] size in dimensions?.update(NSSize(width: min(1600, size.width), height: min(1200, size.height))) }
@@ -52,6 +90,8 @@ enum ToolbarLayoutChecks {
         Checks.check(dimensions.pixelSize == NSSize(width: 640, height: 480), "editing capture size commits both dimensions")
         dimensions.widthField.stringValue = "invalid"; dimensions.commit()
         Checks.check(dimensions.widthField.stringValue == "640", "invalid capture size restores the previous value")
+        UserDefaults.standard.set(savedRemember, forKey: CaptureToolPreferences.enabledKey)
+        UserDefaults.standard.set(savedLastTool, forKey: CaptureToolPreferences.lastKey)
         let savedLanguage = UserDefaults.standard.object(forKey: "appLanguage")
         defer { UserDefaults.standard.set(savedLanguage, forKey: "appLanguage") }
         let output = URL(fileURLWithPath: ".build/toolbar-layout", isDirectory: true)
@@ -151,7 +191,27 @@ enum ToolbarLayoutChecks {
                 window.contentView?.layoutSubtreeIfNeeded()
                 inspect(bar, context: context)
                 let rows = bar.subviews.compactMap { $0 as? NSStackView }
-                layoutCheck(rows.count == 1 && rows[0].spacing == 0 && bar.frame.height == 36, "\(context): compact toolbar uses exactly one gapless row")
+                layoutCheck(rows.count == 2 && rows[0].spacing == 0 && !rows[1].isHidden && bar.frame.height == 66, "\(context): region adjustment exposes size input in a second row")
+                layoutCheck(!bar.captureSize.isHidden, "region mode exposes editable dimensions")
+                if appearance == .darkAqua, let bitmap = bar.captureSize.bitmapImageRepForCachingDisplay(in: bar.captureSize.bounds) {
+                    bar.captureSize.cacheDisplay(in: bar.captureSize.bounds, to: bitmap)
+                    let scale = CGFloat(bitmap.pixelsWide) / bar.captureSize.bounds.width
+                    func textCenter(_ from: Int, _ to: Int) -> CGFloat? {
+                        var minY = bitmap.pixelsHigh, maxY = -1
+                        for x in Int(CGFloat(from) * scale)..<Int(CGFloat(to) * scale) {
+                            for y in 0..<bitmap.pixelsHigh {
+                                if let color = bitmap.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB), color.alphaComponent > 0.5,
+                                   color.redComponent > 0.8, color.greenComponent > 0.8, color.blueComponent > 0.8 {
+                                    minY = min(minY, y); maxY = max(maxY, y)
+                                }
+                            }
+                        }
+                        return maxY >= minY ? CGFloat(minY + maxY) / (2 * scale) : nil
+                    }
+                    if let digits = textCenter(0, 48), let unit = textCenter(108, 128) {
+                        layoutCheck(abs(digits - unit) <= 2, "rendered capture dimension digits and px unit align vertically")
+                    } else { layoutCheck(false, "capture size text actually renders for vertical alignment verification") }
+                }
                 layoutCheck(rows[0].arrangedSubviews.compactMap { $0 as? AnnotationButton }.allSatisfy { !$0.isBordered }, "toolbar buttons have no separate colored bezels")
                 inspectControls(bar, context: context)
                 layoutCheck(bar.frame.width < 740, "\(context): one-row toolbar fits a compact display")
@@ -170,6 +230,12 @@ enum ToolbarLayoutChecks {
                     }
                     layoutCheck(whitePixels > 0, "\(context): inactive-window enabled icon actually renders white")
                 }
+                let ordering = ToolbarCustomizationView(frame: NSRect(x: 0, y: 0, width: 534, height: 260))
+                ordering.appearance = NSAppearance(named: appearance)
+                let orderWindow = NSWindow(contentRect: ordering.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+                orderWindow.isReleasedWhenClosed = false; orderWindow.appearance = NSAppearance(named: appearance); orderWindow.contentView = ordering
+                ordering.layoutSubtreeIfNeeded()
+                try snapshot(ordering, name: "tool-order-" + context)
                 let helpPreference = UserDefaults.standard.object(forKey: "captureHelpExpanded")
                 UserDefaults.standard.set(true, forKey: "captureHelpExpanded")
                 let reference = CaptureHelpView(frame: .zero)
@@ -208,6 +274,9 @@ enum ToolbarLayoutChecks {
                     bar.sync(with: canvas)
                     bar.layoutSubtreeIfNeeded()
                     inspectOptions(bar, tool: tool)
+                    layoutCheck(bar.captureSize.isHidden, "non-region tools hide capture dimension inputs")
+                    let requiresOptions = tool != .select
+                    layoutCheck(bar.preferredSize.height == (requiresOptions ? 66 : 36), "tool-specific controls add a second row only when needed")
                     inspectHelp(bar, context: context + tool.rawValue)
                     inspectControls(bar, context: context + "-" + tool.rawValue)
                 }

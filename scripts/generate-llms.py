@@ -18,6 +18,7 @@ SECTIONS = {
     ],
     'Capabilities and trust': [
         ('docs/FEATURES.md', 'Feature matrix', 'Supported features and their limits; UI language and OCR language are separate.'),
+        ('docs/releases/1.1.9.md', '1.1.9 release notes', 'Reorder tools, align region-only dimensions, show contextual second rows and optionally remember the last capture tool.'),
         ('docs/releases/1.1.8.md', '1.1.8 release notes', 'Single-row toolbars, editable capture dimensions, customizable buttons and translucent shortcut help.'),
         ('docs/releases/1.1.7.md', '1.1.7 release notes', 'Shortcut card, constrained region resizing, target detail presets and one-click full capture OCR.'),
         ('docs/releases/1.1.6.md', '1.1.6 release notes', 'Drag toolbar backgrounds and keep tools below the menu bar and notch.'),
@@ -53,7 +54,7 @@ def raw_links(text, source):
 
 def generated():
     parts = ['# Promecapt', '', '> An MIT-licensed, open-source alternative to proprietary macOS screenshot tools: capture, editable annotations, floating image / GIF pins, region OCR and GIF recording.', '',
-             'Current release: 1.1.8. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.', '',
+             'Current release: 1.1.9. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.', '',
              'Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Manual and opt-in automatic updates use signed Sparkle feeds and archives. Version 1.0.0 requires one manual bootstrap installation. GIF frame editing is not implemented.', '']
     for heading, links in SECTIONS.items():
         parts += ['## ' + heading, '']

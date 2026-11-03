@@ -257,6 +257,7 @@ final class CaptureView: NSView {
             self.manualBarOrigin = NSPoint(x: self.bar.frame.minX + delta.x, y: self.bar.frame.minY + delta.y)
             self.positionBar()
         }
+        bar.onUserToolSelection = { CaptureToolPreferences.remember($0) }
         bar.onTool = { [weak self] tool in
             guard let self else { return }
             self.canvas.flushText()
@@ -289,6 +290,7 @@ final class CaptureView: NSView {
         setAccessibilityElement(true)
         setAccessibilityRole(.group)
         setAccessibilityLabel(L("캡처 영역 선택. 드래그로 선택하고 8개 핸들로 크기를 조절합니다."))
+        bar.choose(CaptureToolPreferences.initialIndex)
     }
     required init?(coder: NSCoder) { fatalError() }
 

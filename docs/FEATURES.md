@@ -1,8 +1,8 @@
-# Feature status — Promecapt 1.1.7
+# Feature status — Promecapt 1.1.8
 
 | Area | Included | Limits |
 | --- | --- | --- |
-| Capture | Region, window, accessible elements; target detail presets; square/aspect-constrained handles; shortcut card | Element detection varies by target app's accessibility support |
+| Capture | Region, window, accessible elements; target detail presets; square/aspect-constrained handles; editable pixel dimensions; shortcut card | Element detection varies by target app's accessibility support |
 | Annotations | Pen, highlighter, shapes, arrows, text, numbers; optional automatic selection after drawing and explicit reselection | Flattened images cannot recover old annotation objects |
 | Redaction | Mosaic, blur, opaque black box; numeric and wheel adjustment | Mosaic and blur are visual effects; choose opaque black box for complete coverage |
 | Pins | Move, resize, opacity, groups, hide, click-through recovery, persisted annotations | Full-image transformations flatten still-image annotations |

@@ -30,6 +30,28 @@ enum ToolbarLayoutChecks {
         let ocrButton = dragBar.subviews.compactMap { $0 as? NSStackView }.flatMap(\.arrangedSubviews).compactMap { $0 as? NSButton }.first { $0.action == NSSelectorFromString("ocrAction") }!
         ocrButton.performClick(nil)
         Checks.check(fullOCRCalls == 1 && ocrButton.state == .off, "whole OCR action does not leave the region-selection button latched")
+        let savedTools = UserDefaults.standard.object(forKey: ToolbarItem.key)
+        let preferenceBar = AnnotationBar(frame: .zero)
+        let preferenceRow = preferenceBar.subviews.compactMap { $0 as? NSStackView }.first!
+        let rectangleButton = preferenceRow.arrangedSubviews.first { $0.identifier?.rawValue == "toolbar-rectangle" }!
+        ToolbarItem.rectangle.setVisible(false)
+        Checks.check(rectangleButton.isHidden, "toolbar customizations immediately hide an existing button")
+        var selectedHiddenTool: DrawingTool?
+        preferenceBar.onTool = { selectedHiddenTool = $0 }
+        preferenceBar.choose(3)
+        Checks.check(selectedHiddenTool == .rectangle, "hiding a tool does not disable the action")
+        UserDefaults.standard.set(ToolbarItem.allCases.map(\.rawValue), forKey: ToolbarItem.key)
+        preferenceBar.applyVisibility()
+        Checks.check(preferenceRow.arrangedSubviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }.count == 1, "all-hidden configuration always retains the All tools menu")
+        UserDefaults.standard.set(savedTools, forKey: ToolbarItem.key)
+        NotificationCenter.default.post(name: ToolbarItem.changed, object: nil)
+        let dimensions = CaptureSizeControl(frame: .zero)
+        dimensions.update(NSSize(width: 800, height: 600))
+        dimensions.onCommit = { [weak dimensions] size in dimensions?.update(NSSize(width: min(1600, size.width), height: min(1200, size.height))) }
+        dimensions.widthField.stringValue = "640"; dimensions.heightField.stringValue = "480"; dimensions.commit()
+        Checks.check(dimensions.pixelSize == NSSize(width: 640, height: 480), "editing capture size commits both dimensions")
+        dimensions.widthField.stringValue = "invalid"; dimensions.commit()
+        Checks.check(dimensions.widthField.stringValue == "640", "invalid capture size restores the previous value")
         let savedLanguage = UserDefaults.standard.object(forKey: "appLanguage")
         defer { UserDefaults.standard.set(savedLanguage, forKey: "appLanguage") }
         let output = URL(fileURLWithPath: ".build/toolbar-layout", isDirectory: true)
@@ -123,14 +145,16 @@ enum ToolbarLayoutChecks {
                 bar.onSizeChange = { [weak window, weak bar] in
                     if let bar { window?.setContentSize(bar.preferredSize) }
                 }
-                bar.info.stringValue = L("기록 {0}/{1} · , 이전 / . 다음", 100, 100)
+                bar.onCaptureSize = { [weak bar] size in bar?.setCaptureSize(size) }
+                bar.setCaptureSize(NSSize(width: 3840, height: 2160))
                 window.setContentSize(bar.preferredSize)
                 window.contentView?.layoutSubtreeIfNeeded()
                 inspect(bar, context: context)
                 let rows = bar.subviews.compactMap { $0 as? NSStackView }
-                layoutCheck(rows.count == 2 && !rows[0].frame.intersects(rows[1].frame), "\(context): toolbar rows do not overlap")
+                layoutCheck(rows.count == 1 && rows[0].spacing == 0 && bar.frame.height == 36, "\(context): compact toolbar uses exactly one gapless row")
+                layoutCheck(rows[0].arrangedSubviews.compactMap { $0 as? AnnotationButton }.allSatisfy { !$0.isBordered }, "toolbar buttons have no separate colored bezels")
                 inspectControls(bar, context: context)
-                layoutCheck(bar.frame.width < 440, "\(context): hidden options no longer leave a 560pt toolbar")
+                layoutCheck(bar.frame.width < 740, "\(context): one-row toolbar fits a compact display")
                 if appearance == .darkAqua,
                    let pencil = rows.first?.arrangedSubviews.compactMap({ $0 as? AnnotationButton }).first(where: { $0.tag == 1 }),
                    let bitmap = pencil.bitmapImageRepForCachingDisplay(in: pencil.bounds) {
@@ -154,6 +178,11 @@ enum ToolbarLayoutChecks {
                 reference.layoutSubtreeIfNeeded()
                 inspect(reference, context: context + "-shortcuts")
                 try snapshot(reference, name: "shortcuts-" + context)
+                if let bitmap = reference.bitmapImageRepForCachingDisplay(in: reference.bounds) {
+                    reference.cacheDisplay(in: reference.bounds, to: bitmap)
+                    let alpha = bitmap.colorAt(x: bitmap.pixelsWide - 6, y: bitmap.pixelsHigh / 2)?.alphaComponent ?? 1
+                    layoutCheck(alpha > 0.4 && alpha < 0.8, "shortcut card background is translucent while its text remains opaque")
+                }
                 reference.toggle()
                 layoutCheck(reference.preferredSize.height == 32, "shortcut reference collapses without closing capture")
                 UserDefaults.standard.set(helpPreference, forKey: "captureHelpExpanded")
@@ -213,6 +242,14 @@ enum ToolbarLayoutChecks {
                 if let content = editor.window?.contentView {
                     inspect(content, context: context + "-editor-900")
                     inspectControls(content, context: context + "-editor-900")
+                    if let root = (content as? NSBox)?.contentView as? NSStackView,
+                       let row = root.arrangedSubviews.first as? NSStackView {
+                        let visible = row.arrangedSubviews.filter { !$0.isHidden && $0.frame.width > 0 }
+                        for (left, right) in zip(visible, visible.dropFirst()) {
+                            let gap = right.alignmentRect(forFrame: right.frame).minX - left.alignmentRect(forFrame: left.frame).maxX
+                            layoutCheck(abs(gap) < 0.5, "editor toolbar controls remain adjacent without a stretching tool group")
+                        }
+                    }
                     try snapshot(content, name: "editor-900-" + context)
                 }
                 for tool in DrawingTool.allCases {

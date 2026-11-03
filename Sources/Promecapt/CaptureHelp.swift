@@ -16,6 +16,7 @@ final class CaptureHelpView: NSView {
         layer?.cornerRadius = 8
         header.title = L("단축키 안내 (H)")
         header.bezelStyle = .inline
+        header.isBordered = false
         header.target = self; header.action = #selector(toggle)
         header.setAccessibilityLabel(header.title)
         addSubview(header)
@@ -65,7 +66,7 @@ final class CaptureHelpView: NSView {
         header.frame = NSRect(x: 8, y: bounds.height - 28, width: bounds.width - 16, height: 24)
     }
     override func draw(_ dirtyRect: NSRect) {
-        NSColor.windowBackgroundColor.setFill()
+        NSColor.windowBackgroundColor.withAlphaComponent(0.62).setFill()
         NSBezierPath(roundedRect: bounds, xRadius: 8, yRadius: 8).fill()
         NSColor.separatorColor.setStroke()
         NSBezierPath(roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5), xRadius: 8, yRadius: 8).stroke()

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.8
+
+- Use one adjacent, borderless toolbar row with monochrome selection indicators.
+- Enter capture width and height directly in pixels; oversized values stay within the display.
+- Choose visible buttons in Settings → Tools. Hidden actions remain available in All tools (…).
+- Make the shortcut card translucent while keeping text opaque, and document how to open the separate image editor.
+
 ## 1.1.7
 
 - Replace duplicate capture dimensions with one size readout and a draggable shortcut card; H collapses or expands the card.

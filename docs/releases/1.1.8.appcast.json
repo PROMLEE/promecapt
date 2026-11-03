@@ -1,0 +1,46 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.8",
+    "changes": [
+      "Use one adjacent, borderless toolbar row with monochrome selection indicators.",
+      "Enter capture width and height directly in pixels; oversized values stay within the display.",
+      "Choose visible buttons in Settings → Tools. Hidden actions remain available in All tools (…).",
+      "Make the shortcut card translucent while keeping text opaque, and document how to open the separate image editor."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.8 업데이트 내용",
+    "changes": [
+      "도구창을 간격·개별 배경 없는 한 줄로 정리하고 선택 도구는 단색 표시로 구분합니다.",
+      "캡처 너비·높이를 픽셀로 직접 입력할 수 있습니다. 화면보다 큰 값은 화면 범위에 맞춥니다.",
+      "설정 → 도구에서 표시 버튼을 선택하세요. 숨긴 기능은 모든 도구(…) 메뉴에서 사용할 수 있습니다.",
+      "단축키 안내를 반투명으로 바꾸고 글씨는 선명하게 유지했습니다. README에 별도 편집창 진입 방법도 추가했습니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.8 の更新内容",
+    "changes": [
+      "ツールバーを隙間と個別背景のない1行にし、選択ツールを単色の印で示します。",
+      "キャプチャの幅と高さをピクセルで入力できます。大きすぎる値は画面内に収めます。",
+      "設定 → ツールで表示ボタンを選べます。非表示の機能はすべてのツール(…)から使用できます。",
+      "ショートカット一覧の背景を半透明にし、文字は鮮明に保ちました。別エディタの開き方もREADMEに追加しました。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.8 更新内容",
+    "changes": [
+      "工具栏改为无间距、无独立背景的单行布局，并用单色标记显示所选工具。",
+      "可直接输入截图宽高像素，过大的尺寸会限制在屏幕内。",
+      "在设置 → 工具中选择显示的按钮。隐藏功能仍可通过所有工具(…)菜单使用。",
+      "快捷键说明面板改为半透明，文字保持清晰。README 也补充了独立编辑器的打开方式。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

@@ -5,7 +5,16 @@ final class AnnotationBar: NSView {
     private var dragPoint: NSPoint?
     var onSizeChange: (() -> Void)?
     private let top = NSStackView()
-    private let bottom = NSStackView()
+    private var itemButtons: [ToolbarItem: NSButton] = [:]
+    private var preferenceObserver: NSObjectProtocol?
+    let captureSize = CaptureSizeControl(frame: .zero)
+    var onCaptureSize: ((NSSize) -> Void)? { didSet {
+        captureSize.isHidden = onCaptureSize == nil
+        info.isHidden = onCaptureSize != nil
+        onSizeChange?()
+    } }
+    private let more = AnnotationButton()
+
     var onTool: ((DrawingTool?) -> Void)?
     var onUndo: (() -> Void)?
     var onRedo: (() -> Void)?
@@ -13,21 +22,21 @@ final class AnnotationBar: NSView {
     var onSave: (() -> Void)?
     var onPin: (() -> Void)?
     var onCancel: (() -> Void)?
-    var onRecord: (() -> Void)? { didSet { recordButton?.isHidden = onRecord == nil; onSizeChange?() } }
+    var onRecord: (() -> Void)? { didSet { applyVisibility() } }
     private var recordButton: NSButton?
     var onOCRRegion: (() -> Void)?
     var onOCR: (() -> Void)?
     var onColor: ((NSColor) -> Void)?
     var onParameter: ((CGFloat) -> Void)?
     var onConcealStyle: ((ConcealStyle) -> Void)?
-    private let styles = NSPopUpButton()
+    private let styles = ToolbarPopUpButton()
     private let parameter = NumericStepper(frame: .zero, compact: true)
     private let colorWell = AnnotationColorWell(frame: NSRect(x: 0, y: 0, width: 30, height: 26))
     private var selectedTool: DrawingTool?
     private var ocrButton: NSButton?
     private var infoBeforeOCR: String?
     private static let tools = DrawingTool.allCases.filter { $0 != .crop }
-    let info = NSTextField(labelWithString: L("드래그하여 영역 선택"))
+    let info = ToolbarTextField(labelWithString: L("드래그하여 영역 선택"))
     private var toolButtons: [NSButton] = []
     private var hoverArea: NSTrackingArea?
     private weak var hoveredHelpView: NSView?
@@ -36,22 +45,26 @@ final class AnnotationBar: NSView {
     private var helpLabels: [ObjectIdentifier: String] = [:]
     private var pendingTip: DispatchWorkItem?
     private var tipWindow: NSPanel?
-    static let preferredSize = NSSize(width: 400, height: 68)
+    static let preferredSize = NSSize(width: 620, height: 36)
     var preferredSize: NSSize {
-        func width(_ row: NSStackView) -> CGFloat {
-            let views = row.arrangedSubviews.filter { !$0.isHidden }
-            return views.reduce(CGFloat(0)) { total, view in
-                let value: CGFloat
-                if view === info { value = min(136, max(60, info.intrinsicContentSize.width)) }
-                else if view === styles { value = 86 }
-                else if view === colorWell { value = 36 }
-                else if view === parameter { value = 62 }
-                else { value = 28 }
-                return total + value
-            } + CGFloat(max(0, views.count - 1)) * 2 + (views.contains(where: { $0 === styles }) ? 6 : 0)
+        let width = top.arrangedSubviews.filter { !$0.isHidden }.reduce(CGFloat(0)) { total, view in
+            if view === captureSize { return total + 128 }
+            if view === info { return total + min(136, max(60, info.intrinsicContentSize.width)) }
+            if view === styles { return total + 78 }
+            if view === colorWell { return total + 30 }
+            if view === parameter { return total + 62 }
+            return total + 28
         }
-        return NSSize(width: ceil(max(350, max(width(top), width(bottom)) + 12)), height: 68)
+        return NSSize(width: ceil(width + 8), height: 36)
     }
+    func setCaptureSize(_ size: NSSize) { captureSize.update(size) }
+    func applyVisibility() {
+        for (item, button) in itemButtons {
+            button.isHidden = !item.isVisible || (item == .record && onRecord == nil)
+        }
+        hideTip(); onSizeChange?()
+    }
+    deinit { if let preferenceObserver { NotificationCenter.default.removeObserver(preferenceObserver) } }
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -61,7 +74,7 @@ final class AnnotationBar: NSView {
         wantsLayer = true
         layer?.masksToBounds = true
         layer?.cornerRadius = 7
-        top.spacing = 2
+        top.spacing = 0
         top.alignment = .centerY
         top.detachesHiddenViews = true
         top.orientation = .horizontal
@@ -70,7 +83,7 @@ final class AnnotationBar: NSView {
         for (index, tool) in Self.tools.enumerated() {
             top.addArrangedSubview(toolButton(icons[index], tool.tip, index: index))
         }
-        if let lastTool = toolButtons.last { top.setCustomSpacing(6, after: lastTool) }
+
         styles.identifier = .init("redaction-style")
         colorWell.identifier = .init("annotation-color")
         parameter.identifier = .init("annotation-parameter")
@@ -80,24 +93,22 @@ final class AnnotationBar: NSView {
         styles.toolTip = L("가리기 방식: 모자이크·블러·블랙박스")
         styles.widthAnchor.constraint(equalToConstant: 78).isActive = true
         styles.controlSize = .small
+        styles.isBordered = false
         styles.font = .systemFont(ofSize: 12)
         top.addArrangedSubview(styles)
-        // macOS 13–15 popup/color-well bezels extend beyond their alignment rectangles.
-        top.setCustomSpacing(10, after: styles)
+
         let well = colorWell
         well.color = .systemRed
+        well.isBordered = false
         well.target = self; well.action = #selector(colorChanged(_:))
         well.toolTip = L("색상: 선택한 주석 또는 다음 주석의 색 변경")
         well.widthAnchor.constraint(equalToConstant: 30).isActive = true
         top.addArrangedSubview(well)
-        top.setCustomSpacing(4, after: well)
+
         parameter.target = self; parameter.action = #selector(widthChanged(_:))
         parameter.updateAccessibility(L("주석 두께"))
         top.addArrangedSubview(parameter)
         addSubview(top)
-        bottom.spacing = 2
-        bottom.alignment = .centerY
-        bottom.detachesHiddenViews = true
         info.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
         info.textColor = .labelColor
         info.lineBreakMode = .byTruncatingTail
@@ -105,7 +116,10 @@ final class AnnotationBar: NSView {
         info.widthAnchor.constraint(greaterThanOrEqualToConstant: 0).isActive = true
         info.widthAnchor.constraint(lessThanOrEqualToConstant: 136).isActive = true
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        bottom.addArrangedSubview(info)
+        captureSize.isHidden = true
+        captureSize.onCommit = { [weak self] size in self?.onCaptureSize?(size) }
+        top.addArrangedSubview(captureSize)
+        top.addArrangedSubview(info)
         for (symbol, action, tip) in [("arrow.uturn.backward", #selector(undoAction), L("실행 취소 (⌘Z)")), ("arrow.uturn.forward", #selector(redoAction), L("다시 실행 (⌘⇧Z)")),
                                      ("text.viewfinder", #selector(ocrAction), L("OCR: 캡처 전체 읽기 · ⌥클릭 부분 영역 지정 · O 전체 / Shift+O 부분")),
                                      ("doc.on.doc", #selector(copyAction), L("주석을 포함한 이미지를 클립보드에 복사 (⌘C)")),
@@ -115,6 +129,9 @@ final class AnnotationBar: NSView {
                                      ("xmark", #selector(cancelAction), L("캡처 또는 고정 주석 편집 취소"))] {
             let button = AnnotationButton(image: NSImage(systemSymbolName: symbol, accessibilityDescription: tip) ?? NSImage(), target: self, action: action)
             button.bezelStyle = .regularSquare
+            button.isBordered = false
+            button.setButtonType(.momentaryPushIn)
+            if let cell = button.cell as? NSButtonCell { cell.highlightsBy = []; cell.showsStateBy = [] }
             button.imageScaling = .scaleNone
             button.setAccessibilityLabel(tip)
             button.widthAnchor.constraint(equalToConstant: 28).isActive = true
@@ -122,19 +139,40 @@ final class AnnotationBar: NSView {
             button.controlSize = .small
             button.toolTip = tip
             if action == #selector(recordAction) { recordButton = button; button.isHidden = onRecord == nil }
-            if action == #selector(ocrAction) { button.setButtonType(.pushOnPushOff); ocrButton = button }
-            bottom.addArrangedSubview(button)
+            if action == #selector(ocrAction) { button.setButtonType(.pushOnPushOff); button.indicatesSelection = true; ocrButton = button }
+            let item: ToolbarItem
+            switch action {
+            case #selector(undoAction): item = .undo
+            case #selector(redoAction): item = .redo
+            case #selector(ocrAction): item = .ocr
+            case #selector(copyAction): item = .copy
+            case #selector(recordAction): item = .record
+            case #selector(saveAction): item = .save
+            case #selector(pinAction): item = .pin
+            default: item = .close
+            }
+            button.identifier = .init("toolbar-" + item.rawValue)
+            itemButtons[item] = button
+            top.addArrangedSubview(button)
         }
-        addSubview(bottom)
-        for row in [top, bottom] {
-            row.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
-                row.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -6),
-                row.heightAnchor.constraint(equalToConstant: 28)])
-        }
-        top.topAnchor.constraint(equalTo: topAnchor, constant: 4).isActive = true
-        bottom.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4).isActive = true
+        more.image = NSImage(systemSymbolName: "ellipsis", accessibilityDescription: L("모든 도구"))
+        more.imageScaling = .scaleNone; more.isBordered = false
+        more.setButtonType(.momentaryPushIn)
+        if let cell = more.cell as? NSButtonCell { cell.highlightsBy = []; cell.showsStateBy = [] }
+        more.target = self; more.action = #selector(showAllTools)
+        more.toolTip = L("모든 도구: 숨긴 버튼도 여기에서 사용할 수 있습니다.")
+        more.setAccessibilityLabel(L("모든 도구"))
+        more.widthAnchor.constraint(equalToConstant: 28).isActive = true
+        more.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        top.addArrangedSubview(more)
+        top.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            top.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            top.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -4),
+            top.heightAnchor.constraint(equalToConstant: 28),
+            top.centerYAnchor.constraint(equalTo: centerYAnchor)])
+        preferenceObserver = NotificationCenter.default.addObserver(forName: ToolbarItem.changed, object: nil, queue: .main) { [weak self] _ in self?.applyVisibility() }
+        applyVisibility()
         captureHelpLabels()
         choose(-1)
     }
@@ -275,13 +313,47 @@ final class AnnotationBar: NSView {
         button.imageScaling = .scaleNone
         button.tag = index
         button.bezelStyle = .regularSquare
+        button.isBordered = false
+        if let cell = button.cell as? NSButtonCell { cell.highlightsBy = .contentsCellMask; cell.showsStateBy = .contentsCellMask }
         button.setButtonType(.pushOnPushOff)
+        button.indicatesSelection = true
         button.toolTip = label
         button.setAccessibilityLabel(index < 0 ? L("캡처 영역 이동 / 크기 조절") : L(Self.tools[index].rawValue))
         button.widthAnchor.constraint(equalToConstant: 28).isActive = true
         button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        let item = ToolbarItem.allCases[index + 1]
+        button.identifier = .init("toolbar-" + item.rawValue)
+        itemButtons[item] = button
         toolButtons.append(button)
         return button
+    }
+    @objc private func showAllTools() {
+        hideTip()
+        let menu = NSMenu()
+        for (index, item) in ToolbarItem.allCases.enumerated() {
+            if item == .undo { menu.addItem(.separator()) }
+            if item == .record && onRecord == nil { continue }
+            let entry = NSMenuItem(title: item.title, action: #selector(menuTool(_:)), keyEquivalent: "")
+            entry.target = self; entry.tag = index
+            if let button = itemButtons[item] { entry.state = button.state }
+            menu.addItem(entry)
+        }
+        menu.popUp(positioning: nil, at: NSPoint(x: more.frame.minX, y: more.frame.minY), in: top)
+    }
+    @objc private func menuTool(_ sender: NSMenuItem) {
+        let item = ToolbarItem.allCases[sender.tag]
+        if sender.tag < 11 { choose(sender.tag - 1); return }
+        switch item {
+        case .undo: undoAction()
+        case .redo: redoAction()
+        case .ocr: ocrAction()
+        case .record: recordAction()
+        case .copy: copyAction()
+        case .save: saveAction()
+        case .pin: pinAction()
+        case .close: cancelAction()
+        default: break
+        }
     }
     func choose(_ index: Int) {
         for button in toolButtons { button.state = button.tag == index ? .on : .off }

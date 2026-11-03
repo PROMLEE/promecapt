@@ -32,8 +32,10 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     private let info = NSTextField(labelWithString: "")
     private let tools = NSStackView()
     private var toolButtons: [NSButton] = []
-    private let concealStyles = NSPopUpButton()
-    private let parameter = NumericStepper(frame: .zero)
+    private let concealStyles = ToolbarPopUpButton()
+    private var configurableButtons: [ToolbarItem: NSButton] = [:]
+    private var toolbarObserver: NSObjectProtocol?
+    private let parameter = NumericStepper(frame: .zero, compact: true)
     private let parameterLabel = NSTextField(labelWithString: L("두께 4"))
     private let colorWell = AnnotationColorWell()
     private var ocrButton: NSButton!
@@ -64,17 +66,23 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         window.contentView = background
 
         tools.orientation = .horizontal
-        tools.spacing = 2
+        tools.spacing = 0
+        tools.detachesHiddenViews = true
+        tools.setHuggingPriority(.required, for: .horizontal)
         let symbols = ["cursorarrow", "pencil.tip", "highlighter", "rectangle", "circle", "line.diagonal", "arrow.up.right", "textformat", "1.circle", "square.grid.3x3.fill", "crop"]
         for (index, tool) in DrawingTool.allCases.enumerated() {
             let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[index], accessibilityDescription: L(tool.rawValue)) ?? NSImage(), target: self, action: #selector(selectTool(_:)))
             button.tag = index
             button.bezelStyle = .regularSquare
+            button.isBordered = false
+            if let cell = button.cell as? NSButtonCell { cell.highlightsBy = .contentsCellMask; cell.showsStateBy = .contentsCellMask }
             button.setButtonType(.pushOnPushOff)
+            button.indicatesSelection = true
             button.setAccessibilityLabel(L(tool.rawValue))
             button.toolTip = tool.tip
             button.widthAnchor.constraint(equalToConstant: 28).isActive = true
             button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+            if index < 10 { configurableButtons[ToolbarItem.allCases[index + 1]] = button }
             toolButtons.append(button)
             tools.addArrangedSubview(button)
         }
@@ -83,32 +91,38 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         colorWell.identifier = .init("annotation-color")
         parameter.identifier = .init("annotation-parameter")
         concealStyles.addItems(withTitles: ConcealStyle.allCases.map { L($0.rawValue) })
-        concealStyles.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        concealStyles.isBordered = false
+        concealStyles.widthAnchor.constraint(equalToConstant: 78).isActive = true
         concealStyles.target = self; concealStyles.action = #selector(selectConcealStyle(_:))
         concealStyles.setAccessibilityLabel(L("가리기 방식"))
-        let toolRow = row([tools, concealStyles])
-        root.addArrangedSubview(toolRow)
 
         let color = colorWell
         color.color = .systemRed
+        color.isBordered = false
         color.target = self
         color.action = #selector(selectColor(_:))
-        color.widthAnchor.constraint(equalToConstant: 44).isActive = true
+        color.widthAnchor.constraint(equalToConstant: 30).isActive = true
         parameter.target = self; parameter.action = #selector(selectWidth(_:))
-        let actions = row([
-            color, parameterLabel, parameter,
-            button(L("실행 취소"), #selector(undoEdit), "⌘Z"), button(L("다시 실행"), #selector(redoEdit), "⇧⌘Z"),
-            button(L("회전"), #selector(rotateImage)), button(L("좌우 반전"), #selector(flip)),
-            button(L("복사"), #selector(copyOutput), "⌘C"), button(L("저장…"), #selector(saveOutput), "⌘S"),
-            button(L("화면 고정"), #selector(pinOutput), "⌘↩")])
-        root.addArrangedSubview(actions)
+        let undo = button(L("실행 취소"), #selector(undoEdit), "⌘Z")
+        let redo = button(L("다시 실행"), #selector(redoEdit), "⇧⌘Z")
+        let copy = button(L("복사"), #selector(copyOutput), "⌘C")
+        let save = button(L("저장…"), #selector(saveOutput), "⌘S")
+        let pin = button(L("화면 고정"), #selector(pinOutput), "⌘↩")
+        ocrButton = button(L("텍스트 추출 (OCR)"), #selector(ocr))
+        configurableButtons.merge([.undo: undo, .redo: redo, .copy: copy, .save: save, .pin: pin, .ocr: ocrButton!]) { _, new in new }
+        let toolRow = row([tools, concealStyles, color, parameter, undo, redo,
+            button(L("회전"), #selector(rotateImage)), button(L("좌우 반전"), #selector(flip)), ocrButton, copy, save, pin, button(L("모든 도구"), #selector(showTools))])
+        toolRow.detachesHiddenViews = true
+        root.addArrangedSubview(toolRow)
+        toolbarObserver = NotificationCenter.default.addObserver(forName: ToolbarItem.changed, object: nil, queue: .main) { [weak self] _ in self?.applyToolbarPreferences() }
+        applyToolbarPreferences()
         canvas.translatesAutoresizingMaskIntoConstraints = false
         root.addArrangedSubview(canvas)
         let bottom = row([info])
-        ocrButton = button(L("텍스트 추출 (OCR)"), #selector(ocr))
-        bottom.addArrangedSubview(ocrButton)
         root.addArrangedSubview(bottom)
-        for view in [toolRow, actions, canvas, bottom] {
+        toolRow.setHuggingPriority(.required, for: .horizontal)
+        toolRow.widthAnchor.constraint(lessThanOrEqualTo: root.widthAnchor).isActive = true
+        for view in [canvas, bottom] {
             view.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
         }
         canvas.heightAnchor.constraint(greaterThanOrEqualToConstant: 200).isActive = true
@@ -119,6 +133,31 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         updateInfo()
     }
 
+    @objc private func showTools() {
+        let menu = NSMenu()
+        for (index, tool) in DrawingTool.allCases.enumerated() {
+            let entry = NSMenuItem(title: L(tool.rawValue), action: #selector(menuSelectTool(_:)), keyEquivalent: "")
+            entry.target = self; entry.tag = index; entry.state = canvas.tool == tool ? .on : .off
+            menu.addItem(entry)
+        }
+        menu.addItem(.separator())
+        for (title, action) in [(L("실행 취소"), #selector(undoEdit)), (L("다시 실행"), #selector(redoEdit)),
+                                (L("회전"), #selector(rotateImage)), (L("좌우 반전"), #selector(flip)),
+                                (L("텍스트 추출 (OCR)"), #selector(ocr)), (L("복사"), #selector(copyOutput)),
+                                (L("저장…"), #selector(saveOutput)), (L("화면 고정"), #selector(pinOutput))] {
+            let entry = NSMenuItem(title: title, action: action, keyEquivalent: ""); entry.target = self; menu.addItem(entry)
+        }
+        menu.popUp(positioning: nil, at: NSPoint(x: 4, y: 4), in: window!.contentView!)
+    }
+    @objc private func menuSelectTool(_ sender: NSMenuItem) {
+        window?.makeFirstResponder(nil)
+        canvas.tool = DrawingTool.allCases[sender.tag]
+        updateInfo(); window?.makeFirstResponder(canvas)
+    }
+    private func applyToolbarPreferences() {
+        for (item, button) in configurableButtons { button.isHidden = !item.isVisible }
+    }
+    deinit { if let toolbarObserver { NotificationCenter.default.removeObserver(toolbarObserver) } }
     required init?(coder: NSCoder) { fatalError() }
 
     func show() {
@@ -131,8 +170,8 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     private func row(_ views: [NSView]) -> NSStackView {
         let stack = NSStackView(views: views)
         stack.orientation = .horizontal
-        stack.spacing = 8
-        stack.edgeInsets = NSEdgeInsets(top: 10, left: 14, bottom: 10, right: 14)
+        stack.spacing = 0
+        stack.edgeInsets = NSEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
         stack.setContentHuggingPriority(.required, for: .vertical)
         return stack
     }
@@ -142,9 +181,10 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[selector] ?? "ellipsis", accessibilityDescription: title) ?? NSImage(), target: self, action: selector)
         button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
         button.bezelStyle = .regularSquare
+        button.isBordered = false
         button.controlSize = .small
         button.contentTintColor = .labelColor
-        button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        button.widthAnchor.constraint(equalToConstant: 28).isActive = true
         button.heightAnchor.constraint(equalToConstant: 28).isActive = true
         button.setAccessibilityLabel(title)
         button.toolTip = title + (tip.map { " (" + $0 + ")" } ?? "")

@@ -245,6 +245,12 @@ final class CaptureView: NSView {
         shortcutHelp.onResize = { [weak self] in self?.positionHelp() }
         positionHelp()
         bar.isHidden = true
+        bar.onCaptureSize = { [weak self] size in
+            guard let self else { return }
+            self.canvas.flushText()
+            self.selection.resizePixels(to: size, imageSize: self.canvas.image.size)
+            self.changed()
+        }
         bar.onSizeChange = { [weak self] in self?.positionBar() }
         bar.onDrag = { [weak self] delta in
             guard let self else { return }
@@ -426,6 +432,7 @@ final class CaptureView: NSView {
         window?.invalidateCursorRects(for: self)
         let pixel = selection.pixelRect(imageSize: canvas.image.size)
         bar.info.stringValue = "\(Int(pixel.width)) × \(Int(pixel.height)) px"
+        bar.setCaptureSize(pixel.size)
         bar.isHidden = !selection.isValid
         positionBar()
         subviews.forEach { $0.needsDisplay = true }

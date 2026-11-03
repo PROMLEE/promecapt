@@ -39,6 +39,8 @@ UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](https://
 
 ![GIF settings](https://raw.githubusercontent.com/PROMLEE/promecapt/main/assets/screenshots/gif-settings.jpg)
 
+**Open the editor:** menu bar Promecapt → **Open image file…**, then choose an image. Screenshots are edited directly in the capture overlay.
+
 </details>
 
 ## Install
@@ -68,7 +70,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -160,7 +162,7 @@ Download the matching `.dmg.sha256` file too. In Terminal, run the following, ch
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.7-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.8-macos-arm64.dmg.sha256
 ```
 
 `OK` means a match. For `FAILED`, do not install; download again from official Releases. For `No such file`, check the filename and folder. In-app Sparkle updates verify their signatures automatically, with no manual hash comparison.
@@ -179,7 +181,7 @@ Finish Apple’s installer, then run:
 
 ```sh
 swift --version
-git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"
@@ -252,16 +254,24 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 - Settings → Capture → Automatic target detail offers Fine, Balanced (default), Prefer large areas and Windows only. These filter small targets rather than adding recognition delay. Tab / Shift-Tab cycles the remaining parent/child targets.
 - Click OCR or press O to read the current capture without selecting it again. Option-click OCR or press Shift-O to drag a smaller OCR region. Esc cancels region OCR before cancelling capture.
 
+## Single-row toolbar — 1.1.8
+
+- Open the separate editor from the menu bar → Open image file… and choose an existing image. Captures are edited directly in the capture overlay.
+- Capture and pin-edit toolbars use one row with adjacent, borderless buttons. The active tool has a monochrome line indicator.
+- Enter capture width and height in pixels, then press Return or leave the field. The selection keeps its upper-left corner when possible and moves only to fit the display. Invalid input is restored; oversized input is clamped.
+- Settings → Tools controls which buttons appear, immediately and across restarts. Undo, redo and close are hidden by default. All tools (…) keeps hidden actions reachable, including when every optional button is hidden. The separate image editor also follows shared tool visibility preferences; its crop/rotate/flip controls remain available.
+- The shortcut reference has a translucent background with full-opacity text. H collapses/expands it.
+
 
 ---
 
 Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md
 
-# Feature status — Promecapt 1.1.7
+# Feature status — Promecapt 1.1.8
 
 | Area | Included | Limits |
 | --- | --- | --- |
-| Capture | Region, window, accessible elements; target detail presets; square/aspect-constrained handles; shortcut card | Element detection varies by target app's accessibility support |
+| Capture | Region, window, accessible elements; target detail presets; square/aspect-constrained handles; editable pixel dimensions; shortcut card | Element detection varies by target app's accessibility support |
 | Annotations | Pen, highlighter, shapes, arrows, text, numbers; optional automatic selection after drawing and explicit reselection | Flattened images cannot recover old annotation objects |
 | Redaction | Mosaic, blur, opaque black box; numeric and wheel adjustment | Mosaic and blur are visual effects; choose opaque black box for complete coverage |
 | Pins | Move, resize, opacity, groups, hide, click-through recovery, persisted annotations | Full-image transformations flatten still-image annotations |

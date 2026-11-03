@@ -166,6 +166,32 @@ final class PreferencesController: NSWindowController {
         permissionObserver = NotificationCenter.default.addObserver(forName: PermissionSetupController.changed, object: nil, queue: .main) { [weak self] _ in self?.refreshPermissionStatus() }
         capture.addArrangedSubview(withHelp(elementPermission, text: L("창 자동 감지는 화면 캡처 권한으로 작동합니다. 버튼·입력칸 등 내부 요소 감지는 손쉬운 사용 권한이 필요하며, 앱이 제공하는 접근성 정보에 따라 감지 범위가 다릅니다. Tab으로 상위 영역을 선택합니다.")))
 
+        let toolbarPage = page(L("도구"), tabs: tabs)
+        toolbarPage.addArrangedSubview(withHelp(heading(L("도구창 버튼")), text: L("표시할 버튼만 선택하세요. 숨긴 기능은 모든 도구(…) 메뉴나 단축키로 사용할 수 있습니다. 변경 사항은 열린 도구창에도 바로 적용됩니다.")))
+        var toolbarChecks: [ToolbarItem: NSButton] = [:]
+        let columns = (0..<3).map { _ -> NSStackView in
+            let column = NSStackView(); column.orientation = .vertical; column.alignment = .leading; column.spacing = 9
+            return column
+        }
+        for (index, item) in ToolbarItem.allCases.enumerated() {
+            let check = NSButton(checkboxWithTitle: item.title, target: nil, action: nil)
+            check.state = item.isVisible ? .on : .off
+            check.toolTip = item.title
+            check.cell?.lineBreakMode = .byTruncatingTail
+            check.widthAnchor.constraint(equalToConstant: 170).isActive = true
+            bind(check) { item.setVisible(($0 as! NSButton).state == .on) }
+            toolbarChecks[item] = check
+            columns[index / 7].addArrangedSubview(check)
+        }
+        let grid = NSStackView(views: columns); grid.spacing = 10; grid.alignment = .top
+        toolbarPage.addArrangedSubview(grid)
+        let resetToolbar = NSButton(title: L("기본 도구 복원"), target: nil, action: nil)
+        bind(resetToolbar) { _ in
+            ToolbarItem.reset()
+            for (item, check) in toolbarChecks { check.state = item.isVisible ? .on : .off }
+        }
+        toolbarPage.addArrangedSubview(resetToolbar)
+
         let gif = page("GIF", tabs: tabs)
         gif.addArrangedSubview(withHelp(heading(L("GIF 녹화")), text: L("녹화 중에는 빨간 점선과 바깥쪽 음영으로 영역을 표시하며, 화면은 그대로 조작할 수 있습니다. 정지 후 결과 창에서 재생·복사·고정·저장을 선택합니다. GIF 고정은 재생 상태로 복원되며 주석 편집·회전은 지원하지 않습니다.")))
         let options = GIFOptions.current

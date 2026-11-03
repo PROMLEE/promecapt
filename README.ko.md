@@ -30,6 +30,8 @@ UI: 한국어 · English · 日本語 · 简体中文. [기능 제한](docs/FEAT
 
 ![GIF 설정](assets/screenshots/gif-settings.jpg)
 
+**편집창 열기:** 메뉴 막대 Promecapt → **이미지 파일 열기…**에서 이미지를 선택하세요. 캡처한 화면은 별도 창을 열지 않고 캡처 화면에서 바로 편집합니다.
+
 </details>
 
 ## 설치
@@ -59,7 +61,7 @@ UI: 한국어 · English · 日本語 · 简体中文. [기능 제한](docs/FEAT
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

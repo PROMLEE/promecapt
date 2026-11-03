@@ -30,6 +30,8 @@ UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](docs/FEA
 
 ![GIF settings](assets/screenshots/gif-settings.jpg)
 
+**Open the editor:** menu bar Promecapt → **Open image file…**, then choose an image. Screenshots are edited directly in the capture overlay.
+
 </details>
 
 ## Install
@@ -59,7 +61,7 @@ Requires free Apple Command Line Tools and Swift 5.9+. No paid developer account
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

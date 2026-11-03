@@ -103,6 +103,16 @@ struct CaptureSelection {
             rect.origin.y = min(bounds.maxY - rect.height, max(bounds.minY, rect.minY + dy))
         }
     }
+    mutating func resizePixels(to requested: NSSize, imageSize: NSSize) {
+        guard isValid, requested.width.isFinite, requested.height.isFinite,
+              requested.width > 0, requested.height > 0, imageSize.width > 0, imageSize.height > 0 else { return }
+        let width = min(bounds.width, max(2, requested.width.rounded() * bounds.width / imageSize.width))
+        let height = min(bounds.height, max(2, requested.height.rounded() * bounds.height / imageSize.height))
+        // Preserve the upper-left corner where possible; move only to keep the full region visible.
+        let x = max(bounds.minX, min(rect.minX, bounds.maxX - width))
+        let y = max(bounds.minY, min(rect.maxY - height, bounds.maxY - height))
+        rect = NSRect(x: x, y: y, width: width, height: height)
+    }
     func pixelRect(imageSize: NSSize) -> NSRect {
         let sx = imageSize.width / bounds.width, sy = imageSize.height / bounds.height
         let x1 = ((rect.minX - bounds.minX) * sx).rounded()

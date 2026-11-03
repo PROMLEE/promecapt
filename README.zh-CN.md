@@ -30,6 +30,8 @@
 
 ![GIF 设置](assets/screenshots/gif-settings.jpg)
 
+**打开编辑器：** 点击菜单栏 Promecapt → **打开图片文件…**，然后选择图片。截图可直接在截图界面编辑。
+
 </details>
 
 ## 安装
@@ -59,7 +61,7 @@
 
 ```sh
 xcode-select --install # complete the installer before continuing
-git clone --branch v1.1.7 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.8 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

@@ -106,3 +106,12 @@ Button spacing is 2pt, with explicit extra clearance around native popup and col
 - Automated: square selection in both directions and at display edges, all eight aspect-preserving resize handles, releasing a modifier, moving without resizing, four detection detail levels and tiny full-region OCR extraction.
 - Live Mac: capture setting defaults to Balanced; H collapses/expands the shortcut card; selecting a region shows one size field; OCR button and O open recognition directly; Shift-O enters partial OCR and Esc exits it without dismissing capture. Recognized text was returned from the selected frozen-screen region.
 - Modifier-held physical drag and browser target filtering feel still require owner verification. The computer-use API does not support holding a modifier across a drag.
+
+## One-row toolbar — 1.1.8
+
+- Test exact one-row, zero-gap, borderless controls across four languages and both appearances, including contextual options and the separate editor at 900pt width.
+- Test editable capture dimensions, invalid/overflow input, Retina conversion, upper-left anchoring and display limits.
+- Test live preference visibility, hidden-tool action availability and the permanent All tools menu when all optional buttons are hidden.
+- Sample the rendered shortcut-card background alpha rather than checking only a configured color.
+
+Live Mac checks for this build confirmed: translucent shortcut-card background, hiding the pencil button via Settings → Tools, opening the hidden pencil from All tools, and changing the capture rectangle from 500 × 300 to 640 × 480 through the width/height fields. The test-only pencil visibility change was restored. Separate-editor rendering passed offscreen checks; live file-chooser navigation was blocked by the computer-use tool in the nested Go to Folder sheet.

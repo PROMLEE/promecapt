@@ -51,3 +51,11 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 - Shift-drag creates/resizes a square. Command-drag preserves the aspect ratio from the start of the adjustment; a fresh region with no previous ratio uses 1:1. Moving an existing region preserves its size regardless of these modifiers.
 - Settings → Capture → Automatic target detail offers Fine, Balanced (default), Prefer large areas and Windows only. These filter small targets rather than adding recognition delay. Tab / Shift-Tab cycles the remaining parent/child targets.
 - Click OCR or press O to read the current capture without selecting it again. Option-click OCR or press Shift-O to drag a smaller OCR region. Esc cancels region OCR before cancelling capture.
+
+## Single-row toolbar — 1.1.8
+
+- Open the separate editor from the menu bar → Open image file… and choose an existing image. Captures are edited directly in the capture overlay.
+- Capture and pin-edit toolbars use one row with adjacent, borderless buttons. The active tool has a monochrome line indicator.
+- Enter capture width and height in pixels, then press Return or leave the field. The selection keeps its upper-left corner when possible and moves only to fit the display. Invalid input is restored; oversized input is clamped.
+- Settings → Tools controls which buttons appear, immediately and across restarts. Undo, redo and close are hidden by default. All tools (…) keeps hidden actions reachable, including when every optional button is hidden. The separate image editor also follows shared tool visibility preferences; its crop/rotate/flip controls remain available.
+- The shortcut reference has a translucent background with full-opacity text. H collapses/expands it.

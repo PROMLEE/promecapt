@@ -3,6 +3,11 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 VERSION="${VERSION:-1.1.10}"
 ARCH="${ARCH:-$(uname -m)}"
+SUPPORT_URL="${PROMECAPT_SUPPORT_URL-https://github.com/sponsors/PROMLEE}"
+if [[ -n "$SUPPORT_URL" && ! "$SUPPORT_URL" =~ ^https://[A-Za-z0-9.-]+(/[A-Za-z0-9._~%/-]*)?$ ]]; then
+  echo 'PROMECAPT_SUPPORT_URL must be an HTTPS support page URL without a query or fragment' >&2
+  exit 1
+fi
 case "$VERSION" in *[!0-9A-Za-z.-]*) echo "Invalid VERSION" >&2; exit 1;; esac
 case "$ARCH" in arm64|x86_64) ;; *) echo "ARCH must be arm64 or x86_64" >&2; exit 1;; esac
 if [[ "${CONFIGURATION:-release}" == debug ]]; then
@@ -51,6 +56,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
 <key>CFBundleShortVersionString</key><string>$VERSION</string>
 <key>CFBundleVersion</key><string>$VERSION</string>
 <key>PromecaptRevision</key><string>$REVISION</string>
+<key>PromecaptSupportURL</key><string>$SUPPORT_URL</string>
 <key>SUFeedURL</key><string>$FEED_URL</string>
 <key>SUPublicEDKey</key><string>$PUBLIC_UPDATE_KEY</string>
 <key>SUEnableAutomaticChecks</key><false/>

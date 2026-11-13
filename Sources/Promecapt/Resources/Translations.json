@@ -1,5 +1,6 @@
 {
   "en": {
+    "개발 후원…": "Support Development…",
     "언어": "Language",
     "일반": "General",
     "단축키": "Shortcuts",
@@ -340,6 +341,7 @@
     "켜면 마지막으로 직접 선택한 도구를 다음 캡처에서도 사용합니다. 꺼두면 캡처 영역 조절로 시작합니다.": "When enabled, the next capture starts with the last tool you explicitly chose. When disabled, captures start in region adjustment mode."
   },
   "ja": {
+    "개발 후원…": "開発を支援…",
     "언어": "言語",
     "일반": "一般",
     "단축키": "ショートカット",
@@ -680,6 +682,7 @@
     "켜면 마지막으로 직접 선택한 도구를 다음 캡처에서도 사용합니다. 꺼두면 캡처 영역 조절로 시작합니다.": "有効にすると、次のキャプチャでも最後に手動で選んだツールを使用します。無効にすると領域調整で開始します。"
   },
   "zh-Hans": {
+    "개발 후원…": "赞助开发…",
     "언어": "语言",
     "일반": "常规",
     "단축키": "快捷键",

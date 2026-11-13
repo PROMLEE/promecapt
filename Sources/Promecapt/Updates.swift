@@ -14,6 +14,12 @@ enum AppInfo {
     }
     static let website = URL(string: "https://github.com/PROMLEE/promecapt")!
     static let releases = URL(string: "https://github.com/PROMLEE/promecapt/releases")!
+    static var supportURL: URL? {
+        guard let address = Bundle.main.object(forInfoDictionaryKey: "PromecaptSupportURL") as? String,
+              let url = URL(string: address), url.scheme == "https",
+              let host = url.host, !host.isEmpty, url.user == nil, url.password == nil else { return nil }
+        return url
+    }
 }
 
 /// Sparkle owns archive validation, replacement, rollback and relaunch. No custom installer shell is run.

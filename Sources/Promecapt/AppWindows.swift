@@ -236,6 +236,11 @@ final class PreferencesController: NSWindowController {
         updateStatus.font = .systemFont(ofSize: 12); updateStatus.textColor = .secondaryLabelColor
         updateStatus.preferredMaxLayoutWidth = 510
         about.addArrangedSubview(updateStatus)
+        if let url = AppInfo.supportURL {
+            let support = NSButton(title: L("개발 후원…"), target: nil, action: nil)
+            bind(support) { _ in NSWorkspace.shared.open(url) }
+            about.addArrangedSubview(support)
+        }
         about.addArrangedSubview(note("MIT · © 2026 PROMLEE · Sparkle (MIT)"))
         updateObserver = NotificationCenter.default.addObserver(forName: AppUpdates.changed, object: updates, queue: .main) { [weak self] _ in self?.refreshUpdates() }
         refreshUpdates()

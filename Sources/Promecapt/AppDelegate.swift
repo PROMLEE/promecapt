@@ -120,6 +120,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         let appMenu = NSMenu(title: "Promecapt")
         appItem.submenu = appMenu
         add(L("정보"), #selector(showAbout), to: appMenu)
+        if AppInfo.supportURL != nil {
+            add(L("개발 후원…"), #selector(openSupportPage), to: appMenu)
+        }
         add(L("업데이트 확인…"), #selector(checkForUpdates), to: appMenu)
         add(L("메뉴 막대 아이콘 복구"), #selector(restoreStatusIcon), to: appMenu)
         let settings = add(L("설정…"), #selector(showSettings), to: appMenu)
@@ -212,6 +215,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         add(L("사용 방법…"), #selector(showWelcome))
         add(L("업데이트 확인…"), #selector(checkForUpdates)).isEnabled = updates.canCheck
         add(L("정보"), #selector(showAbout))
+        if AppInfo.supportURL != nil {
+            add(L("개발 후원…"), #selector(openSupportPage))
+        }
         add(L("권한 설정…"), #selector(showPermissions))
         add(L("종료"), #selector(quit))
     }
@@ -420,6 +426,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
 
     @objc private func showWelcome() {
         NSWorkspace.shared.open(URL(string: "https://github.com/PROMLEE/promecapt/blob/main/docs/USAGE.md")!)
+    }
+
+    @objc private func openSupportPage() {
+        if let url = AppInfo.supportURL { NSWorkspace.shared.open(url) }
     }
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool { item.action == #selector(checkForUpdates) ? updates.canCheck : true }

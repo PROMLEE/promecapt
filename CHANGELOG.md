@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.11
+
+- Open GitHub Sponsors from the menu bar or Settings → About.
+
 ## 1.1.10
 
 - Copy OCR text with Command-C and close the result window after a successful copy. Copy selected text, or all text when nothing is selected; the Copy all button also closes the window.

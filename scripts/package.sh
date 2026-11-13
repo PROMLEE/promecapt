@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="${VERSION:-1.1.10}"
+VERSION="${VERSION:-1.1.11}"
 ARCH="${ARCH:-$(uname -m)}"
 SUPPORT_URL="${PROMECAPT_SUPPORT_URL-https://github.com/sponsors/PROMLEE}"
 if [[ -n "$SUPPORT_URL" && ! "$SUPPORT_URL" =~ ^https://[A-Za-z0-9.-]+(/[A-Za-z0-9._~%/-]*)?$ ]]; then

@@ -1,0 +1,34 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.11",
+    "changes": [
+      "Open GitHub Sponsors from Support Development… in the menu bar or Settings → About."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.11 업데이트 내용",
+    "changes": [
+      "메뉴 막대 또는 설정 → 정보에서 ‘개발 후원…’을 눌러 GitHub Sponsors 페이지를 열 수 있습니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.11 の更新内容",
+    "changes": [
+      "メニューバーまたは設定の情報タブにある「開発を支援…」から GitHub Sponsors を開けます。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.11 更新内容",
+    "changes": [
+      "可从菜单栏或“设置 → 关于”中的“赞助开发…”打开 GitHub Sponsors 页面。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

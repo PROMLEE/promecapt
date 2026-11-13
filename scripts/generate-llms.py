@@ -17,6 +17,7 @@ SECTIONS = {
         ('docs/INSTALL.ko.md', '개발자 계정 없는 설치 가이드', '무료 개발 도구·로컬 빌드·설치·권한·문제 해결.'),
     ],
     'Capabilities and trust': [
+        ('docs/releases/1.1.11.md', '1.1.11 release notes', 'Open GitHub Sponsors from the menu bar or Settings → About.'),
         ('docs/releases/1.1.10.md', '1.1.10 release notes', 'Close OCR results after copying and keep GIF recording controls on the recording display.'),
         ('docs/FEATURES.md', 'Feature matrix', 'Supported features and their limits; UI language and OCR language are separate.'),
         ('docs/releases/1.1.9.md', '1.1.9 release notes', 'Reorder tools, align region-only dimensions, show contextual second rows and optionally remember the last capture tool.'),
@@ -55,7 +56,7 @@ def raw_links(text, source):
 
 def generated():
     parts = ['# Promecapt', '', '> An MIT-licensed, open-source alternative to proprietary macOS screenshot tools: capture, editable annotations, floating image / GIF pins, region OCR and GIF recording.', '',
-             'Current release: 1.1.10. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.', '',
+             'Current release: 1.1.11. macOS 13+, Apple Silicon and Intel. Build locally with free Apple command-line tools; no paid Apple Developer account is required. Official packages reuse a persistent self-signed certificate, not an Apple Developer ID or notarization. The initial transition may require a one-time permission refresh. Managed Mac policies still apply.', '',
              'Processing is local. History includes full display snapshots. UI languages: Korean, English, Japanese and Simplified Chinese. OCR recognition: Korean and English. Manual and opt-in automatic updates use signed Sparkle feeds and archives. Version 1.0.0 requires one manual bootstrap installation. GIF frame editing is not implemented.', '']
     for heading, links in SECTIONS.items():
         parts += ['## ' + heading, '']

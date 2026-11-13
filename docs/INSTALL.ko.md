@@ -70,7 +70,7 @@ Apple 메뉴  → **이 Mac에 관하여**에서 칩/프로세서를 확인�
 
 ```sh
 cd ~/Downloads
-shasum -a 256 -c Promecapt-1.1.10-macos-arm64.dmg.sha256
+shasum -a 256 -c Promecapt-1.1.11-macos-arm64.dmg.sha256
 ```
 
 `OK`면 일치합니다. `FAILED`면 설치하지 말고 공식 페이지에서 다시 받으세요. `No such file`이면 파일명·폴더를 확인하세요. Sparkle를 통한 앱 내 업데이트는 서명을 자동 검증하므로 사용자가 해시를 직접 비교하지 않습니다.
@@ -89,7 +89,7 @@ xcode-select --install
 
 ```sh
 swift --version
-git clone --branch v1.1.10 --depth 1 https://github.com/PROMLEE/promecapt.git
+git clone --branch v1.1.11 --depth 1 https://github.com/PROMLEE/promecapt.git
 cd promecapt
 bash scripts/package.sh
 mkdir -p "$HOME/Applications"

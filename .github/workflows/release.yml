@@ -74,6 +74,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: release-${{ runner.arch }}
+          retention-days: 1
           path: |
             dist/Promecapt-*.zip
             dist/Promecapt-*.dmg

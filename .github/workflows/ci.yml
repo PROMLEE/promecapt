@@ -1,27 +1,25 @@
 name: Build and test
 on:
-  push:
-    branches: [main]
   pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'scripts/test-local.sh'
+      - 'scripts/*Checks.swift'
+      - 'scripts/check-localization.py'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: macos-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [macos-15, macos-15-intel]
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
       - run: swift test
       - run: bash scripts/test-local.sh
-      - run: bash scripts/package.sh
-      - run: bash scripts/package-dmg.sh
-      - uses: actions/upload-artifact@v6
-        with:
-          name: Promecapt-${{ runner.arch }}
-          path: |
-            dist/Promecapt-*.zip
-            dist/Promecapt-*.dmg
-            dist/Promecapt-*.sha256

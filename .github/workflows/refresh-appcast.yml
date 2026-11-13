@@ -1,9 +1,5 @@
 name: Refresh signed update notes
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/releases/*.appcast.json'
   workflow_dispatch:
 permissions:
   contents: write

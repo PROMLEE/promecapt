@@ -2,7 +2,16 @@ name: Documentation
 on:
   push:
     branches: [main]
+    paths: &docs_paths
+      - '**/*.md'
+      - 'docs/**'
+      - 'assets/**'
+      - 'llm*.txt'
+      - 'scripts/check-docs.py'
+      - 'scripts/generate-llms.py'
+      - '.github/workflows/docs.yml'
   pull_request:
+    paths: *docs_paths
 permissions:
   contents: read
 jobs:
@@ -10,7 +19,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
       - run: python3 scripts/check-docs.py

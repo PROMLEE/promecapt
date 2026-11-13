@@ -6,7 +6,7 @@ The first public version is **1.0.0**. Update `scripts/package.sh`, `CHANGELOG.m
 
 Run `bash scripts/test-local.sh`, `swift test` with full Xcode, and `bash scripts/package.sh`. Confirm the installed app and archive show the same version, all four UI languages load, both icons use the shared mark, and captures / existing pins still work. Do not include local captures, `.build`, `dist`, signing materials or research notes in the source repository.
 
-CI uses the standard `macos-15` arm64 and `macos-15-intel` runners documented in the [GitHub runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners). The Release workflow builds both architectures and attaches DMGs, ZIPs and SHA-256 files to a **draft** release. If the version already has a release, it skips building and publishing; publishing a draft therefore does not rebuild or overwrite that release when its tag event arrives.
+Source pull requests and manual runs use one Apple Silicon runner for tests. Release CI runs the full checks and builds on both Apple Silicon and Intel. Its intermediate artifacts expire after one day. Download published installers from the release page. The Release workflow builds both architectures and attaches DMGs, ZIPs and SHA-256 files to a **draft** release. If the version already has a release, it skips building and publishing; publishing a draft therefore does not rebuild or overwrite that release when its tag event arrives.
 
 ## Create a release
 
@@ -18,7 +18,7 @@ A manual workflow dispatch can create the first draft and tag from `main`; no lo
 
 ## Current signing status
 
-No Developer ID identity is configured. Official packages from 1.1.2 use the persistent self-signed certificate pinned in `updates/code-signing-sha1.txt` and are **not notarized**. Release CI imports `MACOS_SIGNING_P12` and `MACOS_SIGNING_PASSWORD` into a temporary keychain; missing secrets or a mismatched identity fail the job. Never regenerate this identity for routine releases. See [code-signing maintenance](CODE_SIGNING.md). Local and pull-request CI builds remain ad-hoc signed. Disclose this in the README and release notes. This does not offer Apple's verified-developer installation experience. Do not tell users to disable Gatekeeper globally, reset unrelated permissions or edit the TCC database.
+No Developer ID identity is configured. Official packages from 1.1.2 use the persistent self-signed certificate pinned in `updates/code-signing-sha1.txt` and are **not notarized**. Release CI imports `MACOS_SIGNING_P12` and `MACOS_SIGNING_PASSWORD` into a temporary keychain; missing secrets or a mismatched identity fail the job. Never regenerate this identity for routine releases. See [code-signing maintenance](CODE_SIGNING.md). Local packages use ad-hoc signing by default. Disclose this in the README and release notes. This does not offer Apple's verified-developer installation experience. Do not tell users to disable Gatekeeper globally, reset unrelated permissions or edit the TCC database.
 
 Developer ID packaging, when an identity is available:
 
@@ -48,4 +48,4 @@ The script verifies the DMG checksum, mounts it read-only, checks the app signat
 
 `docs/releases/VERSION.appcast.json` provides concise English, Korean, Japanese and Simplified Chinese changes for the update window. `scripts/appcast_notes.py` renders self-contained light/dark HTML, embedded as localized descriptions in the signed appcast. GitHub Markdown release notes remain separate.
 
-Editing these JSON notes on main triggers Refresh signed update notes for the currently published release. It downloads and checks the existing archives, signs new feeds and replaces only `appcast-arm64.xml` and `appcast-x86_64.xml`. App archives and their checksums are never replaced. Future releases require their own notes JSON.
+After editing these JSON notes on main, manually run **Refresh signed update notes** for the currently published release. It downloads and checks the existing archives, signs new feeds and replaces only `appcast-arm64.xml` and `appcast-x86_64.xml`. App archives and their checksums are never replaced. Future releases require their own notes JSON.

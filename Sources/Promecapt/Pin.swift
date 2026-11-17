@@ -18,6 +18,8 @@ final class PinController: NSWindowController, NSWindowDelegate {
     let id: UUID
     var image: NSImage
     private(set) var gifData: Data?
+    /// Bumped whenever the saved media (image, GIF or annotations) changes; position and opacity do not count.
+    private(set) var contentRevision = 0
     private var animationView: AnimatedGIFView?
     private(set) var annotationDocument: AnnotationDocument?
     var group: String = ""
@@ -70,6 +72,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
         animationView?.removeFromSuperview(); animationView = nil; gifData = nil
         annotationDocument = nil
         image = next
+        contentRevision += 1
         window?.contentAspectRatio = next.size
         imageView.needsDisplay = true
         onChange?()
@@ -78,6 +81,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
         guard let poster = GIFMedia.poster(data) else { return }
         replace(poster)
         gifData = data
+        contentRevision += 1
         let view = AnimatedGIFView(data: data)
         view.frame = imageView.bounds; view.autoresizingMask = [.width, .height]
         imageView.addSubview(view); animationView = view
@@ -88,6 +92,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
     func setDocument(_ document: AnnotationDocument) {
         replace(document.rendered())
         annotationDocument = document
+        contentRevision += 1
         onChange?()
     }
 

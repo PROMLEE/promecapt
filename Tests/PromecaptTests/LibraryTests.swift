@@ -11,6 +11,7 @@ final class LibraryTests: XCTestCase {
             NSColor.green.setFill(); NSRect(x: 0, y: 0, width: 20, height: 10).fill()
         }
         let entry = try store.add(image)
+        store.flush()
         let reloaded = try Library(root: root)
         XCTAssertEqual(reloaded.entries.first?.id, entry.id)
         XCTAssertNotNil(reloaded.image(entry))
@@ -31,6 +32,7 @@ final class LibraryTests: XCTestCase {
         let first = try store.add(image)
         try store.add(image)
         let last = try store.add(image)
+        store.flush()
         XCTAssertEqual(store.entries.count, 2)
         XCTAssertEqual(store.entries.first?.id, last.id)
         XCTAssertFalse(FileManager.default.fileExists(atPath: store.historyURL(first).path))

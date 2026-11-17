@@ -50,8 +50,14 @@ final class PermissionSetupController: NSWindowController, NSWindowDelegate {
         refresh()
     }
     required init?(coder: NSCoder) { fatalError() }
-    var needsSetup: Bool { !screenAllowed || !accessibilityAllowed }
-    func showIfNeeded() { refresh(); if needsSetup { show() } }
+    private static let accessibilityOfferedKey = "accessibilitySetupOffered"
+    /// Screen capture is required. Accessibility only adds element detection and early hotkey matching.
+    var needsSetup: Bool { !screenAllowed }
+    func showIfNeeded() {
+        refresh()
+        // Offer the optional Accessibility permission once; afterwards it stays reachable from the menu.
+        if needsSetup || (!accessibilityAllowed && !UserDefaults.standard.bool(forKey: Self.accessibilityOfferedKey)) { show() }
+    }
     func show() {
         refresh()
         NSApp.activate(ignoringOtherApps: true)
@@ -107,6 +113,9 @@ final class PermissionSetupController: NSWindowController, NSWindowDelegate {
     }
     @objc private func revealApp() { NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL]) }
     @objc private func dismiss() { close() }
-    func windowWillClose(_ notification: Notification) { timer?.invalidate(); timer = nil }
+    func windowWillClose(_ notification: Notification) {
+        timer?.invalidate(); timer = nil
+        UserDefaults.standard.set(true, forKey: Self.accessibilityOfferedKey)
+    }
     deinit { timer?.invalidate() }
 }

@@ -10,7 +10,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
     private var deferredPinRecords: [PinRecord] = []
     private var editors: [EditorController] = []
     private var hotkeys: Hotkeys!
-    private var captureProcess: Process?
     private var capturePending = false
     private var captureRequest: UUID?
     private var persistTask: DispatchWorkItem?
@@ -35,6 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
             #endif
         }
         catch { showError(L("보관함을 열지 못했습니다: {0}", error.localizedDescription)); NSApp.terminate(nil); return }
+        library.onWriteFailure = { error in showError(L("캡처 기록 저장 실패: {0}", error.localizedDescription)) }
         menu.delegate = self
         configureStatusItem()
         NotificationCenter.default.addObserver(self, selector: #selector(keepStatusIconVisible), name: NSApplication.didBecomeActiveNotification, object: NSApp)
@@ -44,26 +44,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         hotkeys = Hotkeys()
         hotkeys.action = { [weak self] id in self?.executeHotkey(id) }
         registerHotkeys()
-        if UserDefaults.standard.bool(forKey: "restorePins") {
-            do {
-                for (record, image) in try library.restorePins() {
-                    let pin = createPin(image, id: record.id)
-                    if let gif = library.gifData(for: record) { pin.setGIF(gif) }
-                    else if let document = library.annotationDocument(for: record) { pin.setDocument(document) }
-                    var frame = NSRect(x: record.x, y: record.y, width: max(32, record.width), height: max(32, record.height))
-                    if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(frame) }) {
-                        frame.origin = NSScreen.main?.visibleFrame.origin ?? .zero
-                    }
-                    pin.window?.setFrame(frame, display: true)
-                    pin.window?.alphaValue = min(1, max(0.15, record.opacity))
-                    pin.group = record.group
-                }
-            } catch { showError(L("고정 이미지 복원 실패: {0}", error.localizedDescription)) }
-        }
-        if !UserDefaults.standard.bool(forKey: "restorePins") {
-            do { deferredPinRecords = try library.pinRecords() }
-            catch { showError(L("고정 이미지 복원 실패: {0}", error.localizedDescription)) }
-        }
+        do {
+            let records = try library.pinRecords()
+            if UserDefaults.standard.bool(forKey: "restorePins") { restore(records) }
+            else { deferredPinRecords = records }
+        } catch { showError(L("고정 이미지 복원 실패: {0}", error.localizedDescription)) }
         rebuildMenu()
         updates.isBusy = { [weak self] in
             guard let self else { return true }
@@ -78,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
             guard let self else { return }
             self.persistTask?.cancel()
             try self.library.savePins(self.pins, keeping: self.deferredPinRecords)
+            self.library.flush()
         }
         updates.start()
         let setup = PermissionSetupController()
@@ -154,10 +140,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         if gifRecorder != nil { gifRecorder?.stop(); return .terminateCancel }
         terminating = true
         captureSession?.close()
-        captureProcess?.terminate()
         persistTask?.cancel()
         do { try library?.savePins(pins, keeping: deferredPinRecords) }
         catch { terminating = false; showError(L("고정 이미지 저장 실패: {0}", error.localizedDescription)); return .terminateCancel }
+        library?.flush()
         return .terminateNow
     }
 
@@ -184,6 +170,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         menu.addItem(.separator())
         add(L("고정 이미지 모두 표시 / 숨기기 ({0})", pins.count), #selector(togglePins))
         add(L("클릭 통과 모두 해제"), #selector(recoverPins))
+        if !deferredPinRecords.isEmpty {
+            add(L("이전 고정 이미지 복원 ({0})", deferredPinRecords.count), #selector(restoreDeferredPins))
+            add(L("이전 고정 이미지 지우기…"), #selector(discardDeferredPins))
+        }
         let groups = NSMenu()
         for group in Set(pins.map(\.group)).sorted() {
             let entry = add(group.isEmpty ? L("미지정") : group, #selector(toggleGroup(_:)), to: groups)
@@ -192,18 +182,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         let groupItem = menu.addItem(withTitle: L("그룹 표시 / 숨기기"), action: nil, keyEquivalent: "")
         groupItem.submenu = groups
         let history = NSMenu()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd HH:mm:ss"
         for entry in library.entries {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MM/dd HH:mm:ss"
             let item = add(formatter.string(from: entry.date), #selector(openHistory(_:)), to: history)
             item.representedObject = entry.id.uuidString
-            if let image = library.image(entry) {
-                let thumb = NSImage(size: NSSize(width: 56, height: 36))
-                thumb.lockFocus()
-                image.draw(in: NSRect(x: 0, y: 0, width: 56, height: 36), from: .zero, operation: .sourceOver, fraction: 1)
-                thumb.unlockFocus()
-                item.image = thumb
-            }
+            item.image = library.thumbnail(entry)
         }
         if library.entries.isEmpty { history.addItem(withTitle: L("아직 캡처한 이미지가 없습니다"), action: nil, keyEquivalent: "") }
         history.addItem(.separator())
@@ -273,7 +257,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
                         UserDefaults.standard.set(NSStringFromRect(frame), forKey: "lastCaptureRect")
                         do { try self.library.add(image, context: context) }
                         catch { showError(L("캡처 기록 저장 실패: {0}", error.localizedDescription)) }
-                        if UserDefaults.standard.bool(forKey: "autoCopy") { copyImage(image) }
+                        if UserDefaults.standard.bool(forKey: "autoCopy") && destination != .copy { copyImage(image) }
                         switch destination {
                         case .copy: copyImage(image)
                         case .pin:
@@ -361,6 +345,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
         editor.onClose = { [weak self] closing in self?.editors.removeAll { $0 === closing } }
         editors.append(editor)
         editor.show()
+    }
+
+    private func restore(_ records: [PinRecord]) {
+        for record in records {
+            guard let image = library.pinImage(for: record) else { continue }
+            let pin = createPin(image, id: record.id)
+            if let gif = library.gifData(for: record) { pin.setGIF(gif) }
+            else if let document = library.annotationDocument(for: record) { pin.setDocument(document) }
+            var frame = NSRect(x: record.x, y: record.y, width: max(32, record.width), height: max(32, record.height))
+            if !NSScreen.screens.contains(where: { $0.visibleFrame.intersects(frame) }) {
+                frame.origin = NSScreen.main?.visibleFrame.origin ?? .zero
+            }
+            pin.window?.setFrame(frame, display: true)
+            pin.window?.alphaValue = min(1, max(0.15, record.opacity))
+            pin.group = record.group
+        }
+    }
+
+    /// Pins kept from earlier sessions while startup restoration is off.
+    @objc private func restoreDeferredPins() {
+        let records = deferredPinRecords
+        deferredPinRecords = []
+        restore(records)
+        schedulePersistence()
+    }
+    @objc private func discardDeferredPins() {
+        guard !deferredPinRecords.isEmpty else { return }
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = L("이전 고정 이미지 {0}개를 지울까요?", deferredPinRecords.count)
+        alert.informativeText = L("복원하지 않은 이전 세션의 고정 이미지가 삭제됩니다.")
+        alert.addButton(withTitle: L("취소"))
+        alert.addButton(withTitle: L("모두 지우기"))
+        guard alert.runModal() == .alertSecondButtonReturn else { return }
+        let previous = deferredPinRecords
+        deferredPinRecords = []
+        persistTask?.cancel()
+        do { try library.savePins(pins, keeping: []) }
+        catch { deferredPinRecords = previous; showError(L("고정 이미지 저장 실패: {0}", error.localizedDescription)) }
     }
 
     private func schedulePersistence() {

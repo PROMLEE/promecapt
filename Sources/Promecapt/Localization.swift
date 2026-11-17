@@ -31,11 +31,12 @@ enum AppLanguage {
     }
 }
 
+private let placeholderPattern = try! NSRegularExpression(pattern: #"\{(\d+)\}"#)
+
 func L(_ key: String, _ arguments: Any...) -> String {
     var result = AppLanguage.text(key, language: AppLanguage.current)
     // Replace in a single scan: user text containing another placeholder stays literal.
-    let pattern = try! NSRegularExpression(pattern: #"\{(\d+)\}"#)
-    let matches = pattern.matches(in: result, range: NSRange(result.startIndex..., in: result))
+    let matches = placeholderPattern.matches(in: result, range: NSRange(result.startIndex..., in: result))
     for match in matches.reversed() {
         guard let range = Range(match.range, in: result), let numberRange = Range(match.range(at: 1), in: result),
               let index = Int(result[numberRange]), arguments.indices.contains(index) else { continue }

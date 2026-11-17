@@ -159,6 +159,7 @@ import ImageIO
             defer { try? FileManager.default.removeItem(at: root) }
             let library = try Library(root: root)
             let entry = try library.add(image, context: context)
+            library.flush()
             let reloaded = try Library(root: root)
             check(reloaded.historyItem(entry)?.context?.selection == context.selection && reloaded.historyItem(entry)?.context?.image.size == background.size, "history context and position survive disk reload")
             try reloaded.clearHistory()
@@ -466,6 +467,7 @@ import ImageIO
         let first = try library.add(image)
         try library.add(image)
         let last = try library.add(flip)
+        library.flush()
         check(library.entries.count == 2 && library.entries.first?.id == last.id, "history retention")
         check(!FileManager.default.fileExists(atPath: library.historyURL(first).path), "expired image removal")
         let reload = try Library(root: root)
@@ -473,6 +475,30 @@ import ImageIO
         try reload.clearHistory()
         let empty = try Library(root: root)
         check(empty.entries.isEmpty, "clear history persists")
+        // Damaged indexes are set aside and rebuilt from the saved images.
+        let kept = try empty.add(image); empty.flush()
+        check(empty.thumbnail(kept).map { $0.size.width <= 56 && $0.size.height <= 36 } == true, "history thumbnail fits the menu preview box")
+        try Data("not json".utf8).write(to: root.appendingPathComponent("history.json"))
+        let recovered = try Library(root: root)
+        check(recovered.entries.map(\.id) == [kept.id] && recovered.image(kept) != nil, "damaged history index is rebuilt from saved captures")
+        let quarantined = try FileManager.default.contentsOfDirectory(atPath: root.path).filter { $0.hasPrefix("history.corrupt-") }
+        check(quarantined.count == 1, "damaged history index is kept beside the library")
+        let stablePin = PinController(image: image)
+        try recovered.savePins([stablePin])
+        let pinFile = root.appendingPathComponent("pins/\(stablePin.id.uuidString).png")
+        let firstWrite = try FileManager.default.attributesOfItem(atPath: pinFile.path)[.modificationDate] as? Date
+        Thread.sleep(forTimeInterval: 1.1)
+        stablePin.window?.setFrameOrigin(NSPoint(x: 40, y: 40)); try recovered.savePins([stablePin])
+        let afterMove = try FileManager.default.attributesOfItem(atPath: pinFile.path)[.modificationDate] as? Date
+        check(afterMove == firstWrite, "moving a pin does not rewrite its image")
+        stablePin.replace(flip); try recovered.savePins([stablePin])
+        let afterEdit = try FileManager.default.attributesOfItem(atPath: pinFile.path)[.modificationDate] as? Date
+        check(afterEdit != firstWrite, "changed pin content is written again")
+        try Data("{".utf8).write(to: root.appendingPathComponent("pins.json"))
+        let rebuiltPins = try Library(root: root).restorePins()
+        check(rebuiltPins.map { $0.0.id } == [stablePin.id], "damaged pin index is rebuilt instead of discarding pin images")
+        check(FileManager.default.fileExists(atPath: pinFile.path), "pin image survives a damaged index")
+        stablePin.close()
         print("\(count) checks passed")
         if let index = CommandLine.arguments.firstIndex(of: "--fixture"), CommandLine.arguments.count > index + 1 {
             let demo = Imaging.render(size: NSSize(width: 960, height: 540)) {

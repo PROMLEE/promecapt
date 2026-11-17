@@ -1,0 +1,50 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.12",
+    "changes": [
+      "Recover capture history and pins when their index file is damaged.",
+      "Restore or delete pins from earlier sessions in the menu bar.",
+      "Save capture history in the background with aspect-correct thumbnails.",
+      "Moving or resizing a pin saves only its position.",
+      "Only Screen Recording is required at startup; Accessibility is offered once."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.12 업데이트 내용",
+    "changes": [
+      "캡처 기록이나 고정 이미지 목록 파일이 손상돼도 저장된 이미지에서 복구합니다.",
+      "메뉴 막대에서 이전 세션의 고정 이미지를 복원하거나 지울 수 있습니다.",
+      "캡처 기록을 백그라운드에서 저장하고 썸네일 비율을 유지합니다.",
+      "고정 이미지를 옮기거나 크기를 바꾸면 위치만 저장합니다.",
+      "시작할 때는 화면 녹화 권한만 요구하고, 손쉬운 사용은 한 번만 안내합니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.12 の更新内容",
+    "changes": [
+      "キャプチャ履歴やピンの一覧ファイルが破損しても、保存済みの画像から復元します。",
+      "以前のセッションのピンをメニューバーから復元・削除できます。",
+      "キャプチャ履歴をバックグラウンドで保存し、縦横比を保ったサムネイルを表示します。",
+      "ピンの移動やサイズ変更では位置だけを保存します。",
+      "起動時に必要なのは画面収録のみです。アクセシビリティは一度だけ案内します。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.12 更新内容",
+    "changes": [
+      "截图历史或贴图列表文件损坏时，可从已保存的图片中恢复。",
+      "可在菜单栏中恢复或删除之前会话的贴图。",
+      "在后台保存截图历史，缩略图保持原始比例。",
+      "移动贴图或调整大小时只保存位置。",
+      "启动时只需屏幕录制权限，辅助功能仅提示一次。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

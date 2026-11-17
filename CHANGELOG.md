@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.12
+
+- Recover capture history and pins when their index file is damaged. The damaged file is kept beside the library and the list is rebuilt from saved images.
+- Restore or delete pins kept from earlier sessions from the menu bar when pins are not restored at startup.
+- Save capture history in the background so capturing no longer pauses, and show aspect-correct history thumbnails without reloading full images.
+- Write pin images only when their content changes; moving or resizing a pin saves its position only.
+- Ask only for Screen Recording at startup. The optional Accessibility permission is offered once and stays available under Permissions….
+
 ## 1.1.11
 
 - Open GitHub Sponsors from the menu bar or Settings → About.

@@ -31,10 +31,12 @@ final class GIFArchive {
         guard let destination = CGImageDestinationCreateWithURL(output as CFURL, UTType.gif.identifier as CFString, frames.count, nil) else { throw CocoaError(.fileWriteUnknown) }
         CGImageDestinationSetProperties(destination, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]] as CFDictionary)
         for (index, frame) in frames.enumerated() {
-            guard let source = CGImageSourceCreateWithURL(frame.0 as CFURL, nil), let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { throw CocoaError(.fileReadCorruptFile) }
-            let next = index + 1 < frames.count ? frames[index + 1].1 : end
-            let delay = max(0.02, next - frame.1)
-            CGImageDestinationAddImage(destination, image, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: delay, kCGImagePropertyGIFUnclampedDelayTime: delay]] as CFDictionary)
+            try autoreleasepool {
+                guard let source = CGImageSourceCreateWithURL(frame.0 as CFURL, nil), let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { throw CocoaError(.fileReadCorruptFile) }
+                let next = index + 1 < frames.count ? frames[index + 1].1 : end
+                let delay = max(0.02, next - frame.1)
+                CGImageDestinationAddImage(destination, image, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: delay, kCGImagePropertyGIFUnclampedDelayTime: delay]] as CFDictionary)
+            }
         }
         guard CGImageDestinationFinalize(destination) else { throw CocoaError(.fileWriteUnknown) }
         return output
@@ -67,12 +69,14 @@ final class GIFRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
         showControls(near: rect, screen: screen)
         DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in
             guard let self, !self.started, !self.done else { return }
-            self.complete(.failure(NSError(domain: "Promecapt", code: 2, userInfo: [NSLocalizedDescriptionKey: L("녹화를 시작하지 못했습니다. 화면 캡처 권한을 확인해 주세요.")])))
+            self.complete(.failure(NSError(domain: "Promecapt", code: 2,
+                    userInfo: [NSLocalizedDescriptionKey: L("녹화를 시작하지 못했습니다. 화면 캡처 권한을 확인해 주세요.")])))
         }
         SCShareableContent.getExcludingDesktopWindows(true, onScreenWindowsOnly: true) { [weak self] content, error in
             DispatchQueue.main.async {
                 guard let self, !self.done else { return }
-                guard let content, let display = content.displays.first(where: { $0.displayID == (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value }) else {
+                guard let content,
+                        let display = content.displays.first(where: { $0.displayID == (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value }) else {
                     self.complete(.failure(error ?? CocoaError(.fileReadUnknown))); return
                 }
                 do {
@@ -119,7 +123,8 @@ final class GIFRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
         regionPanel.contentView = GIFRecordingRegion(frame: NSRect(origin: .zero, size: screen.frame.size),
             region: rect.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY))
         regionPanel.orderFrontRegardless(); self.regionPanel = regionPanel
-        let panel = NSPanel(contentRect: NSRect(x: max(screen.frame.minX + 10, min(rect.minX, screen.frame.maxX - 350)), y: max(screen.frame.minY + 10, rect.minY - 70), width: 340, height: 56), styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false, screen: screen)
+        let panel = NSPanel(contentRect: NSRect(x: max(screen.frame.minX + 10, min(rect.minX, screen.frame.maxX - 350)), y: max(screen.frame.minY + 10, rect.minY - 70), width: 340, height: 56),
+                styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false, screen: screen)
         panel.title = L("Promecapt GIF · {0}fps · 최대 {1}초", options.frameRate, options.duration)
         panel.isReleasedWhenClosed = false; panel.hidesOnDeactivate = false; panel.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]

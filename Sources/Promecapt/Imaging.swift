@@ -58,13 +58,14 @@ enum Imaging {
         }
     }
 
+    private static let ciContext = CIContext(options: [.useSoftwareRenderer: true])
+
     static func filtered(_ image: NSImage, rect: NSRect, mosaic: Bool, strength: CGFloat = 14) -> NSImage {
         guard let data = png(image), let input = CIImage(data: data) else { return image }
         let amount = Double(min(80, max(2, strength)))
         let filter = input.clampedToExtent().applyingFilter(mosaic ? "CIPixellate" : "CIGaussianBlur",
             parameters: mosaic ? [kCIInputScaleKey: amount] : [kCIInputRadiusKey: amount])
-        let context = CIContext(options: [.useSoftwareRenderer: true])
-        guard let cg = context.createCGImage(filter, from: input.extent) else { return image }
+        guard let cg = ciContext.createCGImage(filter, from: input.extent) else { return image }
         let filtered = NSImage(cgImage: cg, size: image.size)
         let area = rect.integral.intersection(NSRect(origin: .zero, size: image.size))
         return render(size: image.size) {

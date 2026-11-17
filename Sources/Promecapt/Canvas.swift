@@ -3,9 +3,13 @@ import AppKit
 final class CanvasView: NSView, NSTextFieldDelegate {
     private(set) var document: AnnotationDocument
     private var renderedImage: NSImage?
+    /// A composition of the first `objects.count` objects over `base`, reused by `renderDocument`.
+    private struct RenderedPrefix { let base: NSImage; let objects: [AnnotationObject]; let image: NSImage }
+    private var prefixCache: RenderedPrefix?
+    private var dragPrefix: RenderedPrefix?
     var image: NSImage {
         if let renderedImage { return renderedImage }
-        let result = document.rendered(); renderedImage = result; return result
+        let result = renderDocument(); renderedImage = result; return result
     }
     var contentInset: CGFloat = 24
     var acceptsDrawingAt: ((NSPoint) -> Bool)?
@@ -110,6 +114,25 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         if isSelectingOCR { addCursorRect(imageRect, cursor: .crosshair) }
     }
     private func invalidate() { renderedImage = nil; needsDisplay = true; onChange?(); onParametersChange?() }
+    /// Same result as `document.rendered()`, but starts from the longest cached prefix that still matches the objects.
+    private func renderDocument() -> NSImage {
+        let objects = document.objects
+        let reusable = [prefixCache, dragPrefix].compactMap { $0 }
+            .filter { $0.base === document.base && objects.starts(with: $0.objects) }
+        let start = reusable.max { $0.objects.count < $1.objects.count }
+        let result = objects.dropFirst(start?.objects.count ?? 0).reduce(start?.image ?? document.base) { $1.applying(to: $0) }
+        prefixCache = RenderedPrefix(base: document.base, objects: objects, image: result)
+        return result
+    }
+    /// Fixes the composition below the object at `index` for a drag, so each frame re-applies only that object and those above it.
+    /// Skipped when a blur or mosaic sits above the object, because those filters must run on the full composition.
+    func beginDragRendering(objectAt index: Int) {
+        guard document.objects.indices.contains(index) else { return }
+        guard !document.objects[(index + 1)...].contains(where: { $0.tool == .conceal && $0.concealStyle != .blackbox }) else {
+            dragPrefix = nil; return
+        }
+        dragPrefix = RenderedPrefix(base: document.base, objects: Array(document.objects[..<index]), image: document.rendered(upTo: index))
+    }
     private func checkpoint() {
         previous.append((document, selectedID))
         if previous.count > 50 { previous.removeFirst(previous.count - 50) }
@@ -133,7 +156,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     func addAnnotation(_ object: AnnotationObject) {
         checkpoint()
         document.objects.append(object)
-        if UserDefaults.standard.object(forKey: "autoSelectAnnotations") as? Bool ?? true {
+        if UserDefaults.standard.object(forKey: DefaultsKey.autoSelectAnnotations) as? Bool ?? true {
             selectAnnotation(object.id)
         } else { selectedID = nil }
         invalidate()
@@ -250,6 +273,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     }
     private func startObjectDrag(_ object: AnnotationObject, at point: NSPoint, handle: CaptureSelection.Handle?) {
         draggingObject = object; dragStart = point; resizeHandle = handle; dragSnapshot = (document, selectedID)
+        if let index = document.objects.firstIndex(where: { $0.id == object.id }) { beginDragRendering(objectAt: index) }
     }
     override func mouseDragged(with event: NSEvent) {
         let p = point(event)
@@ -284,7 +308,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         }
         if let snapshot = dragSnapshot {
             if snapshot.0.objects != document.objects { previous.append(snapshot); future = [] }
-            draggingObject = nil; dragSnapshot = nil; resizeHandle = nil; refreshParameters(); return
+            draggingObject = nil; dragSnapshot = nil; resizeHandle = nil; dragPrefix = nil; refreshParameters(); return
         }
         guard points.count > 1 else { points = []; return }
         let object = makeObject(points); points = []
@@ -306,7 +330,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         panel.onCancel = { [weak self] in _ = self?.cancelInteraction() }
         panel.level = NSWindow.Level(rawValue: window.level.rawValue + 1)
         let location = window.convertPoint(toScreen: convert(NSPoint(x: imageRect.minX + position.x * scale, y: imageRect.minY + position.y * scale), to: nil))
-        let visible = window.screen?.visibleFrame ?? NSScreen.main!.visibleFrame
+        guard let visible = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else { return }
         panel.setFrameOrigin(NSPoint(x: min(visible.maxX - panel.frame.width, max(visible.minX, location.x)),
                                      y: min(visible.maxY - panel.frame.height, max(visible.minY, location.y - panel.frame.height))))
         textPanel = panel; window.addChildWindow(panel, ordered: .above)
@@ -353,17 +377,17 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     }
     func handleSelectionKey(_ event: NSEvent) -> Bool {
         guard event.type == .keyDown, activeTextInput == nil else { return false }
-        if isSelectingOCR, event.keyCode == 53 { cancelOCRSelection(); return true }
+        if isSelectingOCR, event.keyCode == KeyCode.escape { cancelOCRSelection(); return true }
         guard selectedAnnotation != nil else { return false }
-        if event.keyCode == 53 { return cancelInteraction() }
-        if [51,117].contains(event.keyCode) { deleteSelection(); return true }
+        if event.keyCode == KeyCode.escape { return cancelInteraction() }
+        if [KeyCode.deleteKey, KeyCode.forwardDelete].contains(event.keyCode) { deleteSelection(); return true }
         guard event.modifierFlags.intersection([.command,.option,.control]).isEmpty else { return false }
         let step: CGFloat = event.modifierFlags.contains(.shift) ? 10 : 1
         switch event.keyCode {
-        case 123: moveSelection(dx: -step, dy: 0)
-        case 124: moveSelection(dx: step, dy: 0)
-        case 125: moveSelection(dx: 0, dy: -step)
-        case 126: moveSelection(dx: 0, dy: step)
+        case KeyCode.left: moveSelection(dx: -step, dy: 0)
+        case KeyCode.right: moveSelection(dx: step, dy: 0)
+        case KeyCode.down: moveSelection(dx: 0, dy: -step)
+        case KeyCode.up: moveSelection(dx: 0, dy: step)
         default: return false
         }
         return true
@@ -384,7 +408,7 @@ final class CanvasView: NSView, NSTextFieldDelegate {
     }
     @objc func copy(_ sender: Any?) { flushText(); if let onCopy { onCopy() } else { copyImage(image) } }
     override func keyDown(with event: NSEvent) {
-        if [36,76].contains(event.keyCode), !event.modifierFlags.contains(.command) { return }
+        if [KeyCode.returnKey, KeyCode.keypadEnter].contains(event.keyCode), !event.modifierFlags.contains(.command) { return }
         if !handleSelectionKey(event), onShortcut?(event) != true { super.keyDown(with: event) }
     }
     override func performKeyEquivalent(with event: NSEvent) -> Bool { handleSelectionKey(event) || (onShortcut?(event) ?? false) }

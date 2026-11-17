@@ -118,7 +118,9 @@ struct AnnotationObject: Codable, Identifiable, Equatable {
 struct AnnotationDocument {
     var base: NSImage
     var objects: [AnnotationObject] = []
-    func rendered() -> NSImage { objects.reduce(base) { $1.applying(to: $0) } }
+    func rendered() -> NSImage { rendered(upTo: objects.count) }
+    /// Applies only the first `count` objects, in order, so callers can reuse a cached prefix.
+    func rendered(upTo count: Int) -> NSImage { objects.prefix(count).reduce(base) { $1.applying(to: $0) } }
     func cropped(to rect: NSRect) -> AnnotationDocument {
         let clipped = rect.integral.intersection(NSRect(origin: .zero, size: base.size))
         guard !clipped.isEmpty else { return self }

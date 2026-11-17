@@ -18,6 +18,130 @@ import ImageIO
         let channels = channelValues(rep.samplesPerPixel) { rep.getPixel($0, atX: x, y: y) }
         return String(format: "#%02X%02X%02X", channels[0], channels[1], channels[2])
     }
+    static func pixelBytes(_ image: NSImage) -> [UInt8]? {
+        guard let rep = Imaging.bitmap(image), let data = rep.bitmapData else { return nil }
+        return Array(UnsafeBufferPointer(start: data, count: rep.bytesPerRow * rep.pixelsHigh))
+    }
+    static func samePixels(_ a: NSImage, _ b: NSImage) -> Bool {
+        guard a.size == b.size, let bytes = pixelBytes(a) else { return false }
+        return bytes == pixelBytes(b)
+    }
+    static func gradientImage(width: Int, height: Int) -> NSImage {
+        Imaging.render(size: NSSize(width: width, height: height)) {
+            for y in 0..<height {
+                for x in 0..<width {
+                    NSColor(srgbRed: CGFloat(x) / CGFloat(max(1, width - 1)), green: CGFloat(y) / CGFloat(max(1, height - 1)),
+                            blue: CGFloat((x * 7 + y * 3) % 17) / 16, alpha: 1).setFill()
+                    NSRect(x: x, y: y, width: 1, height: 1).fill()
+                }
+            }
+        }
+    }
+    /// The PNG round trip and per-call CIContext used before the shared-context change, kept as the reference.
+    static func referenceFiltered(_ image: NSImage, rect: NSRect, mosaic: Bool, strength: CGFloat) -> NSImage {
+        guard let data = Imaging.png(image), let input = CIImage(data: data) else { return image }
+        let amount = Double(min(80, max(2, strength)))
+        let filter = input.clampedToExtent().applyingFilter(mosaic ? "CIPixellate" : "CIGaussianBlur",
+            parameters: mosaic ? [kCIInputScaleKey: amount] : [kCIInputRadiusKey: amount])
+        let context = CIContext(options: [.useSoftwareRenderer: true])
+        guard let cg = context.createCGImage(filter, from: input.extent) else { return image }
+        let filtered = NSImage(cgImage: cg, size: image.size)
+        let area = rect.integral.intersection(NSRect(origin: .zero, size: image.size))
+        return Imaging.render(size: image.size) {
+            image.draw(at: .zero, from: .zero, operation: .copy, fraction: 1)
+            filtered.draw(in: area, from: area, operation: .copy, fraction: 1)
+        }
+    }
+    static func imagingAndRenderChecks() {
+        // Image filtering must match the PNG reference pixel for pixel, including boundary inputs.
+        let gradient = gradientImage(width: 64, height: 64)
+        let tiny = gradientImage(width: 1, height: 1)
+        for mosaic in [true, false] {
+            let name = mosaic ? "mosaic" : "blur"
+            let inside = NSRect(x: 10, y: 5, width: 30, height: 30)
+            check(samePixels(Imaging.filtered(gradient, rect: inside, mosaic: mosaic),
+                             referenceFiltered(gradient, rect: inside, mosaic: mosaic, strength: 14)),
+                  "\(name) on a 64x64 gradient matches the PNG reference pixel for pixel")
+            let pastEdge = NSRect(x: 50, y: 40, width: 40, height: 40)
+            check(samePixels(Imaging.filtered(gradient, rect: pastEdge, mosaic: mosaic, strength: 35),
+                             referenceFiltered(gradient, rect: pastEdge, mosaic: mosaic, strength: 35)),
+                  "\(name) with a rect past the edge and strength 35 matches the reference")
+            let outside = NSRect(x: 200, y: 200, width: 10, height: 10)
+            check(samePixels(Imaging.filtered(gradient, rect: outside, mosaic: mosaic),
+                             referenceFiltered(gradient, rect: outside, mosaic: mosaic, strength: 14)),
+                  "\(name) with a rect outside the image matches the reference")
+            let pixel = NSRect(x: 0, y: 0, width: 1, height: 1)
+            check(samePixels(Imaging.filtered(tiny, rect: pixel, mosaic: mosaic),
+                             referenceFiltered(tiny, rect: pixel, mosaic: mosaic, strength: 14)),
+                  "\(name) on a 1x1 image matches the reference")
+        }
+        let empty = NSImage()
+        check(Imaging.filtered(empty, rect: NSRect(x: 0, y: 0, width: 4, height: 4), mosaic: true) === empty,
+              "an image without pixels falls back to returning the original image")
+
+        // Annotation composition: an empty document renders the base, and cached prefixes match a full render.
+        let base = gradientImage(width: 96, height: 64)
+        check(samePixels(AnnotationDocument(base: base).rendered(), base), "empty annotation document renders the base image")
+        var seed: UInt64 = 0x2545F4914F6CDD1D
+        func next(_ bound: Int) -> Int {
+            seed ^= seed << 13; seed ^= seed >> 7; seed ^= seed << 17
+            return Int(seed % UInt64(bound))
+        }
+        func randomObject() -> AnnotationObject {
+            let tools: [DrawingTool] = [.rectangle, .pencil, .conceal, .ellipse, .arrow]
+            let tool = tools[next(tools.count)]
+            let styles: [ConcealStyle] = [.mosaic, .blur, .blackbox]
+            let x = CGFloat(next(60)), y = CGFloat(next(40))
+            let corner = NSPoint(x: x + CGFloat(8 + next(30)), y: y + CGFloat(6 + next(20)))
+            let points = tool == .pencil
+                ? [NSPoint(x: x, y: y), NSPoint(x: x + 9, y: y + 14), corner]
+                : [NSPoint(x: x, y: y), corner]
+            return AnnotationObject(tool: tool, points: points, color: AnnotationColor(.systemRed),
+                                    lineWidth: CGFloat(2 + next(6)), strength: CGFloat(4 + next(30)), concealStyle: styles[next(styles.count)])
+        }
+        for trial in 0..<6 {
+            let canvas = CanvasView(image: base)
+            var mismatches = 0
+            func compare() { if !samePixels(canvas.image, canvas.document.rendered()) { mismatches += 1 } }
+            var objects: [AnnotationObject] = []
+            for _ in 0..<(3 + next(4)) {
+                let object = randomObject()
+                objects.append(object)
+                canvas.addAnnotation(object)
+                compare()
+            }
+            // Dragging the object at index 1, then index 0, moves objects without changing the prefix below them.
+            for index in [1, 0] {
+                canvas.selectAnnotation(objects[index].id)
+                canvas.beginDragRendering(objectAt: index)
+                for _ in 0..<3 { canvas.moveSelection(dx: 3, dy: -2); compare() }
+                canvas.beginDragRendering(objectAt: index)
+                canvas.resizeSelection(to: NSRect(x: 4, y: 4, width: 40, height: 30)); compare()
+            }
+            canvas.undoEdit(); compare()
+            canvas.redoEdit(); compare()
+            canvas.deleteSelection(); compare()
+            check(mismatches == 0, "trial \(trial): incremental composition equals a full render after every change")
+        }
+
+        // GIF encoding keeps the frame count and per-frame delays; a frame lasts until the next frame or the end.
+        let archive = try! GIFArchive(maxFrames: 10, directory: FileManager.default.temporaryDirectory
+            .appendingPathComponent("promecapt-gif-check-\(UUID().uuidString)"))
+        for time in [0.0, 0.1, 0.3] {
+            var proposed = NSRect(origin: .zero, size: NSSize(width: 16, height: 16))
+            let frame = gradientImage(width: 16, height: 16).cgImage(forProposedRect: &proposed, context: nil, hints: nil)!
+            try! archive.append(frame, at: time)
+        }
+        let gifSource = CGImageSourceCreateWithURL(try! archive.finish(at: 0.6) as CFURL, nil)!
+        let delays: [Double] = (0..<CGImageSourceGetCount(gifSource)).map { index in
+            let properties = CGImageSourceCopyPropertiesAtIndex(gifSource, index, nil) as? [CFString: Any]
+            let gif = properties?[kCGImagePropertyGIFDictionary] as? [CFString: Any]
+            return gif?[kCGImagePropertyGIFDelayTime] as? Double ?? -1
+        }
+        check(delays.count == 3 && zip(delays, [0.1, 0.2, 0.3]).allSatisfy { abs($0 - $1) < 0.011 },
+              "GIF keeps three frames with delays of 0.1, 0.2 and 0.3 seconds")
+        archive.removeTemporaryFiles()
+    }
     static func main() throws {
         try ToolbarLayoutChecks.run()
         let savedAutoSelect = UserDefaults.standard.object(forKey: "autoSelectAnnotations")
@@ -27,6 +151,8 @@ import ImageIO
         UserDefaults.standard.set("en", forKey: "appLanguage")
         check(L("캡처") == "Capture" && L("기록 {0}/{1} · , 이전 / . 다음", 1, 3).contains("1/3"), "English UI and interpolation load from catalog")
         check(L("그룹: {0}", "{1}") == "Group: {1}", "localized interpolation preserves literal user placeholders")
+        check(L("그룹: {0}", "캡처") == "Group: 캡처", "user text that matches a translation key is shown as typed")
+        check(L("그룹: {0}", L("미지정")) == "Group: Ungrouped", "argument translated explicitly with L() is still translated")
         UserDefaults.standard.set("ja", forKey: "appLanguage")
         check(L("저장") == "保存", "Japanese UI catalog loads")
         UserDefaults.standard.set("zh-Hans", forKey: "appLanguage")
@@ -499,6 +625,7 @@ import ImageIO
         check(rebuiltPins.map { $0.0.id } == [stablePin.id], "damaged pin index is rebuilt instead of discarding pin images")
         check(FileManager.default.fileExists(atPath: pinFile.path), "pin image survives a damaged index")
         stablePin.close()
+        imagingAndRenderChecks()
         print("\(count) checks passed")
         if let index = CommandLine.arguments.firstIndex(of: "--fixture"), CommandLine.arguments.count > index + 1 {
             let demo = Imaging.render(size: NSSize(width: 960, height: 540)) {

@@ -320,7 +320,7 @@ final class AnnotationBar: NSView {
         label.frame = NSRect(x: 10, y: 8, width: size.width - 20, height: size.height - 16)
         background.addSubview(label); panel.contentView = background
         let anchor = window.convertToScreen(convert(rect, to: nil))
-        let visible = window.screen?.visibleFrame ?? NSScreen.main!.visibleFrame
+        guard let visible = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else { return }
         let y = anchor.maxY + size.height + 7 <= visible.maxY ? anchor.maxY + 7 : anchor.minY - size.height - 7
         panel.setFrameOrigin(NSPoint(x: min(visible.maxX - size.width, max(visible.minX, anchor.midX - size.width / 2)), y: y))
         tipWindow = panel; window.addChildWindow(panel, ordered: .above); panel.orderFrontRegardless()

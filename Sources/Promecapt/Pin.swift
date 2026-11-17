@@ -4,7 +4,7 @@ final class PinWindow: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
     override func sendEvent(_ event: NSEvent) {
-        if event.type == .keyDown, event.keyCode == 53,
+        if event.type == .keyDown, event.keyCode == KeyCode.escape,
            (firstResponder as? NSTextView)?.isFieldEditor != true,
            let pin = delegate as? PinController {
             pin.handleEscape()
@@ -49,7 +49,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = UserDefaults.standard.object(forKey: "pinShadow") as? Bool ?? true
+        panel.hasShadow = UserDefaults.standard.object(forKey: DefaultsKey.pinShadow) as? Bool ?? true
         panel.isMovableByWindowBackground = true
         panel.hidesOnDeactivate = false
         panel.minSize = NSSize(width: 32, height: 32)
@@ -175,9 +175,9 @@ final class PinController: NSWindowController, NSWindowDelegate {
         positionTools()
         canvas.onShortcut = { [weak self, weak bar] event in
             guard let self else { return false }
-            if event.keyCode == 49 && self.editCanvas?.activeTextInput == nil { self.finishEditing(apply: true); return true }
-            if event.keyCode == 53 { self.finishEditing(apply: false); return true }
-            if event.keyCode == 31, event.modifierFlags.intersection([.command, .option, .control]).isEmpty {
+            if event.keyCode == KeyCode.space && self.editCanvas?.activeTextInput == nil { self.finishEditing(apply: true); return true }
+            if event.keyCode == KeyCode.escape { self.finishEditing(apply: false); return true }
+            if event.keyCode == KeyCode.o, event.modifierFlags.intersection([.command, .option, .control]).isEmpty {
                 if event.modifierFlags.contains(.shift) { bar?.onOCRRegion?() }
                 else { bar?.onOCR?() }
                 return true
@@ -213,7 +213,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
     }
     private func positionTools() {
         guard let frame = window?.frame, let tools = editTools else { return }
-        let visible = window?.screen?.visibleFrame ?? NSScreen.main!.visibleFrame
+        guard let visible = window?.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else { return }
         let size = (tools.contentView as? AnnotationBar)?.preferredSize ?? AnnotationBar.preferredSize
         tools.setContentSize(size)
         var origin = NSPoint(x: frame.midX - size.width / 2, y: frame.minY - size.height - 8)
@@ -284,7 +284,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
     }
 
     private func transform(turns: Int) {
-        let old = window!.frame.size
+        guard let old = window?.frame.size else { return }
         replace(Imaging.transformed(image, quarterTurns: turns))
         window?.setContentSize(NSSize(width: old.height, height: old.width))
         onChange?()
@@ -313,7 +313,8 @@ final class PinController: NSWindowController, NSWindowDelegate {
         for (title, action) in actions {
             let item = menu.addItem(withTitle: title, action: action, keyEquivalent: "")
             item.target = self
-            if gifData != nil && [#selector(editPin), #selector(extractText), #selector(rotateLeft), #selector(rotateRight), #selector(flipHorizontal), #selector(flipVertical)].contains(action) { item.isEnabled = false }
+            if gifData != nil && [#selector(editPin), #selector(extractText), #selector(rotateLeft), #selector(rotateRight), #selector(flipHorizontal),
+                    #selector(flipVertical)].contains(action) { item.isEnabled = false }
             if action == #selector(clearGroup) { item.isEnabled = !group.isEmpty }
         }
         return menu
@@ -382,7 +383,7 @@ final class PinView: NSView, NSDraggingSource {
     @objc func copy(_ sender: Any?) { owner?.copyPin() }
     override func cancelOperation(_ sender: Any?) { owner?.closePin() }
     override func keyDown(with event: NSEvent) {
-        if event.keyCode == 53 { owner?.closePin(); return }
+        if event.keyCode == KeyCode.escape { owner?.closePin(); return }
         if let action = ImageKeyboardCommand.resolve(keyCode: event.keyCode, flags: event.modifierFlags) {
             if action == .copy { owner?.copyPin(); return }
             if action == .save { owner?.savePin(); return }

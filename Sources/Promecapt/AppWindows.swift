@@ -52,18 +52,19 @@ final class PreferencesController: NSWindowController {
         let general = page(L("일반"), tabs: tabs)
         let languages = NSPopUpButton()
         languages.addItems(withTitles: AppLanguage.names)
-        languages.selectItem(at: AppLanguage.codes.firstIndex(of: UserDefaults.standard.string(forKey: "appLanguage") ?? "auto") ?? 0)
+        languages.selectItem(at: AppLanguage.codes.firstIndex(of: UserDefaults.standard.string(forKey: DefaultsKey.appLanguage) ?? "auto") ?? 0)
         languages.setAccessibilityLabel(L("언어"))
         bind(languages) { [weak self] control in
-            UserDefaults.standard.set(AppLanguage.codes[(control as! NSPopUpButton).indexOfSelectedItem], forKey: "appLanguage")
+            UserDefaults.standard.set(AppLanguage.codes[(control as! NSPopUpButton).indexOfSelectedItem], forKey: DefaultsKey.appLanguage)
             DispatchQueue.main.async { self?.onLanguageChange?() }
         }
-        general.addArrangedSubview(withHelp(NSStackView(views: [NSTextField(labelWithString: L("언어")), languages]), text: L("메뉴와 새 창에 바로 적용됩니다. 열려 있는 편집창은 다시 열어 주세요.")))
+        general.addArrangedSubview(withHelp(NSStackView(views: [NSTextField(labelWithString: L("언어")), languages]),
+                text: L("메뉴와 새 창에 바로 적용됩니다. 열려 있는 편집창은 다시 열어 주세요.")))
         let permissions = NSButton(title: L("권한 설정…"), target: nil, action: nil)
         bind(permissions) { [weak self] _ in self?.onShowPermissions?() }
         general.addArrangedSubview(permissions)
         general.addArrangedSubview(heading(L("시작 및 표시")))
-        general.addArrangedSubview(withHelp(toggle(L("Dock에 Promecapt 표시"), key: "showDock", fallback: true) { [weak self] enabled in
+        general.addArrangedSubview(withHelp(toggle(L("Dock에 Promecapt 표시"), key: DefaultsKey.showDock, fallback: true) { [weak self] enabled in
             self?.onSetDockVisibility?(enabled)
         }, text: L("Dock 표시를 꺼도 메뉴 막대 아이콘과 단축키는 계속 사용할 수 있습니다.\n설정: 메뉴 막대 Promecapt 아이콘 → 설정, 또는 ⌘,")))
         let login = NSButton(checkboxWithTitle: L("로그인할 때 시작"), target: nil, action: nil)
@@ -88,8 +89,9 @@ final class PreferencesController: NSWindowController {
         keys.spacing = 10
         keys.addArrangedSubview(heading(L("전역 단축키")))
         let profiles = NSPopUpButton()
-        profiles.addItems(withTitles: [L("F1 캡처 · F3 고정 · F4 표시/숨기기"), L("⌥⌘1 캡처 · ⌥⌘3 고정 · ⌥⌘4 표시/숨기기"), L("전역 단축키 사용 안 함"), L("직접 지정")])
-        profiles.selectItem(at: UserDefaults.standard.integer(forKey: "hotkeyProfile"))
+        profiles.addItems(withTitles: [L("F1 캡처 · F3 고정 · F4 표시/숨기기"), L("⌥⌘1 캡처 · ⌥⌘3 고정 · ⌥⌘4 표시/숨기기"), L("전역 단축키 사용 안 함"),
+                L("직접 지정")])
+        profiles.selectItem(at: UserDefaults.standard.integer(forKey: DefaultsKey.hotkeyProfile))
         let errorLabel = NSTextField(wrappingLabelWithString: "")
         errorLabel.textColor = .systemRed
         errorLabel.font = .systemFont(ofSize: 11)
@@ -97,7 +99,7 @@ final class PreferencesController: NSWindowController {
         bind(profiles) { [weak self] sender in
             guard let self else { return }
             let error = self.onSetProfile?((sender as! NSPopUpButton).indexOfSelectedItem)
-            profiles.selectItem(at: UserDefaults.standard.integer(forKey: "hotkeyProfile"))
+            profiles.selectItem(at: UserDefaults.standard.integer(forKey: DefaultsKey.hotkeyProfile))
             errorLabel.stringValue = error ?? ""
             self.refreshRecorders()
         }
@@ -110,7 +112,7 @@ final class PreferencesController: NSWindowController {
             recorder.onRecording = { [weak self] recording in self?.onRecording?(recording) }
             recorder.onRecord = { [weak self] binding in
                 let error = self?.onSetShortcut?(action, binding)
-                profiles.selectItem(at: UserDefaults.standard.integer(forKey: "hotkeyProfile"))
+                profiles.selectItem(at: UserDefaults.standard.integer(forKey: DefaultsKey.hotkeyProfile))
                 self?.refreshRecorders()
                 return error
             }
@@ -120,7 +122,7 @@ final class PreferencesController: NSWindowController {
             bind(clear) { [weak self] _ in
                 let error = self?.onSetShortcut?(action, nil)
                 errorLabel.stringValue = error ?? ""
-                profiles.selectItem(at: UserDefaults.standard.integer(forKey: "hotkeyProfile"))
+                profiles.selectItem(at: UserDefaults.standard.integer(forKey: DefaultsKey.hotkeyProfile))
                 self?.refreshRecorders()
             }
             let functions = NSPopUpButton()
@@ -132,7 +134,7 @@ final class PreferencesController: NSWindowController {
                 let error = self?.onSetShortcut?(action, binding)
                 errorLabel.stringValue = error ?? ""
                 picker.selectItem(at: 0)
-                profiles.selectItem(at: UserDefaults.standard.integer(forKey: "hotkeyProfile"))
+                profiles.selectItem(at: UserDefaults.standard.integer(forKey: DefaultsKey.hotkeyProfile))
                 self?.refreshRecorders()
             }
             let row = NSStackView(views: [label, recorder, functions, clear])
@@ -145,20 +147,20 @@ final class PreferencesController: NSWindowController {
         capture.addArrangedSubview(withHelp(heading(L("캡처 동작")), text: L("영역 선택 후 8개 핸들로 크기를 조절합니다. 테두리 안쪽을 드래그하면 영역이 이동합니다. 도구 막대에서 펜·도형·화살표·텍스트·모자이크를 선택하면 그 자리에서 주석을 작성할 수 있습니다.")))
         let delay = NSPopUpButton()
         delay.addItems(withTitles: [L("지연 없이 캡처"), L("3초 뒤 캡처"), L("5초 뒤 캡처")])
-        delay.selectItem(at: [0, 3, 5].firstIndex(of: UserDefaults.standard.integer(forKey: "captureDelay")) ?? 0)
-        bind(delay) { UserDefaults.standard.set([0, 3, 5][($0 as! NSPopUpButton).indexOfSelectedItem], forKey: "captureDelay") }
+        delay.selectItem(at: [0, 3, 5].firstIndex(of: UserDefaults.standard.integer(forKey: DefaultsKey.captureDelay)) ?? 0)
+        bind(delay) { UserDefaults.standard.set([0, 3, 5][($0 as! NSPopUpButton).indexOfSelectedItem], forKey: DefaultsKey.captureDelay) }
         capture.addArrangedSubview(delay)
-        capture.addArrangedSubview(toggle(L("캡처 결과를 클립보드에 자동 복사"), key: "autoCopy", fallback: true))
-        capture.addArrangedSubview(toggle(L("마지막 캡처 영역 기억"), key: "rememberRegion", fallback: false))
-        capture.addArrangedSubview(toggle(L("캡처 전 창·앱 요소 자동 감지"), key: "autoDetectTargets", fallback: true))
+        capture.addArrangedSubview(toggle(L("캡처 결과를 클립보드에 자동 복사"), key: DefaultsKey.autoCopy, fallback: true))
+        capture.addArrangedSubview(toggle(L("마지막 캡처 영역 기억"), key: DefaultsKey.rememberRegion, fallback: false))
+        capture.addArrangedSubview(toggle(L("캡처 전 창·앱 요소 자동 감지"), key: DefaultsKey.autoDetectTargets, fallback: true))
         let targetDetail = NSPopUpButton()
         targetDetail.addItems(withTitles: CaptureTargetDetail.allCases.map(\.title))
         targetDetail.selectItem(at: CaptureTargetDetail.current.rawValue)
         targetDetail.setAccessibilityLabel(L("자동 영역 인식 범위"))
-        bind(targetDetail) { UserDefaults.standard.set(($0 as! NSPopUpButton).indexOfSelectedItem, forKey: "captureTargetDetail") }
+        bind(targetDetail) { UserDefaults.standard.set(($0 as! NSPopUpButton).indexOfSelectedItem, forKey: DefaultsKey.captureTargetDetail) }
         capture.addArrangedSubview(heading(L("자동 영역 인식 범위")))
         capture.addArrangedSubview(withHelp(targetDetail, text: L("균형은 작은 아이콘·글자 영역을 건너뜁니다. 큰 영역 위주는 패널·넓은 구역을 우선하고, 창만은 내부 요소를 감지하지 않습니다. Tab으로 상위 영역을 선택할 수 있습니다.")))
-        capture.addArrangedSubview(toggle(L("그린 주석을 자동으로 선택"), key: "autoSelectAnnotations", fallback: true))
+        capture.addArrangedSubview(toggle(L("그린 주석을 자동으로 선택"), key: DefaultsKey.autoSelectAnnotations, fallback: true))
         refreshPermissionStatus()
         capture.addArrangedSubview(accessibilityLabel)
         let elementPermission = NSButton(title: L("앱 내부 요소 감지 권한 설정…"), target: nil, action: nil)
@@ -169,15 +171,17 @@ final class PreferencesController: NSWindowController {
         let toolbarPage = page(L("도구"), tabs: tabs)
         toolbarPage.addArrangedSubview(withHelp(heading(L("도구창 버튼")), text: L("행을 드래그하거나 위로·아래로 버튼으로 순서를 바꾸세요. 체크한 버튼만 표시합니다. 숨긴 기능은 모든 도구(…) 메뉴에서 사용할 수 있습니다.")))
         toolbarPage.addArrangedSubview(ToolbarCustomizationView(frame: .zero))
-        toolbarPage.addArrangedSubview(withHelp(toggle(L("마지막 캡처 도구 기억"), key: CaptureToolPreferences.enabledKey, fallback: false), text: L("켜면 마지막으로 직접 선택한 도구를 다음 캡처에서도 사용합니다. 꺼두면 캡처 영역 조절로 시작합니다.")))
+        toolbarPage.addArrangedSubview(withHelp(toggle(L("마지막 캡처 도구 기억"), key: CaptureToolPreferences.enabledKey, fallback: false),
+                text: L("켜면 마지막으로 직접 선택한 도구를 다음 캡처에서도 사용합니다. 꺼두면 캡처 영역 조절로 시작합니다.")))
 
         let gif = page("GIF", tabs: tabs)
         gif.addArrangedSubview(withHelp(heading(L("GIF 녹화")), text: L("녹화 중에는 빨간 점선과 바깥쪽 음영으로 영역을 표시하며, 화면은 그대로 조작할 수 있습니다. 정지 후 결과 창에서 재생·복사·고정·저장을 선택합니다. GIF 고정은 재생 상태로 복원되며 주석 편집·회전은 지원하지 않습니다.")))
         let options = GIFOptions.current
         for (title, key, values, labels, selected) in [
-            (L("프레임"), "gifFrameRate", GIFOptions.frameRates, GIFOptions.frameRates.map { "\($0) fps" }, options.frameRate),
-            (L("해상도"), "gifMaxDimension", GIFOptions.dimensions, [L("긴 변 640 px"), L("긴 변 1280 px"), L("긴 변 1920 px"), L("원본 픽셀 (Retina 포함)")], options.maxDimension),
-            (L("최대 시간"), "gifDuration", GIFOptions.durations, GIFOptions.durations.map { L("{0}초", $0) }, options.duration)
+            (L("프레임"), DefaultsKey.gifFrameRate, GIFOptions.frameRates, GIFOptions.frameRates.map { "\($0) fps" }, options.frameRate),
+            (L("해상도"), DefaultsKey.gifMaxDimension, GIFOptions.dimensions, [L("긴 변 640 px"), L("긴 변 1280 px"), L("긴 변 1920 px"), L("원본 픽셀 (Retina 포함)")],
+                    options.maxDimension),
+            (L("최대 시간"), DefaultsKey.gifDuration, GIFOptions.durations, GIFOptions.durations.map { L("{0}초", $0) }, options.duration)
         ] {
             let label = NSTextField(labelWithString: title); label.widthAnchor.constraint(equalToConstant: 90).isActive = true
             let picker = NSPopUpButton(); picker.addItems(withTitles: labels)
@@ -185,19 +189,19 @@ final class PreferencesController: NSWindowController {
             bind(picker) { UserDefaults.standard.set(values[($0 as! NSPopUpButton).indexOfSelectedItem], forKey: key) }
             let row = NSStackView(views: [label, picker]); row.spacing = 12; gif.addArrangedSubview(withHelp(row, text: L("다음 녹화부터 적용됩니다. 프레임은 최대 초당 프레임 수이며 화면 변화량에 따라 줄어들 수 있습니다. 해상도는 원본보다 확대하지 않습니다. 임시 프레임이 256MiB에 도달하면 녹화를 마칩니다.")))
         }
-        gif.addArrangedSubview(toggle(L("마우스 커서도 녹화"), key: "gifShowsCursor", fallback: false))
+        gif.addArrangedSubview(toggle(L("마우스 커서도 녹화"), key: DefaultsKey.gifShowsCursor, fallback: false))
 
         let pins = page(L("고정"), tabs: tabs)
         pins.addArrangedSubview(withHelp(heading(L("고정 이미지")), text: L("드래그: 이동 · 가장자리: 크기 조절 · 휠: 확대/축소\nCtrl+휠: 투명도 · Space: 같은 창에서 주석 편집\n1/2: 회전 · 3/4: 반전 · 0: 원본 크기\n더블 클릭: 숨기기 · Shift+더블 클릭: 썸네일\n클릭 통과는 메뉴 막대 Promecapt에서 일괄 해제할 수 있습니다.")))
-        pins.addArrangedSubview(toggle(L("앱 시작 시 고정 이미지 복원"), key: "restorePins", fallback: false))
-        pins.addArrangedSubview(toggle(L("고정 이미지 그림자 표시"), key: "pinShadow", fallback: true))
+        pins.addArrangedSubview(toggle(L("앱 시작 시 고정 이미지 복원"), key: DefaultsKey.restorePins, fallback: false))
+        pins.addArrangedSubview(toggle(L("고정 이미지 그림자 표시"), key: DefaultsKey.pinShadow, fallback: true))
 
         let history = page(L("기록"), tabs: tabs)
         history.addArrangedSubview(heading(L("로컬 캡처 기록")))
         let limit = NSPopUpButton()
         limit.addItems(withTitles: [L("최근 10개 보관"), L("최근 50개 보관"), L("최근 100개 보관")])
-        limit.selectItem(at: [10, 50, 100].firstIndex(of: UserDefaults.standard.integer(forKey: "historyLimit")) ?? 1)
-        bind(limit) { UserDefaults.standard.set([10, 50, 100][($0 as! NSPopUpButton).indexOfSelectedItem], forKey: "historyLimit") }
+        limit.selectItem(at: [10, 50, 100].firstIndex(of: UserDefaults.standard.integer(forKey: DefaultsKey.historyLimit)) ?? 1)
+        bind(limit) { UserDefaults.standard.set([10, 50, 100][($0 as! NSPopUpButton).indexOfSelectedItem], forKey: DefaultsKey.historyLimit) }
         history.addArrangedSubview(withHelp(limit, text: L("이미지와 OCR은 이 Mac에서 처리합니다. 기록 이동 시 바깥 화면을 복원하도록 선택 이미지와 당시 화면 전체·선택 위치를 이 Mac에 함께 보관합니다. 기록 지우기는 이 배경도 함께 지웁니다.")))
         let folder = NSButton(title: L("보관함 폴더 열기"), target: nil, action: nil)
         bind(folder) { [weak self] _ in self?.onOpenLibrary?() }
@@ -223,7 +227,8 @@ final class PreferencesController: NSWindowController {
         about.addArrangedSubview(heading(L("업데이트")))
         automaticButton = NSButton(checkboxWithTitle: L("자동으로 다운로드·설치하고 다시 실행"), target: nil, action: nil)
         bind(automaticButton) { [weak self] sender in self?.updates.setAutomatic((sender as! NSButton).state == .on); self?.refreshUpdates() }
-        about.addArrangedSubview(withHelp(automaticButton, text: L("안정 버전만 확인합니다. 자동 업데이트는 선택 사항이며, 캡처·녹화·편집 중에는 재실행을 미룹니다.")))
+        about.addArrangedSubview(withHelp(automaticButton,
+                text: L("안정 버전만 확인합니다. 자동 업데이트는 선택 사항이며, 캡처·녹화·편집 중에는 재실행을 미룹니다.")))
         about.addArrangedSubview(latestLabel)
         about.addArrangedSubview(lastCheckLabel)
         checkButton = NSButton(title: L("업데이트 확인…"), target: nil, action: nil)

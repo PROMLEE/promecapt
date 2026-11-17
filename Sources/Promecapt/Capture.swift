@@ -125,8 +125,8 @@ final class CaptureSession {
             window.makeKeyAndOrderFront(nil)
             window.makeFirstResponder(view)
             if full && surface.screen == NSScreen.main { view.selectAll() }
-            else if UserDefaults.standard.bool(forKey: "rememberRegion"),
-                    let last = UserDefaults.standard.string(forKey: "lastCaptureRect") {
+            else if UserDefaults.standard.bool(forKey: DefaultsKey.rememberRegion),
+                    let last = UserDefaults.standard.string(forKey: DefaultsKey.lastCaptureRect) {
                 view.restoreRegion(NSRectFromString(last))
             }
         }
@@ -204,7 +204,7 @@ final class CaptureView: NSView {
     private var lastProbe: NSPoint?
     private var pendingTarget: NSRect?
     private var downPoint = NSPoint.zero
-    private var automaticTargets: Bool { UserDefaults.standard.object(forKey: "autoDetectTargets") as? Bool ?? true }
+    private var automaticTargets: Bool { UserDefaults.standard.object(forKey: DefaultsKey.autoDetectTargets) as? Bool ?? true }
     private var interactionActive = true
     private var pointerTimer: Timer?
 
@@ -493,7 +493,7 @@ final class CaptureView: NSView {
         if let editor = window?.firstResponder as? NSTextView, editor.isFieldEditor { return false }
         let command = event.modifierFlags.contains(.command)
         // Text editing keeps standard Copy/Paste/Undo; only Cmd-Return completes a text capture.
-        if canvas.activeTextInput != nil && !(command && [36,76].contains(Int(event.keyCode))) { return false }
+        if canvas.activeTextInput != nil && !(command && [KeyCode.returnKey, KeyCode.keypadEnter].contains(event.keyCode)) { return false }
         if canvas.handleSelectionKey(event) { return true }
         if let action = ImageKeyboardCommand.resolve(keyCode: event.keyCode, flags: event.modifierFlags) {
             switch action {
@@ -507,28 +507,28 @@ final class CaptureView: NSView {
         }
         guard !command else { return false }
         switch event.keyCode {
-        case 4: shortcutHelp.toggle()
-        case 31: readOCR(partial: event.modifierFlags.contains(.shift))
-        case 43: browseHistory(older: true)
-        case 47: browseHistory(older: false)
-        case 53: onCancel?()
-        case 36,76: return true // Enter confirms text input only; never dismiss an active capture.
-        case 48:
+        case KeyCode.h: shortcutHelp.toggle()
+        case KeyCode.o: readOCR(partial: event.modifierFlags.contains(.shift))
+        case KeyCode.comma: browseHistory(older: true)
+        case KeyCode.period: browseHistory(older: false)
+        case KeyCode.escape: onCancel?()
+        case KeyCode.returnKey, KeyCode.keypadEnter: return true // Enter confirms text input only; never dismiss an active capture.
+        case KeyCode.tab:
             guard !selection.isValid, !targets.isEmpty else { return false }
             let step = event.modifierFlags.contains(.shift) ? -1 : 1
             targetIndex = (targetIndex + step + targets.count) % targets.count
             hoveredWindow = targets[targetIndex].rect
             updateTargetLabel()
-        case 49:
+        case KeyCode.space:
             guard !selection.isValid else { return true }
             windowMode.toggle(); lastProbe = nil
             if let window { updateTarget(at: convert(window.mouseLocationOutsideOfEventStream, from: nil), force: true) }
             changed()
-        case 35: finish(.pin)
-        case 123,124,125,126:
+        case KeyCode.p: finish(.pin)
+        case KeyCode.left, KeyCode.right, KeyCode.down, KeyCode.up:
             let step: CGFloat = event.modifierFlags.contains(.option) ? 10 : 1 / surface.screen.backingScaleFactor
-            selection.nudge(dx: event.keyCode == 123 ? -step : event.keyCode == 124 ? step : 0,
-                dy: event.keyCode == 125 ? -step : event.keyCode == 126 ? step : 0,
+            selection.nudge(dx: event.keyCode == KeyCode.left ? -step : event.keyCode == KeyCode.right ? step : 0,
+                dy: event.keyCode == KeyCode.down ? -step : event.keyCode == KeyCode.up ? step : 0,
                 resize: event.modifierFlags.contains(.shift))
             changed()
         default: return false
@@ -552,7 +552,8 @@ final class CaptureView: NSView {
         border.stroke()
         if !selection.isValid, targets.indices.contains(targetIndex) {
             let label = targets[targetIndex].label
-            (label as NSString).draw(at: NSPoint(x: max(8, hole.minX + 8), y: min(bounds.maxY - 24, hole.maxY + 8)), withAttributes: [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.white, .backgroundColor: NSColor.black.withAlphaComponent(0.85)])
+            (label as NSString).draw(at: NSPoint(x: max(8, hole.minX + 8), y: min(bounds.maxY - 24, hole.maxY + 8)), withAttributes: [.font: NSFont.systemFont(ofSize: 12),
+                    .foregroundColor: NSColor.white, .backgroundColor: NSColor.black.withAlphaComponent(0.85)])
         }
         if selection.isValid {
             if dragging {

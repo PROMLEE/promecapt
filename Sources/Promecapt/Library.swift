@@ -32,7 +32,7 @@ final class Library {
     private var savedPinRevisions: [UUID: Int] = [:]
     /// Called on the main thread when a queued history image could not be written.
     var onWriteFailure: ((Error) -> Void)?
-    var historyLimit: Int { max(1, UserDefaults.standard.object(forKey: "historyLimit") as? Int ?? 50) }
+    var historyLimit: Int { max(1, UserDefaults.standard.object(forKey: DefaultsKey.historyLimit) as? Int ?? 50) }
 
     init(root: URL? = nil) throws {
         self.root = root ?? manager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]

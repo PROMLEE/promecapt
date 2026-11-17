@@ -7,7 +7,7 @@ final class CaptureHelpView: NSView {
     private var dragPoint: NSPoint?
     private let header = NSButton()
     private let rows = NSStackView()
-    private(set) var expanded = UserDefaults.standard.object(forKey: "captureHelpExpanded") as? Bool ?? true
+    private(set) var expanded = UserDefaults.standard.object(forKey: DefaultsKey.captureHelpExpanded) as? Bool ?? true
     var preferredSize: NSSize { NSSize(width: 330, height: expanded ? 328 : 32) }
 
     override init(frame: NSRect) {
@@ -73,7 +73,7 @@ final class CaptureHelpView: NSView {
     }
     @objc func toggle() {
         expanded.toggle(); rows.isHidden = !expanded
-        UserDefaults.standard.set(expanded, forKey: "captureHelpExpanded")
+        UserDefaults.standard.set(expanded, forKey: DefaultsKey.captureHelpExpanded)
         onResize?()
     }
     override func mouseDown(with event: NSEvent) { dragPoint = window?.convertPoint(toScreen: event.locationInWindow) }

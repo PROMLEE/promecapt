@@ -29,7 +29,7 @@ final class AppUpdates: NSObject, SPUUpdaterDelegate {
     var isBusy: () -> Bool = { false }
     var saveBeforeInstall: () throws -> Void = {}
     private(set) var status = ""
-    private(set) var latestVersion = UserDefaults.standard.string(forKey: "lastKnownUpdateVersion")
+    private(set) var latestVersion = UserDefaults.standard.string(forKey: DefaultsKey.lastKnownUpdateVersion)
     private var observations: [NSKeyValueObservation] = []
     private var postponed: (() -> Void)?
     private var retryTimer: Timer?
@@ -99,12 +99,12 @@ final class AppUpdates: NSObject, SPUUpdaterDelegate {
     }
     func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
         latestVersion = item.displayVersionString
-        UserDefaults.standard.set(item.displayVersionString, forKey: "lastKnownUpdateVersion")
+        UserDefaults.standard.set(item.displayVersionString, forKey: DefaultsKey.lastKnownUpdateVersion)
         status = L("새 버전 {0}을 사용할 수 있습니다.", item.displayVersionString); notify()
     }
     func updaterDidNotFindUpdate(_ updater: SPUUpdater) {
         latestVersion = AppInfo.version
-        UserDefaults.standard.set(AppInfo.version, forKey: "lastKnownUpdateVersion")
+        UserDefaults.standard.set(AppInfo.version, forKey: DefaultsKey.lastKnownUpdateVersion)
         status = L("최신 버전입니다."); notify()
     }
     func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {

@@ -25,7 +25,8 @@ final class PermissionSetupController: NSWindowController, NSWindowDelegate {
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
         window.contentView!.addSubview(stack)
-        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: window.contentView!.leadingAnchor, constant: 24), stack.trailingAnchor.constraint(equalTo: window.contentView!.trailingAnchor, constant: -24), stack.topAnchor.constraint(equalTo: window.contentView!.topAnchor, constant: 24)])
+        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: window.contentView!.leadingAnchor, constant: 24),
+                stack.trailingAnchor.constraint(equalTo: window.contentView!.trailingAnchor, constant: -24), stack.topAnchor.constraint(equalTo: window.contentView!.topAnchor, constant: 24)])
         let title = NSTextField(labelWithString: L("캡처를 시작하기 전에 권한을 허용하세요"))
         title.font = .boldSystemFont(ofSize: 18); stack.addArrangedSubview(title)
         let intro = NSTextField(wrappingLabelWithString: L("아래 버튼을 눌러 macOS에서 Promecapt를 허용하세요. 권한 상태는 자동으로 갱신됩니다."))

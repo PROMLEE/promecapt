@@ -162,7 +162,8 @@ final class EditorController: NSWindowController, NSWindowDelegate {
                                 (L("저장…"), #selector(saveOutput)), (L("화면 고정"), #selector(pinOutput))] {
             let entry = NSMenuItem(title: title, action: action, keyEquivalent: ""); entry.target = self; menu.addItem(entry)
         }
-        menu.popUp(positioning: nil, at: NSPoint(x: 4, y: 4), in: window!.contentView!)
+        guard let view = window?.contentView else { return }
+        menu.popUp(positioning: nil, at: NSPoint(x: 4, y: 4), in: view)
     }
     @objc private func menuSelectTool(_ sender: NSMenuItem) {
         window?.makeFirstResponder(nil)
@@ -196,7 +197,9 @@ final class EditorController: NSWindowController, NSWindowDelegate {
     }
 
     private func button(_ title: String, _ selector: Selector, _ tip: String? = nil) -> NSButton {
-        let symbols: [Selector: String] = [#selector(undoEdit): "arrow.uturn.backward", #selector(redoEdit): "arrow.uturn.forward", #selector(rotateImage): "rotate.left", #selector(flip): "arrow.left.and.right.righttriangle.left.righttriangle.right", #selector(copyOutput): "doc.on.doc", #selector(saveOutput): "square.and.arrow.down", #selector(pinOutput): "pin", #selector(ocr): "text.viewfinder"]
+        let symbols: [Selector: String] = [#selector(undoEdit): "arrow.uturn.backward", #selector(redoEdit): "arrow.uturn.forward", #selector(rotateImage): "rotate.left",
+                #selector(flip): "arrow.left.and.right.righttriangle.left.righttriangle.right", #selector(copyOutput): "doc.on.doc", #selector(saveOutput): "square.and.arrow.down",
+                #selector(pinOutput): "pin", #selector(ocr): "text.viewfinder"]
         let button = AnnotationButton(image: NSImage(systemSymbolName: symbols[selector] ?? "ellipsis", accessibilityDescription: title) ?? NSImage(), target: self, action: selector)
         button.image = button.image?.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [.labelColor]))
         button.bezelStyle = .regularSquare
@@ -233,7 +236,8 @@ final class EditorController: NSWindowController, NSWindowDelegate {
         toolOptionsRow?.isHidden = [concealStyles, colorWell, parameter].allSatisfy(\.isHidden)
         info.lineBreakMode = .byTruncatingTail
         info.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        info.stringValue = L("{0} × {1} px  ·  {2}  ·  클릭 선택 · Delete 삭제 · 휠 조절", Int(canvas.image.size.width), Int(canvas.image.size.height), conceal ? canvas.concealStyle.rawValue : canvas.effectiveTool.rawValue)
+        info.stringValue = L("{0} × {1} px  ·  {2}  ·  클릭 선택 · Delete 삭제 · 휠 조절", Int(canvas.image.size.width), Int(canvas.image.size.height),
+                L(conceal ? canvas.concealStyle.rawValue : canvas.effectiveTool.rawValue))
     }
 
     @objc private func selectTool(_ sender: NSButton) {

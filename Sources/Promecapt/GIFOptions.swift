@@ -16,10 +16,10 @@ struct GIFOptions {
     }
     static var current: Self {
         let defaults = UserDefaults.standard
-        return Self(frameRate: defaults.object(forKey: "gifFrameRate") as? Int ?? 10,
-                    maxDimension: defaults.object(forKey: "gifMaxDimension") as? Int ?? 1280,
-                    duration: defaults.object(forKey: "gifDuration") as? Int ?? 30,
-                    showsCursor: defaults.bool(forKey: "gifShowsCursor"))
+        return Self(frameRate: defaults.object(forKey: DefaultsKey.gifFrameRate) as? Int ?? 10,
+                    maxDimension: defaults.object(forKey: DefaultsKey.gifMaxDimension) as? Int ?? 1280,
+                    duration: defaults.object(forKey: DefaultsKey.gifDuration) as? Int ?? 30,
+                    showsCursor: defaults.bool(forKey: DefaultsKey.gifShowsCursor))
     }
     func pixelSize(for rect: NSRect, scale: CGFloat) -> NSSize {
         let factor = maxDimension == 0 ? scale : min(scale, CGFloat(maxDimension) / max(1, max(rect.width, rect.height)))

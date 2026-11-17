@@ -48,7 +48,11 @@ struct Shortcut: Codable, Equatable, Hashable {
         if flags.contains(.option) { prefix += "⌥" }
         if flags.contains(.shift) { prefix += "⇧" }
         if flags.contains(.command) { prefix += "⌘" }
-        let names: [UInt16: String] = [0:"A",1:"S",2:"D",3:"F",4:"H",5:"G",6:"Z",7:"X",8:"C",9:"V",11:"B",12:"Q",13:"W",14:"E",15:"R",16:"Y",17:"T",18:"1",19:"2",20:"3",21:"4",22:"6",23:"5",24:"=",25:"9",26:"7",27:"−",28:"8",29:"0",30:"]",31:"O",32:"U",33:"[",34:"I",35:"P",36:"↩",37:"L",38:"J",39:"'",40:"K",41:";",42:"\\",43:",",44:"/",45:"N",46:"M",47:".",48:"⇥",49:"Space",50:"`",51:"⌫",53:"Esc",65:".",67:"*",69:"+",75:"/",76:"⌤",78:"−",81:"=",82:"0",83:"1",84:"2",85:"3",86:"4",87:"5",88:"6",89:"7",91:"8",92:"9",122:"F1",120:"F2",99:"F3",118:"F4",96:"F5",97:"F6",98:"F7",100:"F8",101:"F9",109:"F10",103:"F11",111:"F12",105:"F13",107:"F14",113:"F15",106:"F16",64:"F17",79:"F18",80:"F19",90:"F20",115:"↖",116:"Page Up",117:"⌦",119:"↘",121:"Page Down",123:"←",124:"→",125:"↓",126:"↑"]
+        let names: [UInt16: String] = [0:"A", 1:"S", 2:"D", 3:"F", 4:"H", 5:"G", 6:"Z", 7:"X", 8:"C", 9:"V", 11:"B", 12:"Q", 13:"W", 14:"E", 15:"R", 16:"Y", 17:"T", 18:"1", 19:"2", 20:"3", 21:"4",
+                22:"6", 23:"5", 24:"=", 25:"9", 26:"7", 27:"−", 28:"8", 29:"0", 30:"]", 31:"O", 32:"U", 33:"[", 34:"I", 35:"P", 36:"↩", 37:"L", 38:"J", 39:"'", 40:"K", 41:";", 42:"\\", 43:",",
+                44:"/", 45:"N", 46:"M", 47:".", 48:"⇥", 49:"Space", 50:"`", 51:"⌫", 53:"Esc", 65:".", 67:"*", 69:"+", 75:"/", 76:"⌤", 78:"−", 81:"=", 82:"0", 83:"1", 84:"2", 85:"3", 86:"4",
+                87:"5", 88:"6", 89:"7", 91:"8", 92:"9", 122:"F1", 120:"F2", 99:"F3", 118:"F4", 96:"F5", 97:"F6", 98:"F7", 100:"F8", 101:"F9", 109:"F10", 103:"F11", 111:"F12", 105:"F13", 107:"F14",
+                113:"F15", 106:"F16", 64:"F17", 79:"F18", 80:"F19", 90:"F20", 115:"↖", 116:"Page Up", 117:"⌦", 119:"↘", 121:"Page Down", 123:"←", 124:"→", 125:"↓", 126:"↑"]
         return prefix + (names[keyCode] ?? "Key \(keyCode)")
     }
 }
@@ -56,7 +60,7 @@ struct Shortcut: Codable, Equatable, Hashable {
 enum ShortcutPreferences {
     static let customKey = "customHotkeys.v1"
     static func bindings(profile: Int? = nil) -> [HotkeyAction: Shortcut] {
-        let profile = profile ?? UserDefaults.standard.integer(forKey: "hotkeyProfile")
+        let profile = profile ?? UserDefaults.standard.integer(forKey: DefaultsKey.hotkeyProfile)
         switch profile {
         case 0: return [.capture: Shortcut(keyCode: 122, flags: []), .paste: Shortcut(keyCode: 99, flags: []), .toggle: Shortcut(keyCode: 118, flags: [])]
         case 2: return [:]
@@ -67,14 +71,15 @@ enum ShortcutPreferences {
                 guard let id = Int(key), let action = HotkeyAction(rawValue: id) else { return nil }
                 return (action, value)
             })
-        default: return [.capture: Shortcut(keyCode: 18, flags: [.command,.option]), .paste: Shortcut(keyCode: 20, flags: [.command,.option]), .toggle: Shortcut(keyCode: 21, flags: [.command,.option])]
+        default: return [.capture: Shortcut(keyCode: 18, flags: [.command, .option]), .paste: Shortcut(keyCode: 20, flags: [.command, .option]), .toggle: Shortcut(keyCode: 21, flags: [.command,
+                .option])]
         }
     }
     static func saveCustom(_ bindings: [HotkeyAction: Shortcut]) {
         let values = Dictionary(uniqueKeysWithValues: bindings.map { (String($0.key.rawValue), $0.value) })
         if let data = try? JSONEncoder().encode(values) {
             UserDefaults.standard.set(data, forKey: customKey)
-            UserDefaults.standard.set(3, forKey: "hotkeyProfile")
+            UserDefaults.standard.set(3, forKey: DefaultsKey.hotkeyProfile)
         }
     }
     static func duplicate(in bindings: [HotkeyAction: Shortcut]) -> HotkeyAction? {

@@ -14,7 +14,7 @@ enum AppLanguage {
         }
         return "en"
     }
-    static var current: String { resolved(UserDefaults.standard.string(forKey: "appLanguage") ?? "auto") }
+    static var current: String { resolved(UserDefaults.standard.string(forKey: DefaultsKey.appLanguage) ?? "auto") }
     static let translations: [String: [String: String]] = {
         var url = Bundle.main.url(forResource: "Translations", withExtension: "json")
         #if SWIFT_PACKAGE
@@ -40,7 +40,7 @@ func L(_ key: String, _ arguments: Any...) -> String {
     for match in matches.reversed() {
         guard let range = Range(match.range, in: result), let numberRange = Range(match.range(at: 1), in: result),
               let index = Int(result[numberRange]), arguments.indices.contains(index) else { continue }
-        let value = AppLanguage.text(String(describing: arguments[index]), language: AppLanguage.current)
+        let value = String(describing: arguments[index])
         result.replaceSubrange(range, with: value)
     }
     return result

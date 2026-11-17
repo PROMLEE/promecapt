@@ -14,7 +14,7 @@ struct CaptureTarget: Equatable {
 enum CaptureTargetDetail: Int, CaseIterable {
     case fine, balanced, large, windows
     static var current: Self {
-        guard let value = UserDefaults.standard.object(forKey: "captureTargetDetail") as? Int else { return .balanced }
+        guard let value = UserDefaults.standard.object(forKey: DefaultsKey.captureTargetDetail) as? Int else { return .balanced }
         return Self(rawValue: value) ?? .balanced
     }
     var title: String {
@@ -143,7 +143,8 @@ final class CaptureTargetDetector {
         }
         if busy { pending = work } else { work() }
     }
-    private static func elements(at point: NSPoint, screenFrame: NSRect, mainTop: CGFloat, processID: pid_t, ticket: CaptureDetectionTicket, onLeaf: @escaping (CaptureTarget) -> Void) -> [CaptureTarget] {
+    private static func elements(at point: NSPoint, screenFrame: NSRect, mainTop: CGFloat, processID: pid_t, ticket: CaptureDetectionTicket,
+            onLeaf: @escaping (CaptureTarget) -> Void) -> [CaptureTarget] {
         guard !ticket.cancelled, canReadElements else { return [] }
         let application = AXUIElementCreateApplication(processID)
         AXUIElementSetMessagingTimeout(application, 0.035)

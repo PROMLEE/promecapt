@@ -62,9 +62,9 @@ final class ShortcutRecorder: NSButton {
     }
     func record(_ event: NSEvent) -> Bool {
         guard recording, event.type == .keyDown else { return false }
-        if event.keyCode == 53 { endRecording(); return true }
+        if event.keyCode == KeyCode.escape { endRecording(); return true }
         let flags = event.modifierFlags.intersection(Shortcut.allowedModifiers)
-        if [UInt16(51), UInt16(117)].contains(event.keyCode), flags.isEmpty {
+        if [KeyCode.deleteKey, KeyCode.forwardDelete].contains(event.keyCode), flags.isEmpty {
             let error = onRecord?(nil)
             onError?(error)
             if error == nil { shortcut = nil }
@@ -87,10 +87,10 @@ enum ImageKeyboardCommand: Equatable {
     static func resolve(keyCode: UInt16, flags: NSEvent.ModifierFlags) -> Self? {
         guard flags.contains(.command), flags.intersection([.option,.control]).isEmpty else { return nil }
         switch keyCode {
-        case 8: return .copy
-        case 1: return .save
-        case 6: return flags.contains(.shift) ? .redo : .undo
-        case 36, 76: return .pin
+        case KeyCode.c: return .copy
+        case KeyCode.s: return .save
+        case KeyCode.z: return flags.contains(.shift) ? .redo : .undo
+        case KeyCode.returnKey, KeyCode.keypadEnter: return .pin
         default: return nil
         }
     }

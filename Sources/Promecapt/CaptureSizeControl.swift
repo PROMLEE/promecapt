@@ -15,7 +15,8 @@ final class CaptureSizeControl: NSView, NSTextFieldDelegate {
         row.spacing = 0; row.alignment = .centerY
         row.translatesAutoresizingMaskIntoConstraints = false
         addSubview(row)
-        NSLayoutConstraint.activate([row.leadingAnchor.constraint(equalTo: leadingAnchor), row.trailingAnchor.constraint(equalTo: trailingAnchor), row.centerYAnchor.constraint(equalTo: centerYAnchor), widthAnchor.constraint(equalToConstant: 128), heightAnchor.constraint(equalToConstant: 28)])
+        NSLayoutConstraint.activate([row.leadingAnchor.constraint(equalTo: leadingAnchor), row.trailingAnchor.constraint(equalTo: trailingAnchor), row.centerYAnchor.constraint(equalTo: centerYAnchor),
+                widthAnchor.constraint(equalToConstant: 128), heightAnchor.constraint(equalToConstant: 28)])
         for field in [widthField, heightField] {
             field.isBordered = false; field.drawsBackground = false
             field.alignment = .center

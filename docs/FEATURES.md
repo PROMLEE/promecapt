@@ -1,4 +1,4 @@
-# Feature status — Promecapt 1.1.12
+# Feature status — Promecapt 1.1.13
 
 | Area | Included | Limits |
 | --- | --- | --- |

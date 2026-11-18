@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.13
+
+- Open pinned images at their on-screen size on Retina displays instead of twice as large; Actual size uses the same size.
+- Show Quit Promecapt in the English menu (Promecaptを終了 / 退出 Promecapt in Japanese and Chinese).
+
 ## 1.1.12
 
 - Recover capture history and pins when their index file is damaged. The damaged file is kept beside the library and the list is rebuilt from saved images.

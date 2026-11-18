@@ -1,0 +1,38 @@
+{
+  "en": {
+    "heading": "What’s new in 1.1.13",
+    "changes": [
+      "Pinned images open at their on-screen size on Retina displays.",
+      "The English menu now reads Quit Promecapt."
+    ],
+    "link": "View full release notes",
+    "notice": "Uses the existing production signing certificate. Apple notarization is not provided."
+  },
+  "ko": {
+    "heading": "1.1.13 업데이트 내용",
+    "changes": [
+      "Retina 화면에서 고정 이미지가 두 배로 커지지 않고 화면 크기대로 열립니다.",
+      "영어 메뉴가 Quit Promecapt로 표시됩니다."
+    ],
+    "link": "전체 릴리스 노트 보기",
+    "notice": "기존 고정 서명 인증서를 사용합니다. Apple 공증은 제공하지 않습니다."
+  },
+  "ja": {
+    "heading": "1.1.13 の更新内容",
+    "changes": [
+      "Retina ディスプレイでピンが 2 倍の大きさで開かなくなりました。",
+      "メニューの終了項目を「Promecaptを終了」に修正しました。"
+    ],
+    "link": "リリースノートを見る",
+    "notice": "既存の署名証明書を使用します。Appleの公証は提供していません。"
+  },
+  "zh-Hans": {
+    "heading": "1.1.13 更新内容",
+    "changes": [
+      "在 Retina 显示屏上贴图不再以两倍大小打开。",
+      "菜单退出项改为「退出 Promecapt」。"
+    ],
+    "link": "查看完整更新说明",
+    "notice": "使用现有的固定签名证书，未提供 Apple 公证。"
+  }
+}

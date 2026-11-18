@@ -34,12 +34,19 @@ final class PinController: NSWindowController, NSWindowDelegate {
     private var editTools: NSPanel?
     private var manualToolsOrigin: NSPoint?
 
-    init(image: NSImage, id: UUID = UUID()) {
+    /// Image pixels per window point. Captured and pasted bitmaps are pixel-sized, so a Retina screen shows them at half the pixel count.
+    let pixelScale: CGFloat
+    /// The on-screen size of the image at its original scale.
+    var pointSize: NSSize { NSSize(width: image.size.width / pixelScale, height: image.size.height / pixelScale) }
+
+    init(image: NSImage, id: UUID = UUID(), pixelScale: CGFloat? = nil) {
         self.id = id
         self.image = image
+        self.pixelScale = max(1, pixelScale ?? NSScreen.main?.backingScaleFactor ?? 1)
         let visible = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        let factor = min(1, min(visible.width * 0.65 / image.size.width, visible.height * 0.65 / image.size.height))
-        let size = NSSize(width: max(32, image.size.width * factor), height: max(32, image.size.height * factor))
+        let natural = NSSize(width: image.size.width / self.pixelScale, height: image.size.height / self.pixelScale)
+        let factor = min(1, min(visible.width * 0.65 / natural.width, visible.height * 0.65 / natural.height))
+        let size = NSSize(width: max(32, natural.width * factor), height: max(32, natural.height * factor))
         let panel = PinWindow(contentRect: NSRect(origin: .zero, size: size),
             styleMask: [.borderless, .resizable], backing: .buffered, defer: false)
         super.init(window: panel)
@@ -240,7 +247,7 @@ final class PinController: NSWindowController, NSWindowDelegate {
     @objc func flipHorizontal() { guard gifData == nil else { return }; replace(Imaging.transformed(image, flipX: true)) }
     @objc func flipVertical() { guard gifData == nil else { return }; replace(Imaging.transformed(image, flipY: true)) }
     @objc func actualSize() {
-        window?.setContentSize(image.size)
+        window?.setContentSize(pointSize)
         onChange?()
     }
     @objc func thumbnail() {

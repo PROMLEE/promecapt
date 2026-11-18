@@ -134,7 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenu
             guard let color else { return }
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(Imaging.hex(color), forType: .string)
-            _ = self?.createPin(Imaging.colorImage(color))
+            _ = self?.createPin(Imaging.colorImage(color), pixelScale: 1)
         }
     }
     @objc func openHistory(_ sender: NSMenuItem) {

@@ -153,6 +153,7 @@ import ImageIO
         check(L("그룹: {0}", "{1}") == "Group: {1}", "localized interpolation preserves literal user placeholders")
         check(L("그룹: {0}", "캡처") == "Group: 캡처", "user text that matches a translation key is shown as typed")
         check(L("그룹: {0}", L("미지정")) == "Group: Ungrouped", "argument translated explicitly with L() is still translated")
+        check(L("Promecapt 종료") == "Quit Promecapt", "English app menu quit item uses the standard macOS wording")
         UserDefaults.standard.set("ja", forKey: "appLanguage")
         check(L("저장") == "保存", "Japanese UI catalog loads")
         UserDefaults.standard.set("zh-Hans", forKey: "appLanguage")
@@ -609,6 +610,15 @@ import ImageIO
         check(recovered.entries.map(\.id) == [kept.id] && recovered.image(kept) != nil, "damaged history index is rebuilt from saved captures")
         let quarantined = try FileManager.default.contentsOfDirectory(atPath: root.path).filter { $0.hasPrefix("history.corrupt-") }
         check(quarantined.count == 1, "damaged history index is kept beside the library")
+        let retinaBitmap = Imaging.render(size: NSSize(width: 200, height: 120)) {}
+        let retinaPin = PinController(image: retinaBitmap, pixelScale: 2)
+        check(retinaPin.pointSize == NSSize(width: 100, height: 60) && retinaPin.window?.contentLayoutRect.size == NSSize(width: 100, height: 60),
+              "Retina bitmap pin opens at its on-screen point size, not its pixel count")
+        retinaPin.window?.setContentSize(NSSize(width: 40, height: 24)); retinaPin.actualSize()
+        check(retinaPin.window?.contentLayoutRect.size == NSSize(width: 100, height: 60), "original size restores the Retina point size")
+        let cardPin = PinController(image: retinaBitmap, pixelScale: 1)
+        check(cardPin.window?.contentLayoutRect.size == NSSize(width: 200, height: 120), "point-sized cards keep one pixel per point")
+        retinaPin.close(); cardPin.close()
         let stablePin = PinController(image: image)
         try recovered.savePins([stablePin])
         let pinFile = root.appendingPathComponent("pins/\(stablePin.id.uuidString).png")

@@ -12,14 +12,15 @@ extension AppDelegate {
             _ = createPin(Imaging.normalized(image)); return
         }
         if let text = pasteboard.string(forType: .string), !text.isEmpty {
-            _ = createPin(Imaging.parseColor(text).map(Imaging.colorImage) ?? Imaging.textImage(String(text.prefix(8000))))
+            // Text and color cards are drawn at point size, so they keep one pixel per point.
+            _ = createPin(Imaging.parseColor(text).map(Imaging.colorImage) ?? Imaging.textImage(String(text.prefix(8000))), pixelScale: 1)
             return
         }
         showError(L("클립보드에 이미지 또는 텍스트를 복사한 후 다시 시도해 주세요."))
     }
 
-    @discardableResult func createPin(_ image: NSImage, id: UUID = UUID()) -> PinController {
-        let pin = PinController(image: image, id: id)
+    @discardableResult func createPin(_ image: NSImage, id: UUID = UUID(), pixelScale: CGFloat? = nil) -> PinController {
+        let pin = PinController(image: image, id: id, pixelScale: pixelScale)
         pin.onChange = { [weak self] in self?.schedulePersistence() }
         pin.onClose = { [weak self] closing in
             self?.pins.removeAll { $0 === closing }

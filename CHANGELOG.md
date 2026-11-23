@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.14
+
+- Move the capture shortcut panel to the farthest screen corner when the pointer reaches it while choosing or dragging a region.
+
 ## 1.1.13
 
 - Open pinned images at their on-screen size on Retina displays instead of twice as large; Actual size uses the same size.

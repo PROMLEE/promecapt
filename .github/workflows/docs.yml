@@ -7,7 +7,12 @@ on:
       - 'docs/**'
       - 'assets/**'
       - 'llm*.txt'
+      - '.release-version'
+      - 'Sources/**/*.swift'
+      - 'Sources/Promecapt/Resources/Translations.json'
       - 'scripts/check-docs.py'
+      - 'scripts/check-localization.py'
+      - 'scripts/appcast_notes.py'
       - 'scripts/generate-llms.py'
       - '.github/workflows/docs.yml'
   pull_request:
@@ -20,3 +25,4 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: python3 scripts/check-docs.py
+      - run: python3 scripts/check-localization.py

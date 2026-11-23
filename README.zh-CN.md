@@ -23,7 +23,7 @@
 | **OCR** | 选定文字区域，本地识别韩语和英语 |
 | **GIF** | 5–30fps，分辨率和时长设置，预览、复制、置顶、保存 |
 
-界面：한국어 · English · 日本語 · 简体中文。[功能限制（英语）](docs/FEATURES.md) · 1.1.0 起支持[手动和可选自动更新](docs/AUTO-UPDATE.md)。1.0.0 用户需先手动安装一次。
+界面：한국어 · English · 日本語 · 简体中文。[功能限制（英语）](docs/FEATURES.md) · 1.1.0 起支持[手动和可选自动更新（英语）](docs/AUTO-UPDATE.md)。1.0.0 用户需先手动安装一次。
 
 <details>
 <summary>GIF 设置</summary>
@@ -71,7 +71,7 @@ open "$HOME/Applications/Promecapt.app"
 
 ## 文档
 
-[安装指南](docs/INSTALL.md) · [使用指南](docs/USAGE.md) · [贡献指南](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
+[安装指南（英语）](docs/INSTALL.md) · [使用指南（英语）](docs/USAGE.md) · [贡献指南](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
 
 图片和 OCR 均在本地处理，无上传和分析收集。历史记录还会保存完整屏幕。[存储与隐私（英语）](docs/USAGE.md#privacy--storage)。
 

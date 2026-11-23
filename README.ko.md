@@ -23,7 +23,7 @@
 | **OCR** | 필요한 영역만 지정해 한국어·영어 인식 |
 | **GIF** | 5~30fps, 해상도·시간 설정, 미리보기·복사·고정·저장 |
 
-UI: 한국어 · English · 日本語 · 简体中文. [기능 제한](docs/FEATURES.md) · 1.1.0부터 [수동·선택적 자동 업데이트](docs/AUTO-UPDATE.md) 지원. 1.0.0 사용자는 한 번 직접 설치하세요.
+UI: 한국어 · English · 日本語 · 简体中文. [기능 제한(영어)](docs/FEATURES.md) · 1.1.0부터 [수동·선택적 자동 업데이트](docs/AUTO-UPDATE.ko.md) 지원. 1.0.0 사용자는 한 번 직접 설치하세요.
 
 <details>
 <summary>GIF 설정</summary>
@@ -71,8 +71,8 @@ open "$HOME/Applications/Promecapt.app"
 
 ## 문서
 
-[설치 가이드](docs/INSTALL.ko.md) · [사용법](docs/USAGE.md) · [기여 안내](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
+[설치 가이드](docs/INSTALL.ko.md) · [사용법(영어)](docs/USAGE.md) · [기여 안내](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
 
-이미지·OCR은 로컬에서 처리하며 업로드·분석 수집이 없습니다. 기록에는 전체 화면도 저장됩니다. [보관·개인정보 안내](docs/USAGE.md#privacy--storage).
+이미지·OCR은 로컬에서 처리하며 업로드·분석 수집이 없습니다. 기록에는 전체 화면도 저장됩니다. [보관·개인정보 안내(영어)](docs/USAGE.md#privacy--storage).
 
 [MIT](LICENSE) — 개인·상업적 사용 가능.

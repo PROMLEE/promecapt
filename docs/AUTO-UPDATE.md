@@ -1,43 +1,45 @@
-# 업데이트
+# Updates
 
-Promecapt 1.1.0부터 Sparkle 2로 수동·자동 업데이트를 지원합니다.
+From 1.1.0, Promecapt supports manual and automatic updates through Sparkle 2.
 
-## 사용
+[한국어](AUTO-UPDATE.ko.md)
 
-- **수동:** 메뉴 막대 → 업데이트 확인…, 또는 설정 → 정보 → 업데이트 확인…
-- **자동(선택):** 설정 → 정보 → 자동으로 다운로드·설치하고 다시 실행. 기본값은 꺼짐입니다.
-- 안정 버전만 확인하며 자동 확인 간격은 하루입니다. 옵션을 켤 때도 한 번 확인합니다.
-- 캡처·녹화·주석 편집·OCR 결과·저장 전 GIF 결과가 열려 있으면 설치·재실행을 미룹니다.
-- 정보 탭은 설치된 앱의 버전·빌드·소스 리비전·CPU·OS와 최신 확인 결과·시각을 표시합니다.
-- 1.0.0에는 업데이터가 없으므로 1.1.0은 DMG로 한 번 직접 설치해야 합니다.
+## Use
 
-## 배포
+- **Manual:** menu bar → Check for Updates…, or Settings → About → Check for Updates…
+- **Automatic (optional):** Settings → About → Automatically download, install and relaunch. It is off by default.
+- Only stable releases are checked, once a day. Turning the option on also checks once.
+- Installation and relaunch wait while a capture, recording, annotation edit, OCR result or unsaved GIF result is open.
+- The About tab shows the installed version, build, source revision, CPU and OS, plus the latest check result and time.
+- Version 1.0.0 has no updater, so install 1.1.0 or later once from the DMG.
 
-아키텍처별 `appcast-arm64.xml` / `appcast-x86_64.xml`을 GitHub Releases의 안정 버전 자산으로 제공합니다. 앱에 각 CPU의 `releases/latest/download/appcast-CPU.xml` 주소와 Ed25519 공개 키를 포함합니다. 버전은 앱의 Info.plist에서 읽으며 별도의 UI 상수로 관리하지 않습니다.
+## Distribution
 
-`package.sh` → `package-dmg.sh` → `sign-release.sh` 순서로 생성합니다. 마지막 단계는 ZIP과 feed를 서명하고 앱에 포함된 공개 키로 ZIP 서명을 별도 검증합니다. 배포 파일과 feed는 같은 초안 릴리스에 올리고 함께 공개합니다. 이미 공개한 자산은 교체하지 않습니다.
+Architecture-specific `appcast-arm64.xml` / `appcast-x86_64.xml` files are published as stable-release assets on GitHub Releases. The app embeds its CPU's `releases/latest/download/appcast-CPU.xml` address and the Ed25519 public key. The version is read from the app's Info.plist rather than a separate UI constant.
 
-GitHub Actions secret `SPARKLE_ED_PRIVATE_KEY`에 서명용 개인 키가 필요합니다. 키가 없거나 앱의 공개 키와 맞지 않으면 릴리스 작업이 실패합니다. 키를 로그·소스·릴리스 자산에 포함하지 마세요. 로컬 서명은 `generate-appcast.py --version VERSION --arch CPU --key-file PRIVATE_FILE`로 수행합니다.
+Build with `package.sh` → `package-dmg.sh` → `sign-release.sh`. The last step signs the ZIP and feed, then verifies the ZIP signature separately with the public key embedded in the app. Archives and feeds are uploaded to the same draft release and published together. Published assets are never replaced.
 
-## 서명과 권한
+The GitHub Actions secret `SPARKLE_ED_PRIVATE_KEY` holds the signing private key. If it is missing or does not match the app's public key, the release job fails. Never put the key in logs, source or release assets. Sign locally with `generate-appcast.py --version VERSION --arch CPU --key-file PRIVATE_FILE`.
 
-Sparkle은 feed와 업데이트 파일의 Ed25519 서명을 검증합니다. 서명 오류·네트워크 장애 시 현재 앱을 교체하지 않습니다. CPU별 feed를 사용하며 낮은 버전으로 자동 다운그레이드하지 않습니다. 설치 전에 고정 이미지·주석·그룹을 저장하고, 저장 실패 시 앱 종료를 취소합니다.
+## Signing and permissions
 
-Apple Developer ID 서명·공증은 업데이트 서명과 별개이며 1.1.2부터는 고정 자체 서명 인증서를 재사용합니다. 이전 임시 서명에서 전환할 때 권한을 한 번 재등록해야 할 수 있습니다. 이후 같은 인증서와 번들 ID로 서명 신원을 유지합니다. Apple 공증은 아니므로 첫 실행 허용은 별도입니다. DMG를 이용해 Applications에 설치하세요.
+Sparkle verifies Ed25519 signatures on the feed and the update archive. Signature errors or network failures leave the current app in place. Feeds are per CPU and never downgrade automatically. Pins, annotations and groups are saved before installation; if saving fails, quitting is cancelled.
 
-고정 인증서는 GitHub Actions secrets `MACOS_SIGNING_P12`와 `MACOS_SIGNING_PASSWORD`로 가져옵니다. 인증서가 추적된 공개 지문과 일치하지 않으면 배포에 실패합니다. [서명 관리](CODE_SIGNING.md).
+Apple Developer ID signing and notarization are separate from update signing. From 1.1.2, official releases reuse a persistent self-signed certificate. The transition from earlier ad-hoc signing may require one permission refresh; later releases keep the same certificate and bundle ID. This is not Apple notarization, so first-launch approval is still separate. Install into Applications from the DMG.
 
-개발자용: ad-hoc 및 자체 서명 빌드는 upstream 서명된 Sparkle 프레임워크를 로드하기 위해 같은 인증서로 서명한 앱·내부 구성요소의 Library Validation 예외 entitlement를 사용하며 Hardened Runtime은 유지합니다. Developer ID 빌드에서는 내부 구성부터 같은 identity로 서명하고 해당 예외를 적용하지 않습니다. 시스템 Gatekeeper 설정은 바꾸지 않습니다.
+The persistent certificate is imported from the GitHub Actions secrets `MACOS_SIGNING_P12` and `MACOS_SIGNING_PASSWORD`. Releases fail if the certificate does not match the tracked public fingerprint. See [code-signing maintenance](CODE_SIGNING.md).
 
-## 검증
+For developers: ad-hoc and self-signed builds load the upstream-signed Sparkle framework through a Library Validation exception entitlement on the app and its embedded components signed with the same certificate, while keeping the Hardened Runtime. Developer ID builds sign embedded components with the same identity and do not use that exception. System Gatekeeper settings are never changed.
 
-- `swift test` 및 `bash scripts/test-local.sh`
-- 서명된 정상 ZIP / 변조 ZIP / 다른 키로 서명한 ZIP
-- 정보 탭의 수동 확인, 최신 버전·오류·마지막 확인 시각
-- 자동 옵션 유지 및 작업 중 재실행 보류
-- 별도 테스트 앱의 구버전 → 신버전 교체·재실행·버전 갱신
-- 오프라인, 쓰기 불가 경로, 서명 오류에서 기존 앱·보관함 유지
+## Verification
 
-DEBUG 전용 테스트 번들은 `com.promlee.promecapt.update-test` ID를 사용하며 보관함을 앱 옆 `TestLibrary`에 분리합니다. 이 번들에서만 loopback HTTP feed를 허용하며, release 빌드에는 이 예외가 없습니다. 테스트 파일을 공개 릴리스에 올리지 마세요.
+- `swift test` and `bash scripts/test-local.sh`
+- A correctly signed ZIP, a tampered ZIP and a ZIP signed with another key
+- Manual checks in the About tab, the latest version, errors and last-check time
+- The automatic option persists and relaunch waits while work is open
+- Old → new replacement, relaunch and version change with a separate test app
+- The existing app and library stay intact offline, with unwritable paths and on signature errors
 
-공식 문서: [Sparkle 설정](https://sparkle-project.org/documentation/) · [업데이트 배포](https://sparkle-project.org/documentation/publishing/)
+The DEBUG-only test bundle uses the ID `com.promlee.promecapt.update-test` and keeps its library in a separate `TestLibrary` beside the app. Only this bundle accepts loopback HTTP feeds; release builds have no such exception. Do not upload test files to public releases.
+
+Official documentation: [Sparkle setup](https://sparkle-project.org/documentation/) · [Publishing updates](https://sparkle-project.org/documentation/publishing/)

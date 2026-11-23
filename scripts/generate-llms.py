@@ -40,6 +40,7 @@ SECTIONS = {
     'Optional': [
         ('llms-full.txt', 'Consolidated guide', 'English overview, full local installation guide, feature limits, security and license in one file.'),
         ('docs/AUTO-UPDATE.md', 'Updates', 'Manual and optional automatic download, installation and relaunch; signing and release setup.'),
+        ('docs/AUTO-UPDATE.ko.md', '업데이트 안내', '수동·선택적 자동 업데이트, 서명과 배포 설정.'),
     ],
 }
 FULL_FILES = ['README.md', 'docs/INSTALL.md', 'docs/USAGE.md', 'docs/FEATURES.md', 'CONTRIBUTING.md', 'SECURITY.md', 'LICENSE']

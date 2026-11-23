@@ -37,7 +37,7 @@ A red dashed border and light outside shading mark the recording region without 
 
 Capture, annotation and OCR processing happen locally. There is no account, upload service or analytics in the app.
 
-History stores the selected image **and the full display snapshot with its selection position**, so browsing can restore the surrounding screen. Keep this in mind when capturing private material. The history limit and Clear History remove these backgrounds too; pins are stored separately.
+History stores the selected image **and the full display snapshot with its selection position**, so browsing can restore the surrounding screen. Keep this in mind when capturing private material. The history limit and **Clear capture history…** remove these backgrounds too; pins are stored separately.
 
 Your preferences and library remain on this Mac. GIF clipboard attachments are cached locally and older copies expire when new copies are made.
 

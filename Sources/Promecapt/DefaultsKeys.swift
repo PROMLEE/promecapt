@@ -7,4 +7,5 @@ enum DefaultsKey {
     static let autoSelectAnnotations = "autoSelectAnnotations", autoCopy = "autoCopy", showDashboard = "showDashboard"
     static let rememberRegion = "rememberRegion", gifShowsCursor = "gifShowsCursor", gifMaxDimension = "gifMaxDimension"
     static let gifFrameRate = "gifFrameRate", gifDuration = "gifDuration", autoDetectTargets = "autoDetectTargets"
+    static let imageSaveFormat = "imageSaveFormat"
 }

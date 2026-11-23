@@ -31,6 +31,7 @@ Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/README.md
 | **Pin** | Floating images and animated GIFs, zoom, opacity and groups |
 | **OCR** | Select a text region; recognize Korean and English locally |
 | **GIF** | 5–30 fps, resolution / duration controls, preview, copy, pin and save |
+| **Save** | PNG, JPEG or TIFF from a format menu that remembers your choice; date-and-time file names |
 
 UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.md) · [Manual & optional automatic updates](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/AUTO-UPDATE.md) from 1.1.0. Install 1.1.0 manually once if upgrading from 1.0.0.
 
@@ -273,6 +274,12 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 
 In the OCR result window, Command-C copies selected text, or all text when nothing is selected, and closes the window after a successful copy. Copy all also closes the window. An empty result leaves the clipboard unchanged.
 
+## Saving images
+
+The save panel suggests a name with the local date and time, such as `Promecapt 2026-11-23 20.41.05.png`, so saved files sort in capture order. GIF results use the same pattern with `.gif`.
+
+Choose **PNG**, **JPEG** or **TIFF** from the panel's **Format** menu. Changing the format updates the file name extension and keeps the rest of the name you typed. Typing a supported extension yourself also selects that format. The next save starts with the format you last saved; PNG is the default. JPEG has no transparency.
+
 
 ---
 
@@ -289,6 +296,7 @@ Source: https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/FEATURES.m
 | OCR | Full capture or smaller selected region; editable result; local Vision processing | Korean and English recognition; UI languages are separate |
 | History | Comma / period traversal, full screen context and original selection | Old cropped-only entries use the current desktop background |
 | GIF | Configurable fps, long edge, time limit and cursor; region overlay; preview, copy, animated pin, save | One display, no audio or Promecapt windows; no GIF annotation/rotation/frame editing; temporary-frame budget |
+| Saving | PNG / JPEG / TIFF format menu, remembered last format, readable date-and-time names for images and GIFs | JPEG has no transparency; GIFs save as GIF only |
 | Languages | Korean, English, Japanese, Simplified Chinese; automatic or manual choice | Existing editors use their creation-time language; native OS dialogs follow macOS |
 | Distribution | Apple Silicon and Intel DMG / ZIP; ZIP installation offer; optional SHA-256 checksums; MIT | Persistent self-signed certificate from 1.1.2; not Apple notarized |
 | Updates | Manual checks; optional automatic download, installation and relaunch via Sparkle | Stable releases only; 1.0.0 needs one manual installation; first migration from ad-hoc signing may require permission refresh |

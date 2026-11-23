@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Choose PNG, JPEG or TIFF from a Format menu in the save panel. The file name extension follows the menu, and the next save starts with the format you last saved.
+- Suggest readable, sortable names such as `Promecapt 2026-11-23 20.41.05.png` for saved images and GIFs instead of a numeric timestamp.
+
 ## 1.1.14
 
 - Move the capture shortcut panel to the farthest screen corner when the pointer reaches it while choosing or dragging a region.

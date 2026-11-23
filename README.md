@@ -22,6 +22,7 @@
 | **Pin** | Floating images and animated GIFs, zoom, opacity and groups |
 | **OCR** | Select a text region; recognize Korean and English locally |
 | **GIF** | 5–30 fps, resolution / duration controls, preview, copy, pin and save |
+| **Save** | PNG, JPEG or TIFF from a format menu that remembers your choice; date-and-time file names |
 
 UI: 한국어 · English · 日本語 · 简体中文. [Feature limits](docs/FEATURES.md) · [Manual & optional automatic updates](docs/AUTO-UPDATE.md) from 1.1.0. Install 1.1.0 manually once if upgrading from 1.0.0.
 

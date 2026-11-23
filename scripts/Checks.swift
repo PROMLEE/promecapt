@@ -630,6 +630,31 @@ import ImageIO
             check(CaptureHelpPlacement.dodgeOrigin(frame: NSRect(origin: dodged, size: helpFrame.size), pointer: NSPoint(x: 100, y: 100), safe: helpSafe) == nil,
                   "moved shortcut panel stays clear of the pointer")
         }
+        let dockSafe = CaptureHelpPlacement.localSafeRect(visibleFrame: NSRect(x: -1920, y: -130, width: 1920, height: 1010),
+            screenFrame: NSRect(x: -1920, y: -200, width: 1920, height: 1080), bounds: NSRect(x: 0, y: 0, width: 1920, height: 1080))
+        check(dockSafe == NSRect(x: 0, y: 70, width: 1920, height: 1010), "shortcut panel safe area follows a secondary display at negative coordinates")
+        let dockFrame = NSRect(x: 12, y: 82, width: 330, height: 328)
+        let dockDodge = CaptureHelpPlacement.dodgeOrigin(frame: dockFrame, pointer: NSPoint(x: 60, y: 120), safe: dockSafe)
+        check(dockDodge == NSPoint(x: 1920 - 12 - 330, y: 1080 - 12 - 328), "shortcut panel dodges within the visible area above the Dock")
+        check(CaptureHelpPlacement.dodgeOrigin(frame: helpFrame, pointer: NSPoint(x: 0, y: 0), safe: helpSafe) != nil,
+              "shortcut panel moves when the pointer reaches the screen edge beside it")
+        let everywhere = NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let covered = CaptureHelpPlacement.dodgeOrigin(frame: helpFrame, pointer: NSPoint(x: 100, y: 100), safe: helpSafe, avoid: everywhere)
+        check(covered.map { !NSRect(origin: $0, size: helpFrame.size).insetBy(dx: -12, dy: -12).contains(NSPoint(x: 100, y: 100)) } == true,
+              "shortcut panel still leaves the pointer when the selection covers every corner")
+        let collapsedFrame = NSRect(x: 12, y: 12, width: 330, height: 32)
+        check(CaptureHelpPlacement.dodgeOrigin(frame: collapsedFrame, pointer: NSPoint(x: 150, y: 30), safe: helpSafe) == NSPoint(x: 1440 - 12 - 330, y: 900 - 12 - 32),
+              "collapsed shortcut panel dodges to the far corner")
+        check(CaptureHelpPlacement.dodgeOrigin(frame: NSRect(x: 12, y: 12, width: 330, height: 328), pointer: NSPoint(x: 180, y: 180),
+              safe: NSRect(x: 0, y: 0, width: 360, height: 360)) == nil,
+              "shortcut panel does not jump when no corner is clear of the pointer")
+        let topFrame = NSRect(x: 1098, y: 560, width: 330, height: 328)
+        check(CaptureHelpPlacement.resizedOrigin(frame: topFrame, to: NSSize(width: 330, height: 32), safe: helpSafe) == NSPoint(x: 1098, y: 856),
+              "collapsing a shortcut panel in a top corner keeps its header in place")
+        check(CaptureHelpPlacement.resizedOrigin(frame: NSRect(x: 1098, y: 856, width: 330, height: 32), to: NSSize(width: 330, height: 328), safe: helpSafe) == NSPoint(x: 1098, y: 560),
+              "expanding a shortcut panel in a top corner grows downward")
+        check(CaptureHelpPlacement.resizedOrigin(frame: helpFrame, to: NSSize(width: 330, height: 32), safe: helpSafe) == NSPoint(x: 12, y: 12),
+              "collapsing a shortcut panel in a bottom corner keeps its bottom edge")
         let retinaBitmap = Imaging.render(size: NSSize(width: 200, height: 120)) {}
         let retinaPin = PinController(image: retinaBitmap, pixelScale: 2)
         check(retinaPin.pointSize == NSSize(width: 100, height: 60) && retinaPin.window?.contentLayoutRect.size == NSSize(width: 100, height: 60),

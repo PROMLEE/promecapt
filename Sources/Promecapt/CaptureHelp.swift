@@ -90,6 +90,16 @@ final class CaptureHelpView: NSView {
 /// Moves the shortcut panel out of the pointer's way while the user is choosing or dragging a region.
 enum CaptureHelpPlacement {
     static let inset: CGFloat = 12
+    /// The screen's visible area (without menu bar and Dock) in the capture view's local coordinates.
+    /// Works for displays at negative or vertically arranged global coordinates.
+    static func localSafeRect(visibleFrame: NSRect, screenFrame: NSRect, bounds: NSRect) -> NSRect {
+        visibleFrame.offsetBy(dx: -screenFrame.minX, dy: -screenFrame.minY).intersection(bounds)
+    }
+    /// The origin after the panel is collapsed or expanded. A panel in the upper half of `safe` keeps its top edge,
+    /// so the header stays under the pointer; one in the lower half keeps its bottom edge.
+    static func resizedOrigin(frame: NSRect, to size: NSSize, safe: NSRect) -> NSPoint {
+        NSPoint(x: frame.minX, y: frame.midY > safe.midY ? frame.maxY - size.height : frame.minY)
+    }
     /// Returns a new origin when the pointer comes within `margin` of `frame`, otherwise nil.
     /// The panel goes to the corner of `safe` farthest from the pointer, preferring corners clear of `avoid`.
     static func dodgeOrigin(frame: NSRect, pointer: NSPoint, safe: NSRect, avoid: NSRect? = nil, margin: CGFloat = 12) -> NSPoint? {

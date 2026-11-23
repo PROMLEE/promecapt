@@ -610,6 +610,22 @@ import ImageIO
         check(recovered.entries.map(\.id) == [kept.id] && recovered.image(kept) != nil, "damaged history index is rebuilt from saved captures")
         let quarantined = try FileManager.default.contentsOfDirectory(atPath: root.path).filter { $0.hasPrefix("history.corrupt-") }
         check(quarantined.count == 1, "damaged history index is kept beside the library")
+        let helpSafe = NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let helpFrame = NSRect(x: 12, y: 12, width: 330, height: 328)
+        check(CaptureHelpPlacement.dodgeOrigin(frame: helpFrame, pointer: NSPoint(x: 700, y: 450), safe: helpSafe) == nil,
+              "shortcut panel stays put while the pointer is elsewhere")
+        let dodged = CaptureHelpPlacement.dodgeOrigin(frame: helpFrame, pointer: NSPoint(x: 100, y: 100), safe: helpSafe)
+        check(dodged == NSPoint(x: 1440 - 12 - 330, y: 900 - 12 - 328), "shortcut panel jumps to the corner farthest from the pointer")
+        check(CaptureHelpPlacement.dodgeOrigin(frame: helpFrame, pointer: NSPoint(x: 350, y: 200), safe: helpSafe) != nil,
+              "shortcut panel moves before the pointer reaches its edge")
+        let clearOfSelection = CaptureHelpPlacement.dodgeOrigin(frame: helpFrame, pointer: NSPoint(x: 100, y: 100), safe: helpSafe,
+            avoid: NSRect(x: 900, y: 400, width: 500, height: 480))
+        check(clearOfSelection.map { !NSRect(origin: $0, size: helpFrame.size).intersects(NSRect(x: 900, y: 400, width: 500, height: 480)) } == true,
+              "shortcut panel prefers a corner that does not cover the selection")
+        if let dodged {
+            check(CaptureHelpPlacement.dodgeOrigin(frame: NSRect(origin: dodged, size: helpFrame.size), pointer: NSPoint(x: 100, y: 100), safe: helpSafe) == nil,
+                  "moved shortcut panel stays clear of the pointer")
+        }
         let retinaBitmap = Imaging.render(size: NSSize(width: 200, height: 120)) {}
         let retinaPin = PinController(image: retinaBitmap, pixelScale: 2)
         check(retinaPin.pointSize == NSSize(width: 100, height: 60) && retinaPin.window?.contentLayoutRect.size == NSSize(width: 100, height: 60),

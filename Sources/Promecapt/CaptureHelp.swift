@@ -83,5 +83,31 @@ final class CaptureHelpView: NSView {
         onMove?(NSPoint(x: point.x - previous.x, y: point.y - previous.y))
     }
     override func mouseUp(with event: NSEvent) { dragPoint = nil }
+    var isBeingDragged: Bool { dragPoint != nil }
     override func scrollWheel(with event: NSEvent) {}
+}
+
+/// Moves the shortcut panel out of the pointer's way while the user is choosing or dragging a region.
+enum CaptureHelpPlacement {
+    static let inset: CGFloat = 12
+    /// Returns a new origin when the pointer comes within `margin` of `frame`, otherwise nil.
+    /// The panel goes to the corner of `safe` farthest from the pointer, preferring corners clear of `avoid`.
+    static func dodgeOrigin(frame: NSRect, pointer: NSPoint, safe: NSRect, avoid: NSRect? = nil, margin: CGFloat = 12) -> NSPoint? {
+        guard frame.insetBy(dx: -margin, dy: -margin).contains(pointer) else { return nil }
+        let area = safe.insetBy(dx: inset, dy: inset)
+        let size = frame.size
+        let corners = [NSPoint(x: area.minX, y: area.minY), NSPoint(x: area.maxX - size.width, y: area.minY),
+                       NSPoint(x: area.minX, y: area.maxY - size.height), NSPoint(x: area.maxX - size.width, y: area.maxY - size.height)]
+        func score(_ origin: NSPoint) -> (Bool, CGFloat) {
+            let rect = NSRect(origin: origin, size: size)
+            let clear = !(avoid.map { rect.intersects($0) } ?? false)
+            return (clear, hypot(rect.midX - pointer.x, rect.midY - pointer.y))
+        }
+        let candidates = corners.filter { !NSRect(origin: $0, size: size).insetBy(dx: -margin, dy: -margin).contains(pointer) }
+        guard let best = candidates.max(by: { a, b in
+            let (ca, da) = score(a), (cb, db) = score(b)
+            return ca != cb ? !ca : da < db
+        }), best != frame.origin else { return nil }
+        return best
+    }
 }

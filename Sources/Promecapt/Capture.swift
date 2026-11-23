@@ -382,6 +382,7 @@ final class CaptureView: NSView {
         guard interactionActive, let window, window.isVisible, NSApp.isActive else { return }
         let p = convert(location ?? window.mouseLocationOutsideOfEventStream, from: nil)
         guard bounds.contains(p) else { return }
+        dodgeHelp(from: p)
         if shortcutHelp.frame.contains(p) { NSCursor.arrow.set(); return }
         if !bar.isHidden && bar.frame.contains(p) { NSCursor.arrow.set() }
         else if canvas.isSelectingOCR && selection.rect.contains(p) { NSCursor.crosshair.set() }
@@ -460,11 +461,25 @@ final class CaptureView: NSView {
             OCRResultController.present(canvas.ocrImage(in: rect), parent: window)
         }
     }
-    private func positionHelp() {
+    private var helpSafeRect: NSRect {
         let screen = surface.screen
-        let safe = screen.visibleFrame.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY).intersection(bounds)
+        return screen.visibleFrame.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY).intersection(bounds)
+    }
+    /// While a region is being chosen or dragged, the panel never sits under the pointer.
+    /// With a finished selection it stays put so it can be collapsed or moved.
+    private func dodgeHelp(from p: NSPoint) {
+        guard !shortcutHelp.isHidden, !shortcutHelp.isBeingDragged, !selection.isValid || dragging,
+              let origin = CaptureHelpPlacement.dodgeOrigin(frame: shortcutHelp.frame, pointer: p, safe: helpSafeRect,
+                  avoid: selection.isValid ? selection.rect : nil) else { return }
+        helpOrigin = origin
+        positionHelp()
+        window?.invalidateCursorRects(for: self)
+    }
+    private func positionHelp() {
+        let safe = helpSafeRect
         let size = shortcutHelp.preferredSize
-        let origin = AnnotationBar.constrainedOrigin(helpOrigin ?? NSPoint(x: safe.minX + 12, y: safe.minY + 12), size: size, within: safe)
+        let inset = CaptureHelpPlacement.inset
+        let origin = AnnotationBar.constrainedOrigin(helpOrigin ?? NSPoint(x: safe.minX + inset, y: safe.minY + inset), size: size, within: safe)
         shortcutHelp.frame = NSRect(origin: origin, size: size)
         if helpOrigin != nil { helpOrigin = origin }
     }

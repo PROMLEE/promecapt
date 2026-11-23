@@ -235,14 +235,21 @@ final class CaptureView: NSView {
         shade.owner = self
         shade.autoresizingMask = [.width, .height]
         addSubview(shade)
-        addSubview(bar)
         addSubview(shortcutHelp)
+        // The toolbar sits above the reference panel so its buttons are never covered by it.
+        addSubview(bar)
         shortcutHelp.onMove = { [weak self] delta in
             guard let self else { return }
             self.helpOrigin = NSPoint(x: self.shortcutHelp.frame.minX + delta.x, y: self.shortcutHelp.frame.minY + delta.y)
             self.positionHelp()
         }
-        shortcutHelp.onResize = { [weak self] in self?.positionHelp() }
+        shortcutHelp.onResize = { [weak self] in
+            guard let self else { return }
+            // Keep the header where it was clicked: a panel in the upper half keeps its top edge.
+            self.helpOrigin = CaptureHelpPlacement.resizedOrigin(frame: self.shortcutHelp.frame,
+                to: self.shortcutHelp.preferredSize, safe: self.helpSafeRect)
+            self.positionHelp()
+        }
         positionHelp()
         bar.isHidden = true
         bar.onCaptureSize = { [weak self] size in
@@ -329,8 +336,8 @@ final class CaptureView: NSView {
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        if shortcutHelp.frame.contains(point) { return shortcutHelp.hitTest(point) ?? shortcutHelp }
         if !bar.isHidden && bar.frame.contains(point) { return bar.hitTest(point) ?? bar }
+        if shortcutHelp.frame.contains(point) { return shortcutHelp.hitTest(point) ?? shortcutHelp }
         if let input = canvas.activeTextInput, input.window === window, input.frame.contains(point) { return canvas.hitTest(point) }
         if canvas.isSelectingOCR, selection.isValid, selection.rect.contains(point) { return canvas.hitTest(point) }
         if tool != nil && selection.isValid && selection.handle(at: point) == nil && selection.rect.insetBy(dx: 5, dy: 5).contains(point) {
@@ -462,8 +469,7 @@ final class CaptureView: NSView {
         }
     }
     private var helpSafeRect: NSRect {
-        let screen = surface.screen
-        return screen.visibleFrame.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY).intersection(bounds)
+        CaptureHelpPlacement.localSafeRect(visibleFrame: surface.screen.visibleFrame, screenFrame: surface.screen.frame, bounds: bounds)
     }
     /// While a region is being chosen or dragged, the panel never sits under the pointer.
     /// With a finished selection it stays put so it can be collapsed or moved.
@@ -489,9 +495,7 @@ final class CaptureView: NSView {
         var origin = NSPoint(x: selection.rect.maxX - size.width, y: selection.rect.minY - size.height - 8)
         if origin.y < 8 { origin.y = min(bounds.maxY - size.height - 8, selection.rect.maxY + 8) }
         origin.x = min(bounds.maxX - size.width - 8, max(8, origin.x))
-        let screen = surface.screen
-        let safe = screen.visibleFrame.offsetBy(dx: -screen.frame.minX, dy: -screen.frame.minY).intersection(bounds)
-        origin = AnnotationBar.constrainedOrigin(manualBarOrigin ?? origin, size: size, within: safe)
+        origin = AnnotationBar.constrainedOrigin(manualBarOrigin ?? origin, size: size, within: helpSafeRect)
         if manualBarOrigin != nil { manualBarOrigin = origin }
         bar.frame = NSRect(origin: origin, size: size)
     }

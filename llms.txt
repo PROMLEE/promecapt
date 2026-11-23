@@ -43,3 +43,4 @@ Processing is local. History includes full display snapshots. UI languages: Kore
 
 - [Consolidated guide](https://raw.githubusercontent.com/PROMLEE/promecapt/main/llms-full.txt): English overview, full local installation guide, feature limits, security and license in one file.
 - [Updates](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/AUTO-UPDATE.md): Manual and optional automatic download, installation and relaunch; signing and release setup.
+- [업데이트 안내](https://raw.githubusercontent.com/PROMLEE/promecapt/main/docs/AUTO-UPDATE.ko.md): 수동·선택적 자동 업데이트, 서명과 배포 설정.

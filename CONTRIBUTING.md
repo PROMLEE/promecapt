@@ -10,13 +10,13 @@ Keep pull requests focused on one behavior and describe the problem, resulting b
 
 ## Translations
 
-The UI catalog is `Sources/Promecapt/Resources/Translations.json`. Korean source strings are stable lookup keys; the catalog contains `en`, `ja` and `zh-Hans`. Keep every `{0}`, `{1}`, etc. placeholder exactly once wherever the source uses it. Translate the surrounding sentence freely. Run `python3 scripts/check-localization.py`.
+The UI catalog is `Sources/Promecapt/Resources/Translations.json`. Korean source strings are stable lookup keys; the catalog contains `en`, `ja` and `zh-Hans`. Keep every `{0}`, `{1}`, etc. placeholder exactly once wherever the source uses it. Translate the surrounding sentence freely, keeping line breaks and a trailing `…` where the source has them. Run `python3 scripts/check-localization.py`; it also fails on catalog keys that no source file uses any more, and `--prune` removes them.
 
 Persisted `DrawingTool` and `ConcealStyle` raw values are data-format identifiers: do not translate or rename them. Localize their labels at the UI boundary. Keep all four READMEs aligned when changing installation steps, privacy behavior or supported features. Existing editors use their creation-time language; new windows and menus follow the selected language immediately.
 
 ## Documentation
 
-Keep the four READMEs aligned and update the installation guides when build or permission steps change. Run `python3 scripts/generate-llms.py` after changing documentation, then `python3 scripts/check-docs.py`. The generated `llms.txt` index, `llm.txt` compatibility entry and `llms-full.txt` consolidated guide must stay in sync with their source files; CI checks freshness and repository links.
+Keep the four READMEs aligned and update the installation guides when build or permission steps change. Run `python3 scripts/generate-llms.py` after changing documentation, then `python3 scripts/check-docs.py`. The generated `llms.txt` index, `llm.txt` compatibility entry and `llms-full.txt` consolidated guide must stay in sync with their source files; CI checks freshness, repository links and anchors, the current version from `.release-version`, four-language update notes, and that bold menu / button names ending in `…` match the UI catalog.
 
 ## Issues and security
 

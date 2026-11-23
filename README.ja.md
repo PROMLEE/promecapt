@@ -23,7 +23,7 @@
 | **OCR** | 選択領域の韓国語・英語をローカル認識 |
 | **GIF** | 5〜30fps、解像度・時間設定、プレビュー・コピー・固定・保存 |
 
-UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英語）](docs/FEATURES.md) · 1.1.0から[手動・任意の自動更新](docs/AUTO-UPDATE.md)に対応。1.0.0からは一度手動でインストールしてください。
+UI: 한국어 · English · 日本語 · 简体中文。[機能の制限（英語）](docs/FEATURES.md) · 1.1.0から[手動・任意の自動更新（英語）](docs/AUTO-UPDATE.md)に対応。1.0.0からは一度手動でインストールしてください。
 
 <details>
 <summary>GIF設定</summary>
@@ -71,7 +71,7 @@ open "$HOME/Applications/Promecapt.app"
 
 ## ドキュメント
 
-[インストール](docs/INSTALL.md) · [使い方](docs/USAGE.md) · [貢献ガイド](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
+[インストール（英語）](docs/INSTALL.md) · [使い方（英語）](docs/USAGE.md) · [貢献ガイド](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [llms.txt](llms.txt)
 
 画像・OCRはローカル処理。アップロード・分析収集なし。履歴には画面全体も保存されます。[保存とプライバシー（英語）](docs/USAGE.md#privacy--storage)。
 

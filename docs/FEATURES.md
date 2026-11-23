@@ -9,6 +9,7 @@
 | OCR | Full capture or smaller selected region; editable result; local Vision processing | Korean and English recognition; UI languages are separate |
 | History | Comma / period traversal, full screen context and original selection | Old cropped-only entries use the current desktop background |
 | GIF | Configurable fps, long edge, time limit and cursor; region overlay; preview, copy, animated pin, save | One display, no audio or Promecapt windows; no GIF annotation/rotation/frame editing; temporary-frame budget |
+| Saving | PNG / JPEG / TIFF format menu, remembered last format, readable date-and-time names for images and GIFs | JPEG has no transparency; GIFs save as GIF only |
 | Languages | Korean, English, Japanese, Simplified Chinese; automatic or manual choice | Existing editors use their creation-time language; native OS dialogs follow macOS |
 | Distribution | Apple Silicon and Intel DMG / ZIP; ZIP installation offer; optional SHA-256 checksums; MIT | Persistent self-signed certificate from 1.1.2; not Apple notarized |
 | Updates | Manual checks; optional automatic download, installation and relaunch via Sparkle | Stable releases only; 1.0.0 needs one manual installation; first migration from ad-hoc signing may require permission refresh |

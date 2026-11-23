@@ -70,3 +70,9 @@ Drag empty space in a capture or pin-edit toolbar to move it. The position is re
 ## OCR copy — 1.1.10
 
 In the OCR result window, Command-C copies selected text, or all text when nothing is selected, and closes the window after a successful copy. Copy all also closes the window. An empty result leaves the clipboard unchanged.
+
+## Saving images
+
+The save panel suggests a name with the local date and time, such as `Promecapt 2026-11-23 20.41.05.png`, so saved files sort in capture order. GIF results use the same pattern with `.gif`.
+
+Choose **PNG**, **JPEG** or **TIFF** from the panel's **Format** menu. Changing the format updates the file name extension and keeps the rest of the name you typed. Typing a supported extension yourself also selects that format. The next save starts with the format you last saved; PNG is the default. JPEG has no transparency.

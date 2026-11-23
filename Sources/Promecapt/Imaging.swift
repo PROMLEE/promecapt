@@ -143,15 +143,15 @@ enum Imaging {
 }
 
 func saveImage(_ image: NSImage, parent: NSWindow? = nil) {
-    let panel = NSSavePanel()
-    panel.allowedContentTypes = [.png, .jpeg, .tiff]
-    panel.nameFieldStringValue = "Promecapt-\(Int(Date().timeIntervalSince1970)).png"
+    let controller = ImageSavePanelController()
+    let panel = controller.panel
     let save: (NSApplication.ModalResponse) -> Void = { response in
         guard response == .OK, let url = panel.url, let rep = Imaging.bitmap(image) else { return }
-        let format: NSBitmapImageRep.FileType = ["jpg", "jpeg"].contains(url.pathExtension.lowercased()) ? .jpeg : (url.pathExtension.lowercased() == "tiff" ? .tiff : .png)
+        let format = controller.format(for: url)
         do {
-            guard let data = rep.representation(using: format, properties: [.compressionFactor: 0.95]) else { return }
+            guard let data = rep.representation(using: format.bitmapType, properties: [.compressionFactor: 0.95]) else { return }
             try data.write(to: url, options: .atomic)
+            ImageSaveFormat.preferred = format
         } catch { showError(error.localizedDescription) }
     }
     if let parent { panel.beginSheetModal(for: parent, completionHandler: save) }

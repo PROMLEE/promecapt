@@ -31,7 +31,7 @@ enum GIFMedia {
     }
     static func save(_ data: Data) {
         let panel = NSSavePanel(); panel.allowedContentTypes = [.gif]
-        panel.nameFieldStringValue = "Promecapt-\(Int(Date().timeIntervalSince1970)).gif"
+        panel.nameFieldStringValue = SaveFileName.suggested(extension: "gif")
         if panel.runModal() == .OK, let url = panel.url {
             do { try data.write(to: url, options: .atomic) }
             catch { showError(L("GIF 저장 실패: {0}", error.localizedDescription)) }
